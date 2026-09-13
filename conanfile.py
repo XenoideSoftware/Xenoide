@@ -24,8 +24,9 @@ class xenoideRecipe(ConanFile):
         "with_engine": [True, False],
         "with_tests": [True, False],
     }
+
     default_options = {
-        "with_ide": False,
+        "with_ide": True,
         "with_engine": True,
         "with_tests": True,
     }
@@ -36,14 +37,15 @@ class xenoideRecipe(ConanFile):
     def layout(self):
         cmake_layout(self)
 
-    def build_requirements(self):
-        pass
-        """
-        if self.options.with_docs:
-            self.tool_requires("doxygen/[>=1.9 <2]")
-        """
+    def requirements(self):        
+        # required by all
+        if self.options.with_tests:
+            self.requires("catch2/3.14.0")
 
-    def requirements(self):
+        # required by the ide 
+        self.requires("scintilla3/3.7.6")
+        self.requires("winlamb/2026.06.24")
+
         # required by the engine
         self.requires("fmt/[>=11 <12]")
         self.requires("ms-gsl/4.2.0")
@@ -53,10 +55,6 @@ class xenoideRecipe(ConanFile):
         self.requires("backport-cpp/1.2.0")
         self.requires("tl-expected/1.2.0")
         self.requires("gsl-lite/1.1.0")
-
-        # required by both
-        if self.options.with_tests:
-            self.requires("catch2/3.14.0")
 
         """
         self.requires("imgui/1.92.2b")

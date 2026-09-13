@@ -37,9 +37,9 @@ option (XE_DEV_SANITIZER_ENABLE     "Enable sanitizer usage" OFF)
 option (XE_DEV_COVERAGE_ENABLE      "Instrument code for code coverage reporting during unit tests" OFF)
 
 # Which sanitizer to use
-set (XE_DEV_SANITIZER "" CACHE STRING "")
-if (XE_DEV_SANITIZER_ENABLE AND XE_DEV_SANITIZER STREQUAL "")
-    message (WARNING "[Xenoide] XE_DEV_SANITIZER_ENABLE is OFF, but XE_DEV_SANITIZER is set to '${XE_DEV_SANITIZER}'. Sanitizer will not be used.")
+set (XE_DEV_SANITIZER_TOOL "" CACHE STRING "")
+if (XE_DEV_SANITIZER_ENABLE AND XE_DEV_SANITIZER_TOOL STREQUAL "")
+    message (WARNING "[Xenoide] XE_DEV_SANITIZER_ENABLE is OFF, but XE_DEV_SANITIZER_TOOL is set to '${XE_DEV_SANITIZER_TOOL}'. Sanitizer will not be used.")
 endif()
 
 if (XE_DEV_TESTING_ENABLE)

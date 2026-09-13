@@ -34,6 +34,6 @@ if (XE_DEV_COVERAGE_ENABLE)
 endif() 
 
 if (XE_DEV_SANITIZER_ENABLE)
-    target_compile_options(${target} INTERFACE -fsanitize=${XE_DEV_SANITIZER})
-    target_link_options(${target} INTERFACE -fsanitize=${XE_DEV_SANITIZER})
+    target_compile_options(${target} INTERFACE -fsanitize=${XE_DEV_SANITIZER_TOOL})
+    target_link_options(${target} INTERFACE -fsanitize=${XE_DEV_SANITIZER_TOOL})
 endif()
