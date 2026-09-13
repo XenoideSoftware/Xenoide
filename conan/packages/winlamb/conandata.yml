@@ -1,0 +1,16 @@
+sources:
+  "2026.06.24":
+    url: "https://github.com/XenoideSoftware/winlamb.git"
+    commit: "8b10b59bd7ffe690f4b8a6a4aada844c8da57ca6"
+  "2026.04.26":
+    url: "https://github.com/XenoideSoftware/winlamb.git"
+    commit: "2cb82be918210b36ea8659be5f24fe5c2da2a351"
+  "2026.04.24":
+    url: "https://github.com/XenoideSoftware/winlamb.git"
+    commit: "3be70ad5e92060d367ffd25407efe2b1bc16f128"
+  "20251031":
+    url: "https://github.com/rodrigocfd/winlamb/archive/bdc4f36.zip"
+    sha256: "ecaae20741834cb23d6b4a33a1a47a88c65db1d2ee0e9aeef62c7540f17cb36a"
+  "20230707":
+    url: "https://github.com/rodrigocfd/winlamb/archive/3db0753.zip"
+    sha256: "4c4f50689fc6ad52c964b3068221f7807a69a38f959bd351c489923b62f406ee"

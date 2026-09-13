@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.15)
+project(glaze_apis C)
+
+{% for api in apis %}
+add_library(glaze_{{ api }} {{ lib_type }} {{ out_dir }}/src/{{ api }}.c)
+target_include_directories(glaze_{{ api }} PUBLIC $<BUILD_INTERFACE:{{ out_dir }}/include>)
+target_include_directories(glaze_{{ api }} INTERFACE $<INSTALL_INTERFACE:include>)
+{% if shared %}
+target_compile_definitions(glaze_{{ api }} PRIVATE GLAZE_BUILD_DLL)
+{% endif %}
+if(GLAZE_DEBUG)
+    target_compile_definitions(glaze_{{ api }} PRIVATE GLAZE_DEBUG)
+endif()
+
+# Header-only RAII smart-pointer wrappers for {{ api }} resources.
+add_library(glaze_{{ api }}_raii INTERFACE)
+target_link_libraries(glaze_{{ api }}_raii INTERFACE glaze_{{ api }})
+target_include_directories(glaze_{{ api }}_raii INTERFACE
+    $<BUILD_INTERFACE:{{ out_dir }}/include>
+    $<INSTALL_INTERFACE:include>)
+
+# Header-only enriched-handle wrappers for legacy {{ api }} commands.
+add_library(glaze_{{ api }}_handle INTERFACE)
+target_link_libraries(glaze_{{ api }}_handle INTERFACE glaze_{{ api }})
+target_include_directories(glaze_{{ api }}_handle INTERFACE
+    $<BUILD_INTERFACE:{{ out_dir }}/include>
+    $<INSTALL_INTERFACE:include>)
+
+{% endfor %}

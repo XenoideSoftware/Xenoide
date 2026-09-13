@@ -1,0 +1,31 @@
+sources:
+  "5.5.8":
+    url: "https://www.scintilla.org/scintilla558.tgz"
+  "5.5.7":
+    url: "https://www.scintilla.org/scintilla557.tgz"
+  "5.5.6":
+    url: "https://www.scintilla.org/scintilla556.tgz"
+  "5.5.5":
+    url: "https://www.scintilla.org/scintilla555.tgz"
+  "5.5.4":
+    url: "https://www.scintilla.org/scintilla554.tgz"
+  "5.5.3":
+    url: "https://www.scintilla.org/scintilla553.tgz"
+  "5.5.2":
+    url: "https://www.scintilla.org/scintilla552.tgz"
+  "5.5.1":
+    url: "https://www.scintilla.org/scintilla551.tgz"
+  "5.5.0":
+    url: "https://www.scintilla.org/scintilla550.tgz"
+  "5.4.3":
+    url: "https://www.scintilla.org/scintilla543.tgz"
+  "5.4.2":
+    url: "https://www.scintilla.org/scintilla542.tgz"
+  "5.4.1":
+    url: "https://www.scintilla.org/scintilla541.tgz"
+  "5.4.0":
+    url: "https://www.scintilla.org/scintilla540.tgz"
+  "5.3.7":
+    url: "https://www.scintilla.org/scintilla537.tgz"
+  "5.3.6":
+    url: "https://www.scintilla.org/scintilla536.tgz"

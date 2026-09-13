@@ -1,0 +1,13 @@
+sources:
+  "10.2":
+    url: "https://github.com/DavidNash2024/Win32xx.git"
+    commit: "395bc45bc691d1706c640b7cbac39dadcabcbdcc"
+  "10.1":
+    url: "https://github.com/DavidNash2024/Win32xx.git"
+    commit: "b3579a6a92e308f5ccae29a68cd942ec99916c44"
+  "10.0":
+    url: "https://github.com/DavidNash2024/Win32xx.git"
+    commit: "f0ef139959bd3ff50e774646f9207113d405ef40"
+  "9.6.1":
+    url: "https://github.com/DavidNash2024/Win32xx.git"
+    commit: "baf8efe3226de1fe67cf23d5876ca60e623d0883"

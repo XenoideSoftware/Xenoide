@@ -1,0 +1,15 @@
+include(default)
+
+[settings]
+compiler.cppstd=20
+
+[options]
+qt/*:shared=True
+qt/*:qt5compat=True
+qt/*:qtshadertools=True
+qt/*:with_sqlite3=False
+cpython/*:with_gdbm=False
+cpython/*:with_tkinter=False
+
+[buildenv]
+CMAKE_POLICY_VERSION_MINIMUM=3.5

@@ -1,0 +1,82 @@
+diff --git a/win32/PlatWin.cxx b/win32/PlatWin.cxx
+index f1d73c2..8983759 100644
+--- a/win32/PlatWin.cxx
++++ b/win32/PlatWin.cxx
+@@ -20,9 +20,10 @@
+ #include <memory>
+ 
+ #undef _WIN32_WINNT
+-#define _WIN32_WINNT 0x0500
++#define _WIN32_WINNT 0x0410
+ #undef WINVER
+-#define WINVER 0x0500
++#define WINVER 0x0410
++#define _WIN32_WINDOWS 0x0410
+ #include <windows.h>
+ #include <commctrl.h>
+ #include <richedit.h>
+diff --git a/win32/ScintillaWin.cxx b/win32/ScintillaWin.cxx
+index 81f288c..ffb5cd5 100644
+--- a/win32/ScintillaWin.cxx
++++ b/win32/ScintillaWin.cxx
+@@ -23,10 +23,12 @@
+ #include <memory>
+ 
+ #undef _WIN32_WINNT
+-#define _WIN32_WINNT 0x0500
++#define _WIN32_WINNT 0x0410
+ #undef WINVER
+-#define WINVER 0x0500
++#define WINVER 0x0410
++#define _WIN32_WINDOWS 0x0410
+ #include <windows.h>
++#include <winuser.h>
+ #include <commctrl.h>
+ #include <richedit.h>
+ #include <windowsx.h>
+@@ -1504,12 +1506,14 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
+ 				return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+ 			}
+ 
++#if _WIN32_WINNT >= 0x0500
+ 		case WM_IME_REQUEST: {
+ 			if (wParam == IMR_RECONVERTSTRING) {
+ 				return ImeOnReconvert(lParam);
+ 			}
+ 			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+ 		}
++#endif
+ 
+ 		case WM_KEYUP:
+ 			//Platform::DebugPrintf("S keyup %d %x %x\n",iMessage, wParam, lParam);
+@@ -1863,7 +1867,9 @@ void ScintillaWin::ScrollText(Sci::Line /* linesToMove */) {
+ }
+ 
+ void ScintillaWin::NotifyCaretMove() {
++#if _WIN32_WINNT >= 0x0500
+ 	NotifyWinEvent(EVENT_OBJECT_LOCATIONCHANGE, MainHWND(), OBJID_CARET, CHILDID_SELF);
++#endif
+ }
+ 
+ void ScintillaWin::UpdateSystemCaret() {
+@@ -3172,7 +3178,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
+ 
+ 	// Register the Scintilla class
+ 	// Register Scintilla as a wide character window
+-	WNDCLASSEXW wndclass;
++	WNDCLASSEXA wndclass;
+ 	wndclass.cbSize = sizeof(wndclass);
+ 	wndclass.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
+ 	wndclass.lpfnWndProc = ScintillaWin::SWndProc;
+@@ -3183,9 +3189,9 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
+ 	wndclass.hCursor = NULL;
+ 	wndclass.hbrBackground = NULL;
+ 	wndclass.lpszMenuName = NULL;
+-	wndclass.lpszClassName = L"Scintilla";
++	wndclass.lpszClassName = "Scintilla";
+ 	wndclass.hIconSm = 0;
+-	scintillaClassAtom = ::RegisterClassExW(&wndclass);
++	scintillaClassAtom = ::RegisterClassExA(&wndclass);
+ 	result = 0 != scintillaClassAtom;
+ 
+ 	if (result) {

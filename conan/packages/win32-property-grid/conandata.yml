@@ -1,0 +1,4 @@
+sources:
+  "2026.04.24":
+    url: "https://github.com/XenoideSoftware/win32-property-grid.git"
+    commit: "d3f1eec6764ace1902ad8bc6e623bc8fd088e25e"

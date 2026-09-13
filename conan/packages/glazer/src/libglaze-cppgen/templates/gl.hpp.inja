@@ -1,0 +1,181 @@
+#pragma once
+/*
+ * {{ generation_header_formatted }}
+ */
+
+#ifndef __GLAZE_{{ api_upper }}_HPP__
+#define __GLAZE_{{ api_upper }}_HPP__
+
+#include <glaze/{{ api }}.h>
+#include <glaze/raii.hpp>
+
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <type_traits>
+
+namespace {{ api }} {
+
+// ── ArrayView<T>: lightweight contiguous-span view used by upload overloads ──
+template <typename T>
+struct ArrayView {
+    const T *ptr;
+    std::size_t count;
+    constexpr ArrayView() noexcept : ptr(nullptr), count(0) {}
+    constexpr ArrayView(const T *p, std::size_t n) noexcept : ptr(p), count(n) {}
+    template <std::size_t N>
+    constexpr ArrayView(const T (&arr)[N]) noexcept : ptr(&arr[0]), count(N) {}
+    constexpr const T *data() const noexcept { return ptr; }
+    constexpr std::size_t size() const noexcept { return count; }
+    constexpr std::size_t size_bytes() const noexcept { return count * sizeof(T); }
+};
+
+// ── Strong handle types ──────────────────────────────────────────────────────
+{% for ht in handle_types %}
+struct {{ ht.name }} {
+    GLuint id = 0;
+    constexpr {{ ht.name }}() = default;
+    constexpr explicit {{ ht.name }}(GLuint v) : id(v) {}
+    constexpr explicit operator bool() const { return id != 0; }
+    friend constexpr bool operator==(const {{ ht.name }}& a, const {{ ht.name }}& b) { return a.id == b.id; }
+    friend constexpr bool operator!=(const {{ ht.name }}& a, const {{ ht.name }}& b) { return a.id != b.id; }
+};
+{% endfor %}
+
+// ── Location types ───────────────────────────────────────────────────────────
+{% for lt in location_types %}
+struct {{ lt.name }} {
+    GLint loc = -1;
+    constexpr {{ lt.name }}() = default;
+    constexpr explicit {{ lt.name }}(GLint v) : loc(v) {}
+    constexpr bool valid() const { return loc >= 0; }
+};
+{% endfor %}
+
+// ── Flags template for bitmask enums ─────────────────────────────────────────
+template <typename E>
+class Flags {
+public:
+    constexpr Flags() = default;
+    constexpr Flags(E e) : bits_(static_cast<GLbitfield>(e)) {}
+    constexpr explicit Flags(GLbitfield v) : bits_(v) {}
+    constexpr GLbitfield value() const { return bits_; }
+    constexpr Flags operator|(Flags rhs) const { return Flags{static_cast<GLbitfield>(bits_ | rhs.bits_)}; }
+    constexpr Flags& operator|=(Flags rhs) { bits_ |= rhs.bits_; return *this; }
+private:
+    GLbitfield bits_ = 0;
+};
+
+// ── Enum classes ─────────────────────────────────────────────────────────────
+{% for ec in enum_classes %}
+enum class {{ ec.group_name }} : {{ ec.base_type }} {
+{% for entry in ec.entries %}
+    {{ entry.name }} = {{ entry.value }}{% if not loop.is_last %},{% endif %}{% if existsIn(entry, "comment") %} /**< {{ entry.comment }} */{% endif %}
+
+{% endfor %}
+};
+{% if ec.is_bitmask %}
+constexpr Flags<{{ ec.group_name }}> operator|({{ ec.group_name }} a, {{ ec.group_name }} b) {
+    return Flags<{{ ec.group_name }}>{a} | Flags<{{ ec.group_name }}>{b};
+}
+{% endif %}
+{% endfor %}
+
+// ── Extension flag variables ─────────────────────────────────────────────────
+{% for ext in extensions %}
+#ifndef {{ ext.guard_macro }}
+extern int {{ ext.flag_var }};
+#endif
+{% endfor %}
+
+namespace exts {
+{% for ext in extensions %}
+#ifndef {{ ext.guard_macro }}
+inline bool {{ ext.short_name }}() { return ::{{ ext.flag_var }} != 0; }
+#endif
+{% endfor %}
+} // namespace exts
+
+// ── Functors ─────────────────────────────────────────────────────────────────
+{% for fn in functors %}
+{% if fn.has_extension_guard %}
+#ifndef {{ fn.guard_macro }}
+{% endif %}
+#if GLAZE_GL_VERSION >= {{ fn.version_int }}
+{% if fn.has_doc_brief %}
+/**
+ * @brief {{ fn.doc_brief }}
+{% for p in fn.doc_params %}
+ * @param {{ p.name }} {{ p.desc }}
+{% endfor %}
+ */
+{% endif %}
+struct {{ fn.struct_name }} {
+{% for ov in fn.overloads %}
+{% if ov.is_template_overload %}
+    template <typename T>
+{% endif %}
+    inline {{ ov.return_type }} operator()({{ ov.params_str }}) const {
+{{ ov.body }}
+    }
+{% endfor %}
+    explicit operator bool() const { return {{ fn.raw_ptr }} != nullptr; }
+};
+inline {{ fn.struct_name }} {{ fn.func_name }}{};
+#endif
+{% if fn.has_extension_guard %}
+#endif
+{% endif %}
+{% endfor %}
+
+// ── DSA classes ──────────────────────────────────────────────────────────────
+namespace dsa {
+{% for dc in dsa_classes %}
+class {{ dc.class_name }} {
+public:
+    ::{{ api }}::{{ dc.handle_type }} m_id;
+    {{ dc.class_name }}() = default;
+    explicit {{ dc.class_name }}(::{{ api }}::{{ dc.handle_type }} id) : m_id(id) {}
+
+{% for m in dc.methods %}
+#if GLAZE_GL_VERSION >= {{ m.version_int }}
+{% if m.has_doc_brief %}
+    /**
+     * @brief {{ m.doc_brief }}
+{% for p in m.doc_params %}
+     * @param {{ p.name }} {{ p.desc }}
+{% endfor %}
+     */
+{% endif %}
+    inline {{ m.return_type }} {{ m.name }}({{ m.params_str }}) const {
+{% if m.is_void_return %}
+        {{ m.raw_ptr }}({{ m.call_args_str }});
+{% else %}
+        return {{ m.raw_ptr }}({{ m.call_args_str }});
+{% endif %}
+    }
+#endif
+{% endfor %}
+};
+{% endfor %}
+} // namespace dsa
+
+// ── RAII Traits specializations for strong handle types ─────────────────────
+} // namespace {{ api }}
+
+namespace glaze {
+{% for r in raii_resources %}
+#if GLAZE_GL_VERSION >= {{ r.version_int }}
+template <>
+struct Traits<{{ api }}::{{ r.handle_type }}> {
+    static {{ api }}::{{ r.handle_type }} create({{ r.create_params_str }}) {
+        return {{ api }}::{{ r.gen_func_name }}({{ r.create_call_args_str }});
+    }
+    static void destroy({{ api }}::{{ r.handle_type }}& v) { {{ api }}::{{ r.delete_func_name }}(v); }
+    static bool valid(const {{ api }}::{{ r.handle_type }}& v) { return static_cast<bool>(v); }
+};
+#endif
+{% endfor %}
+} // namespace glaze
+
+#endif // __GLAZE_{{ api_upper }}_HPP__

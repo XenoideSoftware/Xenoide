@@ -1,0 +1,12 @@
+sources:
+  # Version keys use underscores (Conan doesn't allow slashes in versions).
+  # The conanfile converts 'chromium_NNNN' -> 'chromium/NNNN' for git branch names.
+  "chromium_6943":
+    branch: "chromium/6943"
+    description: "Chrome 133"
+  "chromium_6834":
+    branch: "chromium/6834"
+    description: "Chrome 130"
+  "chromium_6709":
+    branch: "chromium/6709"
+    description: "Chrome 127"
