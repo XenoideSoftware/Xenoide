@@ -44,13 +44,17 @@ class xenoideRecipe(ConanFile):
         """
 
     def requirements(self):
-        # required for logging
+        # required by the engine
         self.requires("fmt/[>=11 <12]")
-
         self.requires("ms-gsl/4.2.0")
         self.requires("glm/1.0.1")
         self.requires("glfw/3.4")
+        self.requires("glazed/1.0.0", options={"language": "both", "apis": "gl:4.6,gles2:3.2,gl_compat:2.1"})
+        self.requires("backport-cpp/1.2.0")
+        self.requires("tl-expected/1.2.0")
+        self.requires("gsl-lite/1.1.0")
 
+        # required by both
         if self.options.with_tests:
             self.requires("catch2/3.14.0")
 
@@ -76,9 +80,6 @@ class xenoideRecipe(ConanFile):
 
         """
         self.requires("cxxopts/3.3.1")
-        self.requires("tl-expected/1.2.0")
-        self.requires("backport-cpp/1.2.0")
-        self.requires("glazed/1.0.0", options={"language": "both", "apis": "gl:4.6,gles2:3.2,gl_compat:2.1"})
         # NOTE: sdl2 and sdl3 both don't build under ArchLinux
         # Neither with gcc-x86 (gcc5)
         self.requires("sdl/2.32.10")
@@ -90,16 +91,9 @@ class xenoideRecipe(ConanFile):
         tc = CMakeToolchain(self)
 
         tc.variables["XE_BUILD_VERSION"] = self.version
-
-        if self.options.with_ide:
-            tc.variables["XE_IDE_ENABLE"] = "ON"
-
-        if self.options.with_engine:
-            tc.variables["XE_ENGINE_ENABLE"] = "ON"
-
-        if self.options.with_tests:
-            tc.variables["XE_DEV_TESTING_ENABLE"] = "ON"
-
+        tc.variables["XE_IDE_ENABLE"] = "ON" if self.options.with_ide else "OFF"
+        tc.variables["XE_ENGINE_ENABLE"] = "ON" if self.options.with_engine else "OFF"
+        tc.variables["XE_DEV_TESTING_ENABLE"] = "ON" if self.options.with_tests else "OFF"
         tc.generate()
 
         """
