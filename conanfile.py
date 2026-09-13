@@ -20,14 +20,14 @@ class xenoideRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
     options = {
-        "with_docs": [True, False],
         "with_ide": [True, False],
         "with_engine": [True, False],
+        "with_tests": [True, False],
     }
     default_options = {
-        "with_docs": False,
         "with_ide": False,
-        "with_engine": False,
+        "with_engine": True,
+        "with_tests": True,
     }
 
     # Sources are located in the same place as this recipe, copy them to the recipe
@@ -37,21 +37,32 @@ class xenoideRecipe(ConanFile):
         cmake_layout(self)
 
     def build_requirements(self):
+        pass
+        """
         if self.options.with_docs:
             self.tool_requires("doxygen/[>=1.9 <2]")
+        """
 
     def requirements(self):
+        # required for logging
+        self.requires("fmt/[>=11 <12]")
+
+        self.requires("ms-gsl/4.2.0")
+        self.requires("glm/1.0.1")
+        self.requires("glfw/3.4")
+
+        if self.options.with_tests:
+            self.requires("catch2/3.14.0")
+
         """
         self.requires("imgui/1.92.2b")
 
         # self.requires("assimp/6.0.2")
-        self.requires("glfw/3.4")
+        
         # self.requires("cgltf/1.13")
-        self.requires("fmt/[>=11 <12]")
         # self.requires("lodepng/cci.20230410")
-        self.requires("ms-gsl/4.2.0")
         # self.requires("devil/1.8.0")
-        self.requires("glm/1.0.1")
+        
         # self.requires("nlohmann_json/3.12.0")
         # self.requires("vulkan-loader/1.4.313.0")
         """
@@ -67,7 +78,6 @@ class xenoideRecipe(ConanFile):
         self.requires("cxxopts/3.3.1")
         self.requires("tl-expected/1.2.0")
         self.requires("backport-cpp/1.2.0")
-        self.requires("catch2/3.14.0")
         self.requires("glazed/1.0.0", options={"language": "both", "apis": "gl:4.6,gles2:3.2,gl_compat:2.1"})
         # NOTE: sdl2 and sdl3 both don't build under ArchLinux
         # Neither with gcc-x86 (gcc5)
@@ -81,14 +91,14 @@ class xenoideRecipe(ConanFile):
 
         tc.variables["XE_BUILD_VERSION"] = self.version
 
-        if self.options.with_docs:
-            tc.variables["XE_DEV_DOCS_ENABLE"] = "ON"
-
         if self.options.with_ide:
             tc.variables["XE_IDE_ENABLE"] = "ON"
 
         if self.options.with_engine:
             tc.variables["XE_ENGINE_ENABLE"] = "ON"
+
+        if self.options.with_tests:
+            tc.variables["XE_DEV_TESTING_ENABLE"] = "ON"
 
         tc.generate()
 

@@ -1,18 +1,21 @@
 cmake_minimum_required (VERSION 3.16)
 
 if (NOT XE_BUILD_VERSION)
-    message (WARNING "[Xenoide] XE_BUILD_VERSION not set, defaulting to 0.0.0")
-    set(XE_BUILD_VERSION "0.0.0")
+    set (XE_BUILD_VERSION_DEFAULT "0.0.0")
+    message (WARNING "[Xenoide] XE_BUILD_VERSION not set, defaulting to ${XE_BUILD_VERSION_DEFAULT}")
+    set(XE_BUILD_VERSION "${XE_BUILD_VERSION_DEFAULT}")
 endif()
 
 if (NOT XE_BUILD_COMMIT)
-    message (WARNING "[Xenoide] XE_BUILD_COMMIT not set, defaulting to 0")
-    set(XE_BUILD_COMMIT "local")
+    set(XE_BUILD_COMMIT_DEFAULT "local")
+    message (WARNING "[Xenoide] XE_BUILD_COMMIT not set, defaulting to '${XE_BUILD_COMMIT_DEFAULT}'")
+    set(XE_BUILD_COMMIT "${XE_BUILD_COMMIT_DEFAULT}")
 endif()
 
 if (NOT XE_BUILD_TIMESTAMP)
-    message (WARNING "[Xenoide] XE_BUILD_TIMESTAMP not set, defaulting to 0")
-    set(XE_BUILD_TIMESTAMP "now")
+    set(XE_BUILD_TIMESTAMP_DEFAULT "now")
+    message (WARNING "[Xenoide] XE_BUILD_TIMESTAMP not set, defaulting to '${XE_BUILD_TIMESTAMP_DEFAULT}'")
+    set(XE_BUILD_TIMESTAMP "${XE_BUILD_TIMESTAMP_DEFAULT}")
 endif()
 
 project (xenoide VERSION ${XE_BUILD_VERSION})
@@ -43,21 +46,6 @@ if (XE_DEV_TESTING_ENABLE)
     include(CTest)
     enable_testing()
     find_package(Catch2 3 CONFIG REQUIRED)
-endif()
-
-if (XE_DEV_DOCS_ENABLE)
-    find_package(Doxygen REQUIRED)
-
-    set (XE_DOXYFILE_IN  "${CMAKE_SOURCE_DIR}/Doxyfile.in")
-    set (XE_DOXYFILE_OUT "${CMAKE_BINARY_DIR}/Doxyfile")
-
-    configure_file(${XE_DOXYFILE_IN} ${XE_DOXYFILE_OUT} @ONLY)
-
-    add_custom_target(docs
-        COMMAND ${DOXYGEN_EXECUTABLE} ${XE_DOXYFILE_OUT}
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-        COMMENT "Generating XE Doxygen documentation"
-        VERBATIM)
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
