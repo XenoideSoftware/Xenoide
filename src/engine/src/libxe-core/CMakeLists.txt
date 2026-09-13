@@ -58,7 +58,7 @@ set (sources
 add_library (${target} ${sources})
 add_library(xe::core ALIAS ${target})
 
-if (XE_DEV_PRECOMPILED_HEADERS)
+if (XE_DEV_PCH_ENABLE)
 	target_precompile_headers(${target} PRIVATE ${headers})
 endif()
 

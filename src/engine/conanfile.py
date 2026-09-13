@@ -77,7 +77,7 @@ class xeRecipe(ConanFile):
         if self.options.with_docs:
             # Hoist the conan-side opt-in into the engine-wide CMake option
             # so a single `-o with_docs=True` is all the user needs to type.
-            tc.variables["XE_DEV_DOCS"] = "ON"
+            tc.variables["XE_DEV_DOCS_ENABLE"] = "ON"
         tc.generate()
 
         # imgui backends

@@ -1,7 +1,7 @@
 # Doxygen configuration template for the XE engine.
 #
 # Configured via `configure_file()` from the root CMakeLists.txt when the
-# engine-wide `XE_DEV_DOCS` option is ON. Variables of the form @VARNAME@
+# engine-wide `XE_DEV_DOCS_ENABLE` option is ON. Variables of the form @VARNAME@
 # are substituted by CMake at configure time; everything else is a literal
 # Doxygen setting.
 #

@@ -39,9 +39,9 @@ The build emits two trees under `build/Release/docs/`:
 | `xml/`            | XML output for downstream tooling (Sphinx/Breathe, doxygen2html, etc.) |
 
 If `with_docs` is left at its default (`False`), Conan does not pull
-Doxygen and CMake leaves `XE_DEV_DOCS` off, so existing build flows are
+Doxygen and CMake leaves `XE_DEV_DOCS_ENABLE` off, so existing build flows are
 unaffected. The toggle can also be flipped directly at the CMake level
-via `-DXE_DEV_DOCS=ON` for developers who already have Doxygen installed
+via `-DXE_DEV_DOCS_ENABLE=ON` for developers who already have Doxygen installed
 system-wide.
 
 ## Vulkan 

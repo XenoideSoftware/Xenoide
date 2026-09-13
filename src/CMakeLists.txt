@@ -1,8 +1,10 @@
 
-if (XE_ENGINE)
-    add_subdirectory(engine)
+add_subdirectory("base-target")
+
+if (XE_ENGINE_ENABLE)
+    add_subdirectory("engine")
 endif()
 
-if (XE_IDE)
-    add_subdirectory(ide)
+if (XE_IDE_ENABLE)
+    add_subdirectory("ide")
 endif()
