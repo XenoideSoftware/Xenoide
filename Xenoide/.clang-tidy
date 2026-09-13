@@ -1,7 +1,0 @@
-Checks: >
-  clang-analyzer-*,
-  bugprone-*,
-  cppcoreguidelines-*,
-  performance-*,
-  misc-const-correctness,
-  -header-filter=.*
