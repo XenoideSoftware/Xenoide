@@ -44,12 +44,15 @@ class xenoideRecipe(ConanFile):
         if self.options.with_tests:
             self.requires("catch2/3.14.0")
 
-        # required by the ide 
-        self.requires("scintilla3/3.7.6")
-
+        # required by the ide
+        # TODO: Parametrize dependency target OS
         if self.options.with_ide_winlamb:
-            self.requires("winlamb/2026.06.24")
-        
+            if self.settings.os == "Windows":
+                self.requires("winlamb/2026.06.24")
+                self.requires("scintilla3/3.7.6")
+            else:
+                print("Target OS is not windows. Ignoring winlamb and scintilla")
+
         # required by the engine
         self.requires("fmt/[>=11 <12]")
         self.requires("ms-gsl/4.2.0")
