@@ -1,8 +1,8 @@
 
-option (XE_ENGINE_PLUGIN_PNG           "Include PNG image support via LodePNG" ON)
-option (XE_ENGINE_PLUGIN_GL            "Include OpenGL 3+ support" ON)
-option (XE_ENGINE_PLUGIN_GL_GLFW       "Include GLFW-based Window and Context creation support (requires 'XE_ENGINE_PLUGIN_GL')" ON)
-option (XE_ENGINE_PLUGIN_KTX           "Include KTX image support" ON)
+option (XE_ENABLE_ENGINE_PLUGIN_PNG           "Include PNG image support via LodePNG" ON)
+option (XE_ENABLE_ENGINE_PLUGIN_GL            "Include OpenGL 3+ support" ON)
+option (XE_ENABLE_ENGINE_PLUGIN_GL_GLFW       "Include GLFW-based Window and Context creation support (requires 'XE_ENABLE_ENGINE_PLUGIN_GL')" ON)
+option (XE_ENABLE_ENGINE_PLUGIN_KTX           "Include KTX image support" ON)
 
 # Options for external assets location
 if (NOT XE_EXTERNAL_ASSET_ROOT_PATH)

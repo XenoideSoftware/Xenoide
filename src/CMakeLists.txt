@@ -1,7 +1,7 @@
 
 add_subdirectory("base-target")
 
-if (XE_ENGINE)
+if (XE_ENABLE_ENGINE)
     add_subdirectory("engine")
 endif()
 

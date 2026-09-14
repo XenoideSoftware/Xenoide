@@ -90,7 +90,7 @@ class xenoideRecipe(ConanFile):
 
         tc.variables["XE_BUILD_VERSION"] = self.version
         tc.variables["XE_IDE"] = "ON" if self.options.with_ide else "OFF"
-        tc.variables["XE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
+        tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
         tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
         tc.generate()
 
