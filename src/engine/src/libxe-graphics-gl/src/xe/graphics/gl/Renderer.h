@@ -1,6 +1,8 @@
 
 #pragma once
 
+#if 0
+
 #include "TextureRepository.h"
 
 #include <algorithm>
@@ -192,3 +194,5 @@ public:
     Platform &platform;
     GLuint program = 0;
 };
+
+#endif

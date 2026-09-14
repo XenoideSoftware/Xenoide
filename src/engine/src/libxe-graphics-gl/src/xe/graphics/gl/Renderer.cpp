@@ -1,7 +1,6 @@
 
 #include "Renderer.h"
 
-#include "../../../../apostate/src/apostate/Platform.h"
 #include "xe/Logger.h"
 
 #include <cassert>
@@ -158,7 +157,7 @@ namespace test {
     }
 }
 
-#endif
+
 
 static std::string GLErrorToString(GLenum error) {
     switch (error) {
@@ -610,3 +609,5 @@ void Renderer::renderTranformation(const ShaderLocationMap &location, const Tran
 
     this->renderModelTransform(location, value_ptr(model));
 }
+
+#endif
