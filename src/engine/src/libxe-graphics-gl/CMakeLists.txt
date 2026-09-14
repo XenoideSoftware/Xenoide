@@ -1,7 +1,6 @@
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
-find_package(glm REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glaze CONFIG REQUIRED)
 find_package(Backport CONFIG REQUIRED)
@@ -49,7 +48,6 @@ target_link_libraries (${target}
 	PUBLIC glaze::gl
 	PRIVATE xe::interface
 	PUBLIC fmt::fmt
-	PUBLIC glm::glm
 	PUBLIC glfw
 	PUBLIC Backport::Backport
 	PUBLIC Microsoft.GSL::GSL

@@ -53,7 +53,6 @@ class xenoideRecipe(ConanFile):
         # required by the engine
         self.requires("fmt/[>=11 <12]")
         self.requires("ms-gsl/4.2.0")
-        self.requires("glm/1.0.1")
         self.requires("glfw/3.4")
         self.requires("glazed/1.0.0", options={"language": "both", "apis": "gl:4.6,gles2:3.2,gl_compat:2.1"})
         self.requires("backport-cpp/1.2.0")
