@@ -39,6 +39,12 @@ class xenoideRecipe(ConanFile):
     def layout(self):
         cmake_layout(self)
 
+    def config_options(self):
+        if self.options.with_ide_winlamb:
+            if self.settings.os != "Windows":
+                print("with_ide_winlamb is enabled but target OS is not windows. Changing to False")
+                self.options.rm_safe("with_ide_winlamb")
+
     def requirements(self):        
         # required by all
         if self.options.with_tests:
@@ -46,12 +52,9 @@ class xenoideRecipe(ConanFile):
 
         # required by the ide
         # TODO: Parametrize dependency target OS
-        if self.options.with_ide_winlamb:
-            if self.settings.os == "Windows":
-                self.requires("winlamb/2026.06.24")
-                self.requires("scintilla3/3.7.6")
-            else:
-                print("Target OS is not windows. Ignoring winlamb and scintilla")
+        if self.options.get_safe("with_ide_winlamb"):
+            self.requires("winlamb/2026.06.24")
+            self.requires("scintilla3/3.7.6")
 
         # required by the engine
         self.requires("fmt/[>=11 <12]")
@@ -98,7 +101,7 @@ class xenoideRecipe(ConanFile):
         tc.variables["XE_ENABLE_IDE"] = "ON" if self.options.with_ide else "OFF"
         tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
         tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
-        tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.with_ide_winlamb else "OFF"
+        tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.get_safe("with_ide_winlamb") else "OFF"
         tc.generate()
 
         """
