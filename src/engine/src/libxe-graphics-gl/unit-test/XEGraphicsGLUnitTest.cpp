@@ -1,6 +1,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+/*
 #include <xe/DataType.h>
 #include <xe/graphics/BufferDescriptor.h>
 #include <xe/graphics/Material.h>
@@ -8,7 +9,7 @@
 #include <xe/graphics/Subset.h>
 #include <xe/graphics/Uniform.h>
 #include <xe/graphics/RenderBackend.h>
-/*
+
 #include <xe/graphics/gl3/glcore3-api.h>
 
 TEST_CASE("BufferType::Uniform is a distinct enumerant usable alongside Vertex and Index") {

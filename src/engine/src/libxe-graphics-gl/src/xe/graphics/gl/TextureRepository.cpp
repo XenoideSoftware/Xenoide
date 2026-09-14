@@ -4,7 +4,7 @@
 #include "xe/Image.h"
 #include "xe/ImageLoader.h"
 #include "xe/Logger.h"
-#include "xe/gl/Renderer.h"
+#include "xe/graphics/gl/Renderer.h"
 
 #include <cassert>
 #include <iostream>
