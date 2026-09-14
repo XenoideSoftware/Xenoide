@@ -89,9 +89,9 @@ class xenoideRecipe(ConanFile):
         tc = CMakeToolchain(self)
 
         tc.variables["XE_BUILD_VERSION"] = self.version
-        tc.variables["XE_IDE_ENABLE"] = "ON" if self.options.with_ide else "OFF"
-        tc.variables["XE_ENGINE_ENABLE"] = "ON" if self.options.with_engine else "OFF"
-        tc.variables["XE_DEV_TESTING_ENABLE"] = "ON" if self.options.with_tests else "OFF"
+        tc.variables["XE_IDE"] = "ON" if self.options.with_ide else "OFF"
+        tc.variables["XE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
+        tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
         tc.generate()
 
         """

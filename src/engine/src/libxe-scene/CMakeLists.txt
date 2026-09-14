@@ -14,7 +14,7 @@ add_library(xe::scene ALIAS ${target})
 target_include_directories(${target} PUBLIC "src")
 target_link_libraries(${target} PUBLIC xe::core PRIVATE xe::interface)
 
-if (XE_DEV_TESTING_ENABLE)
+if (XE_ENABLE_TESTING)
     # NOTE: xe-scene tests are currently broken on feature/math — they reference
     # the capital-XE namespace (XE::Vector3) that has never existed.
     # Disabled for now so the rest of the debug build can proceed.

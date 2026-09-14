@@ -39,7 +39,7 @@ libxe-graphics/
 
 ## Building and Testing
 
-`libxe-graphics` builds as part of the top-level XE build (see root [`CLAUDE.md`](../../CLAUDE.md) for the Conan + CMake workflow). It is enabled through `src/CMakeLists.txt` and inherits the engine-wide CMake options (`XE_DEV_TESTING_ENABLE`, `XE_DEV_PCH_ENABLE`, etc.).
+`libxe-graphics` builds as part of the top-level XE build (see root [`CLAUDE.md`](../../CLAUDE.md) for the Conan + CMake workflow). It is enabled through `src/CMakeLists.txt` and inherits the engine-wide CMake options (`XE_ENABLE_TESTING_ENABLE`, `XE_ENABLE_PCH_ENABLE`, etc.).
 
 Public dependencies: `xe::core`, `xe::imageloader`, `glaze::gl`, `fmt`, `glm`, `glfw`, `Backport`, `Microsoft.GSL`.
 

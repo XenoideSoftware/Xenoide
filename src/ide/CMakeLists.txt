@@ -1,8 +1,8 @@
 
 # Windows-specific options
-option(XE_IDE_WIN32_UNICODE_ENABLE "Builds an UNICODE version. ANSI if OFF" ON)
+option(XE_IDE_WIN32_UNICODE "Builds an UNICODE version. ANSI if OFF" ON)
 
-option(XE_IDE_UI_WINLAMB_ENABLE "Enable WinLamb UI" OFF)
+option(XE_IDE_UI_WINLAMB "Enable WinLamb UI" OFF)
 
 set(XE_IDE_WIN32_TARGET "10" CACHE STRING
     "Target Windows OS version (9x, xp, vista, 7, 8, 10, 11)")
@@ -29,14 +29,14 @@ else()
         "XE_IDE_WIN32_TARGET must be one of: 9x, xp, vista, 7, 8, 10, 11 (got '${XE_IDE_WIN32_TARGET}')")
 endif()
 
-message(STATUS "Xenoide: Building for Windows ${XE_IDE_WIN32_TARGET} target (${XE_IDE_WIN32_TARGET_HEX}). Unicode: ${XE_IDE_WIN32_UNICODE_ENABLE}")
+message(STATUS "Xenoide: Building for Windows ${XE_IDE_WIN32_TARGET} target (${XE_IDE_WIN32_TARGET_HEX}). Unicode: ${XE_IDE_WIN32_UNICODE}")
 
-if (XE_IDE_UI_WINLAMB_ENABLE)
+if (XE_IDE_UI_WINLAMB)
     find_package(winlamb CONFIG REQUIRED)
 endif()
 
 # Unit Tests setup
-if (XE_ENABLE_TESTS)
+if (XE_TESTS)
     find_package(GTest REQUIRED)
 endif()
 

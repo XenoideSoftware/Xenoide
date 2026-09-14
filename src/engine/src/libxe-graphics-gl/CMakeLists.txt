@@ -37,7 +37,7 @@ set (sources
 add_library (${target} ${sources})
 add_library(xe::graphics ALIAS ${target})
 
-if (XE_DEV_PCH_ENABLE)
+if (XE_ENABLE_PCH)
 	target_precompile_headers (${target} PRIVATE ${headers})
 endif()
 
@@ -56,6 +56,6 @@ target_link_libraries (${target}
 	PUBLIC tl::expected
 )
 
-if (XE_DEV_TESTING_ENABLE)
+if (XE_ENABLE_TESTING)
 	add_subdirectory("unit-test")
 endif()

@@ -25,24 +25,20 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_EXTENSIONS OFF)
 
-option (XE_ENGINE_ENABLE "Build with engine" ON)
-option (XE_IDE_ENABLE "Build with IDE" ON)
+option (XE_ENGINE "Build with engine" ON)
+option (XE_IDE "Build with IDE" ON)
 
 # options suited for development
-option (XE_DEV_TESTING_ENABLE       "Enable unit test suite" ON)
-option (XE_DEV_WERROR_ENABLE        "Marks all warnings as errors" ON)
-option (XE_DEV_DOCS_ENABLE          "Generate Doxygen documentation for the engine libraries" ON)
-option (XE_DEV_PCH_ENABLE           "Enable precompiled headers for internal libraries, to improve build times" OFF)
-option (XE_DEV_SANITIZER_ENABLE     "Enable sanitizer usage" OFF)
-option (XE_DEV_COVERAGE_ENABLE      "Instrument code for code coverage reporting during unit tests" OFF)
+option (XE_ENABLE_TESTING       "Enable unit test suite" ON)
+option (XE_ENABLE_WERROR        "Marks all warnings as errors" ON)
+option (XE_ENABLE_DOCS          "Generate Doxygen documentation for the engine libraries" ON)
+option (XE_ENABLE_PCH           "Enable precompiled headers for internal libraries, to improve build times" OFF)
+option (XE_ENABLE_COVERAGE      "Instrument code for code coverage reporting during unit tests" OFF)
 
 # Which sanitizer to use
-set (XE_DEV_SANITIZER_TOOL "" CACHE STRING "")
-if (XE_DEV_SANITIZER_ENABLE AND XE_DEV_SANITIZER_TOOL STREQUAL "")
-    message (WARNING "[Xenoide] XE_DEV_SANITIZER_ENABLE is OFF, but XE_DEV_SANITIZER_TOOL is set to '${XE_DEV_SANITIZER_TOOL}'. Sanitizer will not be used.")
-endif()
+set (XE_SANITIZER "" CACHE STRING "")
 
-if (XE_DEV_TESTING_ENABLE)
+if (XE_ENABLE_TESTING)
     include(CTest)
     enable_testing()
     find_package(Catch2 3 CONFIG REQUIRED)

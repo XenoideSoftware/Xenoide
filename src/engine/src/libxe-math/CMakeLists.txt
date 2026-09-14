@@ -38,13 +38,13 @@ set (sources
 add_library (${target} ${sources})
 add_library(xe::math ALIAS ${target})
 
-if (XE_DEV_PCH_ENABLE)
+if (XE_ENABLE_PCH)
     target_precompile_headers(${target} PRIVATE ${headers})
 endif()
 
 target_include_directories(${target} PUBLIC "src")
 target_link_libraries(${target} PRIVATE xe::interface)
 
-if (XE_DEV_TESTING_ENABLE)
+if (XE_ENABLE_TESTING)
     add_subdirectory("test")
 endif()

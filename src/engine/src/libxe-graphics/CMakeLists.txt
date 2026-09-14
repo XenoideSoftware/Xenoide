@@ -65,7 +65,7 @@ set (sources
 add_library (${target} ${sources})
 add_library(xe::graphics ALIAS ${target})
 
-if (XE_DEV_PCH_ENABLE)
+if (XE_ENABLE_PCH)
 	target_precompile_headers (${target} PRIVATE ${headers})
 endif()
 
