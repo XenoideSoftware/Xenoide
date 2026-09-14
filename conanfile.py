@@ -21,12 +21,14 @@ class xenoideRecipe(ConanFile):
 
     options = {
         "with_ide": [True, False],
+        "with_ide_winlamb": [True, False],
         "with_engine": [True, False],
         "with_tests": [True, False],
     }
 
     default_options = {
         "with_ide": True,
+        "with_ide_winlamb": True,
         "with_engine": True,
         "with_tests": True,
     }
@@ -44,8 +46,10 @@ class xenoideRecipe(ConanFile):
 
         # required by the ide 
         self.requires("scintilla3/3.7.6")
-        self.requires("winlamb/2026.06.24")
 
+        if self.options.with_ide_winlamb:
+            self.requires("winlamb/2026.06.24")
+        
         # required by the engine
         self.requires("fmt/[>=11 <12]")
         self.requires("ms-gsl/4.2.0")
@@ -86,12 +90,13 @@ class xenoideRecipe(ConanFile):
     def generate(self):
         deps = CMakeDeps(self)
         deps.generate()
-        tc = CMakeToolchain(self)
 
+        tc = CMakeToolchain(self)
         tc.variables["XE_BUILD_VERSION"] = self.version
         tc.variables["XE_IDE"] = "ON" if self.options.with_ide else "OFF"
         tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
         tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
+        tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.with_ide_winlamb else "OFF"
         tc.generate()
 
         """
