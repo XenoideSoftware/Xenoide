@@ -1,7 +1,7 @@
 include(default)
 
 [settings]
-compiler.cppstd=20
+compiler.cppstd=17
 
 [options]
 qt/*:shared=True

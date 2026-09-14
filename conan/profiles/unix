@@ -1,7 +1,7 @@
 include(default)
 
 [settings]
-compiler.cppstd=gnu20
+compiler.cppstd=gnu17
 compiler.cstd=gnu17
 
 [options]
