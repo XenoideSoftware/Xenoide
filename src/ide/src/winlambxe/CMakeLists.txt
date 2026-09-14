@@ -1,5 +1,36 @@
 set(target "winlambxe")
 
+set(XE_IDE_WIN32_TARGET "10" CACHE STRING
+    "Target Windows OS version (9x, xp, vista, 7, 8, 10, 11)")
+
+set_property(CACHE XE_IDE_WIN32_TARGET PROPERTY STRINGS
+    "9x" "xp" "vista" "7" "8" "10" "11")
+
+# TODO: Implement a proper defaulting logic. Hardcoding the variables for now, 
+set (XE_IDE_WIN32_TARGET "10")
+set (XE_IDE_WIN32_TARGET_HEX 0x0A00)
+
+if (XE_IDE_WIN32_TARGET STREQUAL "9x")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0410)
+elseif (XE_IDE_WIN32_TARGET STREQUAL "xp")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0501)
+elseif (XE_IDE_WIN32_TARGET STREQUAL "vista")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0600)
+elseif (XE_IDE_WIN32_TARGET STREQUAL "7")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0601)
+elseif (XE_IDE_WIN32_TARGET STREQUAL "8")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0602)
+elseif (XE_IDE_WIN32_TARGET STREQUAL "10")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0A00)
+elseif (XE_IDE_WIN32_TARGET STREQUAL "11")
+    set(XE_IDE_WIN32_TARGET_HEX 0x0A00)
+else()
+    message(WARNING
+        "Xenoide: XE_IDE_WIN32_TARGET ("${XE_IDE_WIN32_TARGET}") must be one of: 9x, xp, vista, 7, 8, 10 or 11")
+endif()
+
+message(STATUS "Xenoide: Building for Windows ${XE_IDE_WIN32_TARGET} target (${XE_IDE_WIN32_TARGET_HEX}). Unicode: ${XE_ENABLE_IDE_WINLAMB_UNICODE}")
+
 find_package(scintilla3 REQUIRED)
 
 set(sources_controls
@@ -40,6 +71,8 @@ add_library(${target}
 )
 
 target_include_directories(${target} PUBLIC "src/")
+
+message(STATUS "Xenoide: XENOIDE_WIN32_TARGET_HEX: ${XENOIDE_WIN32_TARGET_HEX}")
 
 target_compile_definitions(${target} PUBLIC
     WIN32_LEAN_AND_MEAN
