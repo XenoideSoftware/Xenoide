@@ -55,7 +55,7 @@ GLuint TextureRepository::createTexture(Renderer &renderer, const std::string &i
     return createTexture(renderer, image->getData());
 }
 
-GLuint TextureRepository::createTexture(Renderer &renderer, const ImageData &image) const {
+GLuint TextureRepository::createTexture(Renderer &/*renderer*/, const ImageData &image) const {
     GLenum internalFormat = GL_RGB;
     GLenum format = GL_RGB;
 
@@ -73,5 +73,6 @@ GLuint TextureRepository::createTexture(Renderer &renderer, const ImageData &ima
         XE_LOG_WARNING("TextureRepository::createTexture: Unsupported image bpp {}. Defaulting to GL_RGB\n", image.bpp);
     }
 
-    return renderer.createTexture(internalFormat, image.width, image.height, format, GL_UNSIGNED_BYTE, image.pixels);
+    // return renderer.createTexture(internalFormat, image.width, image.height, format, GL_UNSIGNED_BYTE, image.pixels);
+    return {};
 }

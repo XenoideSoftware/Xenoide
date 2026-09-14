@@ -3,8 +3,7 @@
 #define __XE_GRAPHICS_GL_SUBSETGL_HPP__
 
 #include <xe/graphics/Subset.h>
-
-#include "gl.h"
+#include <glaze/gl.h>
 
 namespace xe {
     class SubsetGL : public Subset {

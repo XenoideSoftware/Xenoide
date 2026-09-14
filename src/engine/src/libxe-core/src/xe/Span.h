@@ -77,13 +77,13 @@ namespace xe {
         }
 
         T& operator[](const size_t i) {
-            assert(i < size);
+            assert(i < _size);
 
             return _data[i];
         }
 
         T operator[](const size_t i) const {
-            assert(i < size);
+            assert(i < _size);
 
             return _data[i];
         }

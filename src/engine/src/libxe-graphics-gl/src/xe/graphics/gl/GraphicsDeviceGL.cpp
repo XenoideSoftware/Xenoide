@@ -84,7 +84,7 @@ namespace xe {
     GraphicsDeviceGL::~GraphicsDeviceGL() {
     }
 
-    Subset *GraphicsDeviceGL::createSubset(const SubsetDescriptor &desc) {
+    Subset *GraphicsDeviceGL::createSubset(const SubsetDescriptor &/*desc*/) {
         return nullptr;
     }
 
@@ -92,7 +92,7 @@ namespace xe {
         return nullptr;
     }
 
-    Program *GraphicsDeviceGL::createProgram(const ProgramDescriptor &desc) {
+    Program *GraphicsDeviceGL::createProgram(const ProgramDescriptor &/*desc*/) {
         return nullptr;
     }
 
@@ -109,15 +109,15 @@ namespace xe {
 
         if (!indexBuffer) {
             for (size_t i = 0; i < envelopeCount; i++) {
-                const SubsetEnvelope &env = envelopes[i];
+                // const SubsetEnvelope &env = envelopes[i];
                 // glDrawArrays(primitiveGL, env.vertexStart, env.vertexCount);
             }
         } else {
             // TODO: Obtain dynamically the index data-type
-            const GLenum indexTypeGL = GL_UNSIGNED_INT;
+            // const GLenum indexTypeGL = GL_UNSIGNED_INT;
 
             for (size_t i = 0; i < envelopeCount; i++) {
-                const SubsetEnvelope &env = envelopes[i];
+                // const SubsetEnvelope &env = envelopes[i];
                 /*const GLenum primitiveGL = convertToGL(env.primitive);
 
                 if (env.vertexStart == 0) {
@@ -159,7 +159,7 @@ namespace xe {
         context->present();
     }
 
-    void GraphicsDeviceGL::preRenderMaterial(const Material *material) {
+    void GraphicsDeviceGL::preRenderMaterial(const Material */*material*/) {
         /*
         const auto &rs = material->renderState;
 
@@ -211,7 +211,7 @@ namespace xe {
         }*/
     }
 
-    void GraphicsDeviceGL::postRenderMaterial(const Material *material) {
+    void GraphicsDeviceGL::postRenderMaterial(const Material */*material*/) {
         /*
         const auto &rs = material->renderState;
 
@@ -257,7 +257,7 @@ namespace xe {
         m_material = material;
     }
 
-    void GraphicsDeviceGL::setProgram(const Program *program) {
+    void GraphicsDeviceGL::setProgram(const Program */*program*/) {
     }
 
     const Program *GraphicsDeviceGL::getProgram() const {

@@ -2,7 +2,7 @@
 #ifndef __XE_GRAPHICS_GL_CONVERSION_HPP__
 #define __XE_GRAPHICS_GL_CONVERSION_HPP__
 
-#include "gl.h"
+#include <glaze/gl.h>
 #include <cstdint>
 
 namespace xe {

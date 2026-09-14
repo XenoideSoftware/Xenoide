@@ -34,7 +34,7 @@ set (sources
 )
 
 add_library (${target} ${sources})
-add_library(xe::graphics ALIAS ${target})
+add_library(xe::graphics-gl ALIAS ${target})
 
 if (XE_ENABLE_PCH)
 	target_precompile_headers (${target} PRIVATE ${headers})

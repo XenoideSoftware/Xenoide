@@ -12,8 +12,7 @@ add_library(${target} ${sources})
 add_library(xe::mesh ALIAS ${target})
 
 target_include_directories(${target} PUBLIC "src")
-target_link_libraries(${target}
-    PUBLIC xe::geometry
-    PUBLIC xe::graphics
-    PUBLIC tl::expected
-)
+
+target_link_libraries(${target} PUBLIC xe::graphics)
+target_link_libraries(${target} PUBLIC xe::geometry)
+target_link_libraries(${target} PUBLIC tl::expected)
