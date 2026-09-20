@@ -31,7 +31,7 @@ Get-ChildItem -Path $packagesDir -Directory | Sort-Object Name | ForEach-Object 
                 }
                 if ($inSources) {
                     if ($line -match '^\s{2}[^ ]' -and $line -notmatch '^\s{4}') {
-                        if ($line -match '^\s*["\'']?([^"'\''":]+)["\'']?\s*:') {
+                        if ($line -match "^\s*['`"']?([^\`"':]+)['`"']?\s*:") {
                             $version = $matches[1]
                             if ($version) {
                                 $versions += $version
