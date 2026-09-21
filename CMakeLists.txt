@@ -20,6 +20,12 @@ endif()
 
 project (xenoide VERSION ${XE_BUILD_VERSION})
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakePredefinedTargets")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(TargetFolders)
+
 set (CMAKE_EXPORT_COMPILE_COMMANDS  ON)
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -39,9 +45,11 @@ option (XE_ENABLE_COVERAGE      "Instrument code for code coverage reporting dur
 set (XE_SANITIZER "" CACHE STRING "")
 
 if (XE_ENABLE_TESTING)
+    set(CMAKE_FOLDER "CMakePredefinedTargets")
     include(CTest)
     enable_testing()
     find_package(Catch2 3 CONFIG REQUIRED)
+    unset(CMAKE_FOLDER)
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -49,3 +57,7 @@ if (CMAKE_BUILD_TYPE MATCHES "Debug")
 endif ()
 
 add_subdirectory(src)
+
+if (TARGET xenoidew)
+    set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT xenoidew)
+endif()

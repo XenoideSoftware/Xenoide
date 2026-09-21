@@ -3,14 +3,18 @@
 
 add_subdirectory ("libxe-core")
 if (XE_ENABLE_TESTING)
+    set(CMAKE_FOLDER "Engine/Tests")
     add_subdirectory ("libxe-core-test")
+    set(CMAKE_FOLDER "Engine")
 endif()
 
 add_subdirectory ("libxe-math")
 add_subdirectory ("libxe-scene")
 add_subdirectory ("libxe-geometry")
 if (XE_ENABLE_TESTING)
+    set(CMAKE_FOLDER "Engine/Tests")
     add_subdirectory ("libxe-geometry-test")
+    set(CMAKE_FOLDER "Engine")
 endif()
 # add_subdirectory ("libxe-app")
 
@@ -39,5 +43,7 @@ endif()
 
 # add_subdirectory("apostate")
 # add_subdirectory("capybaria")
+set(CMAKE_FOLDER "Engine/Pocs")
 add_subdirectory("xe-glaze-test")
 add_subdirectory("xe-render-core-3d-test")
+set(CMAKE_FOLDER "Engine")

@@ -55,5 +55,7 @@ target_link_libraries (${target}
 )
 
 if (XE_ENABLE_TESTING)
-	add_subdirectory("unit-test")
+    set(CMAKE_FOLDER "Engine/Tests")
+    add_subdirectory("unit-test")
+    set(CMAKE_FOLDER "Engine")
 endif()
