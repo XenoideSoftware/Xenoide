@@ -1,0 +1,113 @@
+# AGENTS.md
+
+> **Authoritative Operational Guide and Source of Truth for Autonomous AI Agents and Contributors in Xenoide**
+
+---
+
+## 1. Project Vision & Context
+
+**Xenoide** is a high-performance software and game creation platform comprising:
+1. **A Custom Engine (`src/engine/`)**: A modular, performance-oriented C++17 engine delivering core subsystems (graphics abstraction, OpenGL/ES backends, mathematics, procedural geometry, scene graph hierarchy, mesh handling, asset loaders).
+2. **A Native Integrated IDE (`src/ide/`)**: A native desktop development environment tightly coupled with the custom engine. The IDE is engineered not only for game development and shader authoring, but also as a first-class tool for creating high-performance native desktop software and utilities.
+3. **Shared Base Infrastructure (`src/base-target/`)**: Common compiler warning abstractions, sanitizer flags, and interface definitions consumed across all modules.
+
+Supported platforms are **Windows**, **Linux** and **macOS**
+
+---
+
+## 2. Core Technical Stack & Specifications
+
+| Component | Specification | Details |
+|---|---|---|
+| **Language Standard** | **C++17** | `set(CMAKE_CXX_STANDARD 17)` required; extensions disabled (`CMAKE_CXX_EXTENSIONS OFF`). |
+| **Package Manager** | **Conan 2.x** | Configured via `conanfile.py`, profiles in `conan/profiles/`, and custom recipes in `conan/packages/`. |
+| **Build System** | **CMake 3.25+** | Preset-based build configuration (`conan-release`, `conan-debug`, `conan-default`). |
+| **Task Orchestration** | **Mise** | Unified task runner (`mise.toml`, `mise/*.ps1`, `mise/*.sh`) for dependencies, configuration, builds, tests, and formatting. |
+| **Testing Framework** | **Catch2 v3** | Modern Catch2 v3 integration (`find_package(Catch2 3 CONFIG REQUIRED)`). |
+| **Code Formatting** | **Clang-Format** | Configured in `.clang-format` (180 column limit, block indentation, attach braces). |
+| **Static Analysis** | **Clang-Tidy** | Configured in `.clang-tidy`. |
+| **Compiler Warnings** | **Warnings as Errors** | MSVC `/W4 /WX`, GCC/Clang `-Wall -Wextra -Werror` enabled by default via `XE_ENABLE_WERROR`. |
+
+---
+
+## 3. Custom Conan Packages (`conan/packages/`)
+
+Xenoide maintains custom Conan recipes inside `conan/packages/`. Several of these packages contain custom build logic, patches, or source code.
+
+### Exporting Local Recipes
+Whenever changes are made to any local recipe or in-tree package source (such as `glazer` or `glazed`), the recipes must be re-exported to the local Conan cache before installing dependencies:
+```bash
+mise run setup:export-recipes
+```
+This script iterates through each directory in `conan/packages/` and executes `conan export`.
+
+## 4. C++ Coding Standards & Best Practices
+
+### Standard & Language Features
+- **Strict C++17**: Code must strictly conform to C++17. Do not use C++20 features (e.g., concepts, ranges library, `std::span` unless provided by `ms-gsl`/`gsl-lite`, coroutines).
+- **Vendor Extensions Disabled**: Do not rely on compiler-specific non-standard extensions.
+
+### Zero-Warning Tolerance
+- All code is compiled with `/WX` (MSVC) or `-Werror` (GCC/Clang).
+- Unused variables, signed/unsigned comparisons, uninitialized variables, and missing return paths are fatal errors.
+- Avoid raw type casts; use `static_cast`, `reinterpret_cast`, or standard conversion helpers.
+
+### Design Principles & Idioms
+- **RAII & Memory Safety**: Never leak raw pointers. Use `std::unique_ptr` for exclusive ownership and `std::shared_ptr` only when ownership is genuinely shared.
+- **Value Semantics & Views**: Prefer `std::string_view` for read-only string parameters. Pass complex types by const-reference unless passing by value for sink parameters.
+- **Error Handling**:
+  - In the engine core and performance-critical loops, avoid throwing exceptions. Prefer monadic types (`tl::expected`, `std::optional`) or explicit result codes.
+  - Ensure assertions (`XE_ASSERT` or equivalent) are used to enforce invariants in debug builds.
+- **Namespaces**:
+  - Engine code belongs in `namespace xe { ... }` or specific sub-namespaces (`xe::graphics`, `xe::math`, etc.).
+  - IDE code belongs in `namespace xenoide { ... }`.
+- **Include Order**:
+  1. Main module header (e.g., `#include "MyClass.h"`).
+  2. Subsystem internal headers.
+  3. Third-party library headers (e.g., `<fmt/format.h>`, `<tl/expected.hpp>`).
+  4. Standard library headers (e.g., `<vector>`, `<string>`, `<memory>`).
+
+---
+
+## 5. Agent Instructions & Verification Checklist
+
+When assigned a task in this repository, follow this systematic checklist:
+
+1. **Check Local Custom Recipes**:
+   - If any file in `conan/packages/` (especially `glazer`, `glazed`, or `winlamb`) is created or modified, immediately execute:
+     ```bash
+     mise run setup:export-recipes
+     ```
+2. **Setup Dependencies**:
+   - Ensure the Conan cache and build layout are up-to-date:
+     ```bash
+     mise run setup:release
+     # or for debug workflows
+     mise run setup:debug
+     ```
+3. **CMake Configuration**:
+   - Generate build system files:
+     ```bash
+     mise run configure:release
+     ```
+4. **Implement Code Changes**:
+   - Adhere strictly to **C++17**.
+   - Respect target grouping and module boundaries (e.g., do not introduce circular dependencies between `engine` and `ide`).
+5. **Format Modified Code**:
+   - Format source files before building:
+     ```bash
+     mise run format
+     ```
+6. **Compile & Verify (Zero Warnings)**:
+   - Compile using Mise:
+     ```bash
+     mise run build:release
+     ```
+   - Resolve any warnings immediately (warnings are treated as errors).
+7. **Run Automated Tests**:
+   - Execute the test suite to ensure regressions were not introduced:
+     ```bash
+     mise run test:release
+     ```
+8. **Preserve Repository Cleanliness**:
+   - Never commit generated build directories (`build/`, `build-*/`), compiler dumps, or untracked temporary files.
