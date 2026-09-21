@@ -14,5 +14,5 @@ $preset = "conan-$($Configuration.ToLower())"
 if ($isMSystem -or $isUnix) {
     cmake --preset $preset
 } else {
-    cmake --preset conan-default
+    cmake --preset $preset
 }

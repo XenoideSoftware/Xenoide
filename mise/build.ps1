@@ -14,5 +14,5 @@ $preset = "conan-$($Configuration.ToLower())"
 if ($isMSystem -or $isUnix) {
     cmake --build --preset $preset --parallel
 } else {
-    cmake --build --preset conan-default --config $Configuration --parallel
+    cmake --build --preset $preset --config $Configuration --parallel
 }

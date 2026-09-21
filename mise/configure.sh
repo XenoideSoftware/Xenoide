@@ -12,5 +12,5 @@ PRESET="conan-$(echo "$CONFIG" | tr '[:upper:]' '[:lower:]')"
 if [ -n "$MSYSTEM" ] || [ "$(uname -s 2>/dev/null)" = "Linux" ] || [ "$(uname -s 2>/dev/null)" = "Darwin" ]; then
     cmake --preset "$PRESET"
 else
-    cmake --preset conan-default
+    cmake --preset "$PRESET"
 fi

@@ -12,5 +12,5 @@ PRESET="conan-$(echo "$CONFIG" | tr '[:upper:]' '[:lower:]')"
 if [ -n "$MSYSTEM" ] || [ "$(uname -s 2>/dev/null)" = "Linux" ] || [ "$(uname -s 2>/dev/null)" = "Darwin" ]; then
     ctest --preset "$PRESET" --output-on-failure
 else
-    ctest --preset conan-default -C "$CONFIG" --output-on-failure
+    ctest --preset "$PRESET" -C "$CONFIG" --output-on-failure
 fi

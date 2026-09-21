@@ -5,15 +5,13 @@ run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-export-recipe
 
 [tasks."setup:release"]
 description = "Install Conan dependencies for Release configuration"
-depends = ["setup:export-recipes"]
-run = "./mise/setup-release.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-release.ps1"
+run = "./mise/setup.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Release"
 
 [tasks."setup:debug"]
 description = "Install Conan dependencies for Debug configuration"
-depends = ["setup:export-recipes"]
-run = "./mise/setup-debug.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-debug.ps1"
+run = "./mise/setup.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Debug"
 
 [tasks.setup]
 description = "Default dependency setup (Release)"
@@ -22,14 +20,14 @@ depends = ["setup:release"]
 [tasks."configure:release"]
 description = "Configure CMake for Release build"
 depends = ["setup:release"]
-run = "./mise/configure-release.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-release.ps1"
+run = "./mise/configure.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Configuration Release"
 
 [tasks."configure:debug"]
 description = "Configure CMake for Debug build"
 depends = ["setup:debug"]
-run = "./mise/configure-debug.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-debug.ps1"
+run = "./mise/configure.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Configuration Debug"
 
 [tasks.configure]
 description = "Default CMake configuration (Release)"
@@ -38,14 +36,14 @@ depends = ["configure:release"]
 [tasks."build:release"]
 description = "Build Release binaries"
 depends = ["configure:release"]
-run = "./mise/build-release.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/build-release.ps1"
+run = "./mise/build.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/build.ps1 -Configuration Release"
 
 [tasks."build:debug"]
 description = "Build Debug binaries"
 depends = ["configure:debug"]
-run = "./mise/build-debug.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/build-debug.ps1"
+run = "./mise/build.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/build.ps1 -Configuration Debug"
 
 [tasks.build]
 description = "Default build (Release)"
@@ -54,14 +52,14 @@ depends = ["build:release"]
 [tasks."test:release"]
 description = "Run tests for Release build"
 depends = ["build:release"]
-run = "./mise/test-release.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/test-release.ps1"
+run = "./mise/test.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/test.ps1 -Configuration Release"
 
 [tasks."test:debug"]
 description = "Run tests for Debug build"
 depends = ["build:debug"]
-run = "./mise/test-debug.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/test-debug.ps1"
+run = "./mise/test.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/test.ps1 -Configuration Debug"
 
 [tasks.test]
 description = "Default test (Release)"

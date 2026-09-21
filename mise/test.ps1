@@ -14,5 +14,5 @@ $preset = "conan-$($Configuration.ToLower())"
 if ($isMSystem -or $isUnix) {
     ctest --preset $preset --output-on-failure
 } else {
-    ctest --preset conan-default -C $Configuration --output-on-failure
+    ctest --preset $preset -C $Configuration --output-on-failure
 }
