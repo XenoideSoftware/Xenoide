@@ -100,5 +100,5 @@ discovery).
 ## Open decisions
 
 1. Exact `-demo` source-file renames (proposed: yes, for full consistency).
-2. `XE_ENABLE_DEMOS` default: OFF (lean default) vs ON (preserve current
-   always-built behavior).
+2. `XE_ENABLE_DEMOS` default: ON (lean default).
+
