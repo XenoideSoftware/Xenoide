@@ -3,17 +3,17 @@
 
 namespace xe {
 
-    template<typename T>
-    class Span {
+    template <typename T> class Span {
     public:
         struct Iterator {
             using iterator_category = std::forward_iterator_tag;
             using value_type = T;
             using difference_type = std::ptrdiff_t;
-            using pointer = T*;
-            using reference = T&;
+            using pointer = T *;
+            using reference = T &;
 
-            explicit Iterator(pointer ptr) : _ptr(ptr) {}
+            explicit Iterator(pointer ptr) : _ptr(ptr) {
+            }
 
             reference operator*() const {
                 return *_ptr;
@@ -23,13 +23,13 @@ namespace xe {
                 return _ptr;
             }
 
-            Iterator& operator++() {
+            Iterator &operator++() {
                 _ptr++;
 
                 return *this;
             }
 
-            Iterator& operator++(int) {
+            Iterator &operator++(int) {
                 Iterator it = *this;
 
                 _ptr++;
@@ -49,14 +49,15 @@ namespace xe {
             pointer _ptr;
         };
 
-        explicit Span() {}
+        explicit Span() {
+        }
 
-        explicit Span(T* data, size_t size) : _data(data), _size(size) {
+        explicit Span(T *data, size_t size) : _data(data), _size(size) {
             // prevents issues where data and size have inconsistencies
             assert(data == nullptr && size == 0 || data != nullptr && size > 0);
         }
 
-        T* data() {
+        T *data() {
             return _data;
         }
 
@@ -76,7 +77,7 @@ namespace xe {
             return Iterator(_data + _size);
         }
 
-        T& operator[](const size_t i) {
+        T &operator[](const size_t i) {
             assert(i < _size);
 
             return _data[i];
@@ -89,7 +90,7 @@ namespace xe {
         }
 
     private:
-        T* _data = nullptr;
+        T *_data = nullptr;
         size_t _size = 0;
     };
 
@@ -98,35 +99,24 @@ namespace xe {
         using std::data;
         using std::size;
 
-        template<typename C>
-        auto adl_data(C&& c) -> decltype(data(std::forward<C>(c))) {
+        template <typename C> auto adl_data(C &&c) -> decltype(data(std::forward<C>(c))) {
             return data(std::forward<C>(c));
         }
 
-        template<typename C>
-        auto adl_size(C&& c) -> decltype(size(std::forward<C>(c))) {
+        template <typename C> auto adl_size(C &&c) -> decltype(size(std::forward<C>(c))) {
             return size(std::forward<C>(c));
         }
-    }
+    } // namespace detail
 
-    template<typename C>
-    auto span(C&& c) -> decltype (
-        Span<std::remove_pointer_t<decltype(detail::adl_data(c))>> (
-            detail::adl_data(c),
-            detail::adl_size(c)
-        )) {
+    template <typename C> auto span(C &&c) -> decltype(Span<std::remove_pointer_t<decltype(detail::adl_data(c))>>(detail::adl_data(c), detail::adl_size(c))) {
 
         using T = std::remove_pointer_t<decltype(detail::adl_data(c))>;
 
-        return Span<T> (
-            detail::adl_data(c),
-            detail::adl_size(c)
-        );
+        return Span<T>(detail::adl_data(c), detail::adl_size(c));
     }
 
     // only for completeness
-    template<typename T>
-    Span<T> span(T *data, size_t size) {
+    template <typename T> Span<T> span(T *data, size_t size) {
         return Span<T>(data, size);
     }
-}
+} // namespace xe

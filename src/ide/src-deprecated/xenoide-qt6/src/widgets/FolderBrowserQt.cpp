@@ -12,7 +12,8 @@ namespace xenoide {
     // TODO: Refactor file handling logic into another layer
     class FolderBrowserQtTreeModel : public QFileSystemModel {
     public:
-        FolderBrowserQtTreeModel(FolderBrowserQt *parent) : QFileSystemModel(parent), folderBrowser(parent) {}
+        FolderBrowserQtTreeModel(FolderBrowserQt *parent) : QFileSystemModel(parent), folderBrowser(parent) {
+        }
 
         Qt::ItemFlags flags(const QModelIndex &index) const override {
             if (!index.isValid()) {
@@ -45,7 +46,7 @@ namespace xenoide {
     private:
         FolderBrowserQt *folderBrowser = nullptr;
     };
-}
+} // namespace xenoide
 
 namespace xenoide {
     FolderBrowserQt::FolderBrowserQt(QWidget *parent) : QWidget(parent) {
@@ -71,7 +72,7 @@ namespace xenoide {
         treeView->setHeaderHidden(true);
         treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        for (int i=1; i<model->columnCount(); ++i) {
+        for (int i = 1; i < model->columnCount(); ++i) {
             treeView->hideColumn(i);
         }
 
@@ -80,13 +81,9 @@ namespace xenoide {
             pathSelected(model->filePath(current));
         });
 
-        connect(treeView, &QTreeView::doubleClicked, [this](const QModelIndex &index) {
-            pathActivated(model->filePath(index));
-        });
+        connect(treeView, &QTreeView::doubleClicked, [this](const QModelIndex &index) { pathActivated(model->filePath(index)); });
 
-        connect(treeView, &QTreeView::customContextMenuRequested, [this](const QPoint &pos) {
-            pathContextMenuRequested(model->filePath(treeView->currentIndex()), pos);
-        });
+        connect(treeView, &QTreeView::customContextMenuRequested, [this](const QPoint &pos) { pathContextMenuRequested(model->filePath(treeView->currentIndex()), pos); });
     }
 
     void FolderBrowserQt::setRootFolder(const QString &projectFolder) {
@@ -106,4 +103,4 @@ namespace xenoide {
     QString FolderBrowserQt::getSelectedPath() const {
         return model->filePath(treeView->currentIndex());
     }
-}
+} // namespace xenoide

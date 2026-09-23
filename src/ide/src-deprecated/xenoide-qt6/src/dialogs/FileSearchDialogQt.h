@@ -32,6 +32,6 @@ namespace xenoide {
         QListWidget *filesListWidget = nullptr;
         QDialogButtonBox *okCancelButtonBox = nullptr;
     };
-}
+} // namespace xenoide
 
 #endif

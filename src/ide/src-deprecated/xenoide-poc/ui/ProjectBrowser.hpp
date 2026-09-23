@@ -34,6 +34,6 @@ namespace felide {
         QTreeView *m_treeView = nullptr;
         QFileSystemModel *m_fileSystemModel = nullptr;
     };
-}
+} // namespace felide
 
 #endif

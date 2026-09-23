@@ -8,17 +8,17 @@ void FilesView::OnAttach() {
     DeleteAllItems();
 
     HTREEITEM project = InsertItem(L"Project", TVI_ROOT, TVI_LAST);
-    InsertItem(L"src",     project, TVI_LAST);
+    InsertItem(L"src", project, TVI_LAST);
     InsertItem(L"include", project, TVI_LAST);
-    InsertItem(L"docs",    project, TVI_LAST);
+    InsertItem(L"docs", project, TVI_LAST);
 
     HTREEITEM deps = InsertItem(L"Dependencies", TVI_ROOT, TVI_LAST);
     InsertItem(L"win32xx", deps, TVI_LAST);
-    InsertItem(L"mctrl",   deps, TVI_LAST);
+    InsertItem(L"mctrl", deps, TVI_LAST);
     InsertItem(L"HexCtrl", deps, TVI_LAST);
 
     Expand(project, TVE_EXPAND);
-    Expand(deps,    TVE_EXPAND);
+    Expand(deps, TVE_EXPAND);
 }
 
 void OutlineView::OnAttach() {
@@ -29,8 +29,8 @@ void OutlineView::OnAttach() {
     DeleteAllItems();
 
     HTREEITEM symbols = InsertItem(L"Symbols", TVI_ROOT, TVI_LAST);
-    InsertItem(L"main()",       symbols, TVI_LAST);
-    InsertItem(L"MainFrame",    symbols, TVI_LAST);
+    InsertItem(L"main()", symbols, TVI_LAST);
+    InsertItem(L"MainFrame", symbols, TVI_LAST);
     InsertItem(L"DocumentsView", symbols, TVI_LAST);
 
     Expand(symbols, TVE_EXPAND);

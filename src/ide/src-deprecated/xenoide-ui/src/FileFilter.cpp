@@ -2,5 +2,6 @@
 #include <xenoide/ui/FileFilter.h>
 
 namespace xenoide {
-    FileFilter::~FileFilter() {}
-}
+    FileFilter::~FileFilter() {
+    }
+} // namespace xenoide

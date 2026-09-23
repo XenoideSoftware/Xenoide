@@ -19,7 +19,7 @@
 class LeftPanel : public wl::window_control {
 private:
     wl::treeview _treeview;
-    HIMAGELIST   _pendingImageList = nullptr; ///< Stashed until WM_CREATE wires the tree.
+    HIMAGELIST _pendingImageList = nullptr; ///< Stashed until WM_CREATE wires the tree.
 
     static constexpr int IDC_TREEVIEW_INNER = 101;
 
@@ -32,8 +32,8 @@ public:
      */
     LeftPanel();
 
-    LeftPanel(LeftPanel&&) = default;
-    LeftPanel& operator=(LeftPanel&&) = default; ///< Move-only.
+    LeftPanel(LeftPanel &&) = default;
+    LeftPanel &operator=(LeftPanel &&) = default; ///< Move-only.
 
     /**
      * @brief Sets the image list the inner tree will use as its TVSIL_NORMAL list.

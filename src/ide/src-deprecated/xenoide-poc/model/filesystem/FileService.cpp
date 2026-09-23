@@ -3,7 +3,6 @@
 
 #include <fstream>
 
-
 namespace Xenoide {
     std::string FileService::load(const std::filesystem::path &filePath) {
         typedef std::istreambuf_iterator<char> fstream_iterator;
@@ -23,7 +22,6 @@ namespace Xenoide {
         return content;
     }
 
-
     void FileService::save(const std::filesystem::path &filePath, const std::string &content) {
         std::fstream fs;
 
@@ -39,10 +37,9 @@ namespace Xenoide {
         }
     }
 
-
     void FileService::touch(const std::filesystem::path &filePath) {
         std::ofstream os;
         os.open(filePath.string().c_str(), std::ios_base::out);
         os.close();
     }
-}
+} // namespace Xenoide

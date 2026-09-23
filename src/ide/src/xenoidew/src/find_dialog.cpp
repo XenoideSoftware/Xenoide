@@ -2,7 +2,6 @@
 #include "winlamb/font.h"
 #include "winlamb/resizer.h"
 
-
 namespace {
     struct DlgTemplate {
         DLGTEMPLATE t;
@@ -12,18 +11,17 @@ namespace {
     };
 
     // Control IDs
-    constexpr int IDC_LBL_SEARCH     = 1001;
-    constexpr int IDC_TXT_SEARCH     = 1002;
-    constexpr int IDC_LBL_REPLACE    = 1003;
-    constexpr int IDC_TXT_REPLACE    = 1004;
-    constexpr int IDC_CHK_CASE       = 1005;
-    constexpr int IDC_CHK_WORD       = 1006;
-    constexpr int IDC_BTN_FINDNEXT   = 1007;
-    constexpr int IDC_BTN_REPLACE    = 1008;
+    constexpr int IDC_LBL_SEARCH = 1001;
+    constexpr int IDC_TXT_SEARCH = 1002;
+    constexpr int IDC_LBL_REPLACE = 1003;
+    constexpr int IDC_TXT_REPLACE = 1004;
+    constexpr int IDC_CHK_CASE = 1005;
+    constexpr int IDC_CHK_WORD = 1006;
+    constexpr int IDC_BTN_FINDNEXT = 1007;
+    constexpr int IDC_BTN_REPLACE = 1008;
     constexpr int IDC_BTN_REPLACEALL = 1009;
-    constexpr int IDC_BTN_CANCEL     = 1010;
-}
-
+    constexpr int IDC_BTN_CANCEL = 1010;
+} // namespace
 
 FindDialog::FindDialog() = default;
 
@@ -66,13 +64,13 @@ SIZE computeTextSize(HWND hWnd, const wl::tstring &text) {
     SelectObject(hDC, hOld);
     ReleaseDC(hWnd, hDC);
 
-    return { rect.right - rect.left, rect.top - rect.bottom };
+    return {rect.right - rect.left, rect.top - rect.bottom};
 }
 
-INT_PTR CALLBACK FindDialog::dialog_proc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)  {
-    FindDialog* pSelf = nullptr;
+INT_PTR CALLBACK FindDialog::dialog_proc(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp) {
+    FindDialog *pSelf = nullptr;
     if (msg == WM_INITDIALOG) {
-        pSelf = reinterpret_cast<FindDialog*>(lp);
+        pSelf = reinterpret_cast<FindDialog *>(lp);
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
         SetWindowLongPtr(hDlg, DWLP_USER, reinterpret_cast<LONG_PTR>(pSelf));
 #else
@@ -82,7 +80,7 @@ INT_PTR CALLBACK FindDialog::dialog_proc(HWND hDlg, UINT msg, WPARAM wp, LPARAM 
         SetWindowText(hDlg, _T("Find and Replace"));
 
         // Setup a reasonable pixel-based size (360x150 client area)
-        RECT rc{ 0, 0, 360, 150 };
+        RECT rc{0, 0, 360, 150};
         AdjustWindowRectEx(&rc, WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | DS_MODALFRAME, FALSE, 0);
         SetWindowPos(hDlg, nullptr, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOMOVE);
 
@@ -92,10 +90,15 @@ INT_PTR CALLBACK FindDialog::dialog_proc(HWND hDlg, UINT msg, WPARAM wp, LPARAM 
             RECT rcDlg{}, rcParent{};
             GetWindowRect(hDlg, &rcDlg);
             GetWindowRect(hParent, &rcParent);
-            SetWindowPos(hDlg, nullptr,
+            SetWindowPos(
+                hDlg,
+                nullptr,
                 rcParent.left + (rcParent.right - rcParent.left) / 2 - (rcDlg.right - rcDlg.left) / 2,
                 rcParent.top + (rcParent.bottom - rcParent.top) / 2 - (rcDlg.bottom - rcDlg.top) / 2,
-                0, 0, SWP_NOZORDER | SWP_NOSIZE);
+                0,
+                0,
+                SWP_NOZORDER | SWP_NOSIZE
+            );
         }
 
         // setup initial layout
@@ -109,16 +112,16 @@ INT_PTR CALLBACK FindDialog::dialog_proc(HWND hDlg, UINT msg, WPARAM wp, LPARAM 
         int const textHeight = 50;
         int const searchTop = 10;
 
-        pSelf->_txtSearch.create(hDlg, IDC_TXT_SEARCH, wl::textbox::type::NORMAL, { leftPadding, 15 }, width - rightPadding - leftPadding, textHeight);
-        pSelf->_txtReplace.create(hDlg, IDC_TXT_REPLACE, wl::textbox::type::NORMAL, { leftPadding, 80 }, width - rightPadding - leftPadding, textHeight);
+        pSelf->_txtSearch.create(hDlg, IDC_TXT_SEARCH, wl::textbox::type::NORMAL, {leftPadding, 15}, width - rightPadding - leftPadding, textHeight);
+        pSelf->_txtReplace.create(hDlg, IDC_TXT_REPLACE, wl::textbox::type::NORMAL, {leftPadding, 80}, width - rightPadding - leftPadding, textHeight);
 
-        pSelf->_chkCase.create(hDlg, IDC_CHK_CASE, _T("Match case"), { 10, 75 }, { 100, 20 });
-        pSelf->_chkWord.create(hDlg, IDC_CHK_WORD, _T("Whole word"), { 120, 75 }, { 100, 20 });
+        pSelf->_chkCase.create(hDlg, IDC_CHK_CASE, _T("Match case"), {10, 75}, {100, 20});
+        pSelf->_chkWord.create(hDlg, IDC_CHK_WORD, _T("Whole word"), {120, 75}, {100, 20});
 
-        pSelf->_btnFindNext.create(hDlg, IDC_BTN_FINDNEXT, _T("Find Next"), { 10, 110 }, { 80, 25 });
-        pSelf->_btnReplace.create(hDlg, IDC_BTN_REPLACE, _T("Replace"), { 95, 110 }, { 80, 25 });
-        pSelf->_btnReplaceAll.create(hDlg, IDC_BTN_REPLACEALL, _T("Replace All"), { 180, 110 }, { 80, 25 });
-        pSelf->_btnCancel.create(hDlg, IDC_BTN_CANCEL, _T("Cancel"), { 265, 110 }, { 80, 25 });
+        pSelf->_btnFindNext.create(hDlg, IDC_BTN_FINDNEXT, _T("Find Next"), {10, 110}, {80, 25});
+        pSelf->_btnReplace.create(hDlg, IDC_BTN_REPLACE, _T("Replace"), {95, 110}, {80, 25});
+        pSelf->_btnReplaceAll.create(hDlg, IDC_BTN_REPLACEALL, _T("Replace All"), {180, 110}, {80, 25});
+        pSelf->_btnCancel.create(hDlg, IDC_BTN_CANCEL, _T("Cancel"), {265, 110}, {80, 25});
 
         // Apply system UI font on all dynamically created controls
         wl::font::util::set_ui_on_children(hDlg);
@@ -128,24 +131,21 @@ INT_PTR CALLBACK FindDialog::dialog_proc(HWND hDlg, UINT msg, WPARAM wp, LPARAM 
         // Labels and checkboxes stay put (fixed top area).
         // The buttons, anchored bottom, stay fixed-size but reposition
         // as a block relative to the growing right/bottom edges.
-        pSelf->_resz
-            .add(pSelf->_txtSearch,  wl::resizer::go::RESIZE, wl::resizer::go::NOTHING)
+        pSelf->_resz.add(pSelf->_txtSearch, wl::resizer::go::RESIZE, wl::resizer::go::NOTHING)
             .add(pSelf->_txtReplace, wl::resizer::go::RESIZE, wl::resizer::go::NOTHING)
-            .add(pSelf->_lblSearch,  wl::resizer::go::NOTHING, wl::resizer::go::NOTHING)
+            .add(pSelf->_lblSearch, wl::resizer::go::NOTHING, wl::resizer::go::NOTHING)
             .add(pSelf->_lblReplace, wl::resizer::go::NOTHING, wl::resizer::go::NOTHING)
-            .add(pSelf->_chkCase,    wl::resizer::go::NOTHING, wl::resizer::go::REPOS)
-            .add(pSelf->_chkWord,    wl::resizer::go::NOTHING, wl::resizer::go::REPOS)
-            .add({pSelf->_btnFindNext, pSelf->_btnReplace,
-                pSelf->_btnReplaceAll, pSelf->_btnCancel},
-                wl::resizer::go::REPOS, wl::resizer::go::REPOS);
+            .add(pSelf->_chkCase, wl::resizer::go::NOTHING, wl::resizer::go::REPOS)
+            .add(pSelf->_chkWord, wl::resizer::go::NOTHING, wl::resizer::go::REPOS)
+            .add({pSelf->_btnFindNext, pSelf->_btnReplace, pSelf->_btnReplaceAll, pSelf->_btnCancel}, wl::resizer::go::REPOS, wl::resizer::go::REPOS);
 
         SetFocus(pSelf->_txtSearch.hwnd());
         return FALSE; // Return FALSE because we set the focus manually
     } else {
 #if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0500
-        pSelf = reinterpret_cast<FindDialog*>(GetWindowLongPtr(hDlg, DWLP_USER));
+        pSelf = reinterpret_cast<FindDialog *>(GetWindowLongPtr(hDlg, DWLP_USER));
 #else
-        pSelf = reinterpret_cast<FindDialog*>(GetWindowLong(hDlg, DWL_USER));
+        pSelf = reinterpret_cast<FindDialog *>(GetWindowLong(hDlg, DWL_USER));
 #endif
     }
 

@@ -8,23 +8,23 @@
 #include <xenoide/ui/Menu.h>
 
 namespace xenoide {
-class FolderBrowser;
-class DialogManager;
-class FolderService;
+    class FolderBrowser;
+    class DialogManager;
+    class FolderService;
 
-class FolderBrowserModel {
-public:
-  explicit FolderBrowserModel(FolderService *folderService);
-  ~FolderBrowserModel();
+    class FolderBrowserModel {
+    public:
+        explicit FolderBrowserModel(FolderService *folderService);
+        ~FolderBrowserModel();
 
-  void setCurrentFolderPath(const std::filesystem::path &folderPath);
+        void setCurrentFolderPath(const std::filesystem::path &folderPath);
 
-  std::filesystem::path getCurrentFolderPath() const;
+        std::filesystem::path getCurrentFolderPath() const;
 
-  std::vector<std::filesystem::path> listChildPaths(const std::filesystem::path &folderPath) const;
+        std::vector<std::filesystem::path> listChildPaths(const std::filesystem::path &folderPath) const;
 
-  FolderService *folderService;
-  std::filesystem::path currentFolderPath;
-};
+        FolderService *folderService;
+        std::filesystem::path currentFolderPath;
+    };
 
-}
+} // namespace xenoide

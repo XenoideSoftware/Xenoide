@@ -21,4 +21,4 @@ namespace xenoide {
 
         wxStyledTextCtrl *mScintilla = nullptr;
     };
-}
+} // namespace xenoide

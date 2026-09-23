@@ -1,5 +1,5 @@
 
-#pragma once 
+#pragma once
 
 #include <string>
 #include <vector>
@@ -13,75 +13,68 @@
 
 #include "main_window_model.h"
 
-enum class ShowFileDialog {
-	Open,
-	Save
-};
+enum class ShowFileDialog { Open, Save };
 
 struct ShowFileDialogOptions {
-	std::string filter;
-	std::string defaultFile;
+    std::string filter;
+    std::string defaultFile;
 };
 
-enum class ShowMessageDialogButton {
-	No,
-	Yes,
-	Cancel
-};
+enum class ShowMessageDialogButton { No, Yes, Cancel };
 
 struct ShowMessageDialogOptions {
-	std::string title;
-	std::string prompt;
+    std::string title;
+    std::string prompt;
 };
 
 class MainWindowView : public Observer<MainWindowNotification> {
 public:
-	virtual ~MainWindowView() = default;
+    virtual ~MainWindowView() = default;
 
-	virtual std::optional<std::string> showFileDialog(ShowFileDialog dialog, const ShowFileDialogOptions &options) = 0;
+    virtual std::optional<std::string> showFileDialog(ShowFileDialog dialog, const ShowFileDialogOptions &options) = 0;
 
-	virtual ShowMessageDialogButton showMessageDialog(const ShowMessageDialogOptions &options) = 0;
+    virtual ShowMessageDialogButton showMessageDialog(const ShowMessageDialogOptions &options) = 0;
 
-	virtual void postQuitMessage() = 0;
+    virtual void postQuitMessage() = 0;
 };
 
 class MainWindowController {
 public:
-	MainWindowController();
-	
-	MainWindowController(MainWindowView *view, const SciEditor &editor);
+    MainWindowController();
 
-	void onNewFileCommand();
+    MainWindowController(MainWindowView *view, const SciEditor &editor);
 
-	void onOpenFileCommand();
+    void onNewFileCommand();
 
-	void onSaveFileCommand();
+    void onOpenFileCommand();
 
-	void onSaveAsFileCommand();
+    void onSaveFileCommand();
 
-	void onEditorUndoCommand();
+    void onSaveAsFileCommand();
 
-	void onEditorRedoCommand();
+    void onEditorUndoCommand();
 
-	void onEditorCutCommand();
+    void onEditorRedoCommand();
 
-	void onEditorCopyCommand();
+    void onEditorCutCommand();
 
-	void onEditorPasteCommand();
+    void onEditorCopyCommand();
 
-	void onEditorModified();
+    void onEditorPasteCommand();
 
-	void onEditorCharAdded(SCNotification const &notification);
+    void onEditorModified();
 
-	void onClose();
+    void onEditorCharAdded(SCNotification const &notification);
 
-	MainWindowView *view = nullptr;
+    void onClose();
 
-	MainWindowModel* getModel() {
-		assert(model);
-		return model.get();
-	}
+    MainWindowView *view = nullptr;
+
+    MainWindowModel *getModel() {
+        assert(model);
+        return model.get();
+    }
 
 private:
-	std::unique_ptr<MainWindowModel> model;
+    std::unique_ptr<MainWindowModel> model;
 };

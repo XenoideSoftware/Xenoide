@@ -8,13 +8,13 @@
 
 namespace xenoide {
 
-class FileSearchDialogModel {
-public:
-  virtual ~FileSearchDialogModel();
+    class FileSearchDialogModel {
+    public:
+        virtual ~FileSearchDialogModel();
 
-  virtual std::vector<std::filesystem::path> searchFilePattern(const std::string &filePattern, const int maxResults) = 0;
+        virtual std::vector<std::filesystem::path> searchFilePattern(const std::string &filePattern, const int maxResults) = 0;
 
-public:
-  static std::unique_ptr<FileSearchDialogModel> create(const std::filesystem::path &basePath);
-};
-}
+    public:
+        static std::unique_ptr<FileSearchDialogModel> create(const std::filesystem::path &basePath);
+    };
+} // namespace xenoide

@@ -41,4 +41,4 @@ namespace xenoide {
         QMdiArea *mdiArea = nullptr;
         DialogManagerQt dialogManager;
     };
-}
+} // namespace xenoide

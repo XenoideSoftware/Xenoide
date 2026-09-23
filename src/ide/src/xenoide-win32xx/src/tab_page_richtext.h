@@ -16,8 +16,8 @@ protected:
     void OnAttach() override;
 
 private:
-    RichEditView(const RichEditView&) = delete;
-    RichEditView& operator=(const RichEditView&) = delete;
+    RichEditView(const RichEditView &) = delete;
+    RichEditView &operator=(const RichEditView &) = delete;
 
     CFont m_font;
     CString m_body;
@@ -29,8 +29,8 @@ public:
     ~OutputContainer() override = default;
 
 private:
-    OutputContainer(const OutputContainer&) = delete;
-    OutputContainer& operator=(const OutputContainer&) = delete;
+    OutputContainer(const OutputContainer &) = delete;
+    OutputContainer &operator=(const OutputContainer &) = delete;
 
     RichEditView m_view;
 };
@@ -41,8 +41,8 @@ public:
     ~LogsContainer() override = default;
 
 private:
-    LogsContainer(const LogsContainer&) = delete;
-    LogsContainer& operator=(const LogsContainer&) = delete;
+    LogsContainer(const LogsContainer &) = delete;
+    LogsContainer &operator=(const LogsContainer &) = delete;
 
     RichEditView m_view;
 };
@@ -53,8 +53,8 @@ public:
     ~OutputTabDocker() override = default;
 
 private:
-    OutputTabDocker(const OutputTabDocker&) = delete;
-    OutputTabDocker& operator=(const OutputTabDocker&) = delete;
+    OutputTabDocker(const OutputTabDocker &) = delete;
+    OutputTabDocker &operator=(const OutputTabDocker &) = delete;
 
     OutputContainer m_container;
 };
@@ -65,8 +65,8 @@ public:
     ~LogsTabDocker() override = default;
 
 private:
-    LogsTabDocker(const LogsTabDocker&) = delete;
-    LogsTabDocker& operator=(const LogsTabDocker&) = delete;
+    LogsTabDocker(const LogsTabDocker &) = delete;
+    LogsTabDocker &operator=(const LogsTabDocker &) = delete;
 
     LogsContainer m_container;
 };

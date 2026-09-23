@@ -10,10 +10,7 @@
 #include <xenoide/core/Predef.h>
 
 namespace xenoide {
-    enum class FileDialogType {
-        OpenFile,
-        SaveFile
-    };
+    enum class FileDialogType { OpenFile, SaveFile };
 
     struct FileDialogData {
         std::string title;
@@ -27,28 +24,15 @@ namespace xenoide {
         std::filesystem::path defaultPath;
     };
 
-    enum class DialogIcon {
-        Information,
-        Warning,
-        Error,
-        Question
-    };
+    enum class DialogIcon { Information, Warning, Error, Question };
 
-    enum class DialogButton {
-        Ok = 1,
-        Cancel = 2,
-        Yes = 4,
-        No = 8,
-        OkCancel = Ok | Cancel,
-        YesNoCancel = Yes | No | Cancel,
-        YesNo = Yes | No
-    };
+    enum class DialogButton { Ok = 1, Cancel = 2, Yes = 4, No = 8, OkCancel = Ok | Cancel, YesNoCancel = Yes | No | Cancel, YesNo = Yes | No };
 
-    inline DialogButton operator| (const DialogButton f1, const DialogButton f2) {
+    inline DialogButton operator|(const DialogButton f1, const DialogButton f2) {
         return static_cast<DialogButton>(static_cast<int>(f1) | static_cast<int>(f2));
     }
 
-    inline bool operator& (const DialogButton f1, const DialogButton f2) {
+    inline bool operator&(const DialogButton f1, const DialogButton f2) {
         if (f1 & f2) {
             return true;
         }
@@ -83,6 +67,6 @@ namespace xenoide {
         virtual std::optional<std::filesystem::path> showFolderDialog(const FolderDialogData &data) = 0;
         virtual std::optional<std::filesystem::path> showFileSearchDialog(const FileSearchDialogData &data) const = 0;
     };
-}
+} // namespace xenoide
 
 #endif

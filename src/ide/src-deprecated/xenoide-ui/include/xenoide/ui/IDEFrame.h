@@ -9,7 +9,6 @@
 #include <xenoide/ui/DocumentManager.h>
 #include <xenoide/ui/FolderBrowser.h>
 
-
 namespace xenoide {
     class DocumentManagerPresenter;
     class DocumentManagerModel;
@@ -20,19 +19,17 @@ namespace xenoide {
 
     class IDEFrame {
     public:
-        enum Panel {
-            FOLDER_BROWSER
-        };
+        enum Panel { FOLDER_BROWSER };
 
         explicit IDEFrame(IDEFramePresenter *presenter);
 
         virtual ~IDEFrame();
 
-        virtual DocumentManager* getDocumentManager() = 0;
+        virtual DocumentManager *getDocumentManager() = 0;
 
-        virtual DialogManager* getDialogManager() = 0;
-        
-        virtual FolderBrowser* getFolderBrowser() = 0;
+        virtual DialogManager *getDialogManager() = 0;
+
+        virtual FolderBrowser *getFolderBrowser() = 0;
 
         virtual void close() = 0;
 
@@ -43,6 +40,6 @@ namespace xenoide {
     protected:
         IDEFramePresenter *mPresenter;
     };
-}
+} // namespace xenoide
 
 #endif

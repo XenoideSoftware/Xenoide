@@ -35,4 +35,4 @@ namespace xenoide {
         ScintillaEdit *scintilla = nullptr;
         Document2 *document;
     };
-}
+} // namespace xenoide

@@ -7,48 +7,48 @@
 #include <xenoide/core/Predef.h>
 
 namespace xenoide {
-class DocumentModel {
-public:
-  explicit DocumentModel(int tag);
+    class DocumentModel {
+    public:
+        explicit DocumentModel(int tag);
 
-  explicit DocumentModel(const std::string &filePath);
+        explicit DocumentModel(const std::string &filePath);
 
-  explicit DocumentModel(const std::string &filePath, const std::string &content);
+        explicit DocumentModel(const std::string &filePath, const std::string &content);
 
-  ~DocumentModel();
+        ~DocumentModel();
 
-  int getTag() const;
+        int getTag() const;
 
-  int getId() const;
+        int getId() const;
 
-  void setModifiedFlag(const bool value);
+        void setModifiedFlag(const bool value);
 
-  bool getModifiedFlag() const;
+        bool getModifiedFlag() const;
 
-  void modify();
+        void modify();
 
-  void setFilePath(const std::string &value);
+        void setFilePath(const std::string &value);
 
-  std::string getFilePath() const;
+        std::string getFilePath() const;
 
-  bool hasFilePath() const;
+        bool hasFilePath() const;
 
-  void setContent(const std::string &value);
+        void setContent(const std::string &value);
 
-  std::string getContent() const;
+        std::string getContent() const;
 
-public:
-  static int getCount();
+    public:
+        static int getCount();
 
-protected:
-  static int count;
+    protected:
+        static int count;
 
-private:
-  int tag = 0;
-  int id = 0;
-  bool modified = false;
-  std::string filePath;
-  std::string content;
-};
+    private:
+        int tag = 0;
+        int id = 0;
+        bool modified = false;
+        std::string filePath;
+        std::string content;
+    };
 
-}
+} // namespace xenoide

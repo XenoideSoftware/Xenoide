@@ -20,37 +20,37 @@
 
 namespace wlx {
 
-class dock_window : public wl::window_control {
-public:
-    static constexpr int IDC_TABS = 9001;
+    class dock_window : public wl::window_control {
+    public:
+        static constexpr int IDC_TABS = 9001;
 
-    dock_window();
+        dock_window();
 
-    dock_window(dock_window&&)            = default;
-    dock_window& operator=(dock_window&&) = default;
+        dock_window(dock_window &&) = default;
+        dock_window &operator=(dock_window &&) = default;
 
-    dock_window& set_title(wl::tstring text);
+        dock_window &set_title(wl::tstring text);
 
-    dock_window& add_page(const wl::tstring& label, HWND page);
+        dock_window &add_page(const wl::tstring &label, HWND page);
 
-    dock_window& select_page(size_t index);
+        dock_window &select_page(size_t index);
 
-    int selected_index() const noexcept;
+        int selected_index() const noexcept;
 
-private:
-    wl::tstring       _title;
-    wlx::tabctrl      _tabs;
-    std::vector<HWND> _pages;
-    int               _activeIdx = -1;
-    wl::font          _font;
-    int               _titleH    = 22;
-    int               _tabH      = 22;
+    private:
+        wl::tstring _title;
+        wlx::tabctrl _tabs;
+        std::vector<HWND> _pages;
+        int _activeIdx = -1;
+        wl::font _font;
+        int _titleH = 22;
+        int _tabH = 22;
 
-    void _recompute_metrics() noexcept;
+        void _recompute_metrics() noexcept;
 
-    void _layout(int w, int h) noexcept;
+        void _layout(int w, int h) noexcept;
 
-    void _paint_title(HDC hdc, const RECT& rc) noexcept;
-};
+        void _paint_title(HDC hdc, const RECT &rc) noexcept;
+    };
 
 } // namespace wlx

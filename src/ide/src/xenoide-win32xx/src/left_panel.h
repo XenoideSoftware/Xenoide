@@ -13,8 +13,8 @@ protected:
     void OnAttach() override;
 
 private:
-    FilesView(const FilesView&) = delete;
-    FilesView& operator=(const FilesView&) = delete;
+    FilesView(const FilesView &) = delete;
+    FilesView &operator=(const FilesView &) = delete;
 };
 
 class OutlineView : public CTreeView {
@@ -26,8 +26,8 @@ protected:
     void OnAttach() override;
 
 private:
-    OutlineView(const OutlineView&) = delete;
-    OutlineView& operator=(const OutlineView&) = delete;
+    OutlineView(const OutlineView &) = delete;
+    OutlineView &operator=(const OutlineView &) = delete;
 };
 
 class FilesContainer : public CDockContainer {
@@ -36,8 +36,8 @@ public:
     ~FilesContainer() override = default;
 
 private:
-    FilesContainer(const FilesContainer&) = delete;
-    FilesContainer& operator=(const FilesContainer&) = delete;
+    FilesContainer(const FilesContainer &) = delete;
+    FilesContainer &operator=(const FilesContainer &) = delete;
 
     FilesView m_view;
 };
@@ -48,8 +48,8 @@ public:
     ~OutlineContainer() override = default;
 
 private:
-    OutlineContainer(const OutlineContainer&) = delete;
-    OutlineContainer& operator=(const OutlineContainer&) = delete;
+    OutlineContainer(const OutlineContainer &) = delete;
+    OutlineContainer &operator=(const OutlineContainer &) = delete;
 
     OutlineView m_view;
 };
@@ -60,8 +60,8 @@ public:
     ~FilesTabDocker() override = default;
 
 private:
-    FilesTabDocker(const FilesTabDocker&) = delete;
-    FilesTabDocker& operator=(const FilesTabDocker&) = delete;
+    FilesTabDocker(const FilesTabDocker &) = delete;
+    FilesTabDocker &operator=(const FilesTabDocker &) = delete;
 
     FilesContainer m_container;
 };
@@ -72,8 +72,8 @@ public:
     ~OutlineTabDocker() override = default;
 
 private:
-    OutlineTabDocker(const OutlineTabDocker&) = delete;
-    OutlineTabDocker& operator=(const OutlineTabDocker&) = delete;
+    OutlineTabDocker(const OutlineTabDocker &) = delete;
+    OutlineTabDocker &operator=(const OutlineTabDocker &) = delete;
 
     OutlineContainer m_container;
 };

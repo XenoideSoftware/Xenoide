@@ -9,12 +9,14 @@
 #include <xenoide/ui/Menu.h>
 
 namespace xenoide {
-class FolderBrowser;
-class DialogManager;
-class FolderService;
-class FolderBrowserPresenter;
+    class FolderBrowser;
+    class DialogManager;
+    class FolderService;
+    class FolderBrowserPresenter;
 
-    struct Point { int x, y; };
+    struct Point {
+        int x, y;
+    };
 
     class FolderBrowser {
     public:
@@ -30,6 +32,6 @@ class FolderBrowserPresenter;
     protected:
         FolderBrowserPresenter *presenter;
     };
-} 
+} // namespace xenoide
 
 #endif

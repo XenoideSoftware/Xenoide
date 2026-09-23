@@ -10,8 +10,8 @@ public:
     ~DocumentsView() override = default;
 
 private:
-    DocumentsView(const DocumentsView&) = delete;
-    DocumentsView& operator=(const DocumentsView&) = delete;
+    DocumentsView(const DocumentsView &) = delete;
+    DocumentsView &operator=(const DocumentsView &) = delete;
 
     RichEditView m_editor;
 };

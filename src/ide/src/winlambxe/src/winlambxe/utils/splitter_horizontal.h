@@ -5,23 +5,23 @@
 
 namespace wlx {
 
-/**
- * @brief Horizontal splitter control dividing top and bottom panes.
- *
- * It occupies the entire provided background area and lays out its two
- * child edits to the top and bottom, preserving the bar gap at `_split_pos`.
- */
-class splitter_horizontal : public splitter_base<splitter_horizontal> {
-public:
-    splitter_horizontal();
+    /**
+     * @brief Horizontal splitter control dividing top and bottom panes.
+     *
+     * It occupies the entire provided background area and lays out its two
+     * child edits to the top and bottom, preserving the bar gap at `_split_pos`.
+     */
+    class splitter_horizontal : public splitter_base<splitter_horizontal> {
+    public:
+        splitter_horizontal();
 
-    LPTSTR get_cursor() const noexcept;
+        LPTSTR get_cursor() const noexcept;
 
-    int get_primary_size(int w, int h) const noexcept;
+        int get_primary_size(int w, int h) const noexcept;
 
-    void on_layout(int w, int h) noexcept;
+        void on_layout(int w, int h) noexcept;
 
-    void on_drag(int x, int y) noexcept;
-};
+        void on_drag(int x, int y) noexcept;
+    };
 
 } // namespace wlx

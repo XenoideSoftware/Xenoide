@@ -1,5 +1,5 @@
 
-#pragma once 
+#pragma once
 
 #include "Model.h"
 #include "FileSystemService.h"
@@ -9,43 +9,41 @@
 #include <map>
 
 namespace Xenoide {
-	class FileSystemService;
+    class FileSystemService;
 
     using FolderExplorerCallback = std::function<void(const Path, const std::string)>;
 
+    struct FolderExplorerItem {
+        std::string title;
+        Path path;
+    };
 
-	struct FolderExplorerItem {
-		std::string title;
-		Path path;
-	};
+    class FolderExplorer {
+    public:
+        explicit FolderExplorer(FileSystemService *fileSystemService);
 
+        Folder getFolder() const {
+            return rootFolder;
+        }
 
-	class FolderExplorer {
-	public:
-		explicit FolderExplorer(FileSystemService* fileSystemService);
+        void setFolder(const Folder rootFolder, FolderExplorerCallback callback);
 
-		Folder getFolder() const {
-			return rootFolder;
-		}
+        int compare(const int itemId1, const int itemId2) const;
 
-		void setFolder(const Folder rootFolder, FolderExplorerCallback callback);
+        bool itemIsPopulated(const int itemId) const;
 
-		int compare(const int itemId1, const int itemId2) const;
+        void insertItem(const int itemId, const Path path);
 
-		bool itemIsPopulated(const int itemId) const;
+        void populateItem(const int parentItemId, FolderExplorerCallback callback);
 
-		void insertItem(const int itemId, const Path path);
+        std::vector<FolderExplorerItem> populateItem(const int parentItemId);
 
-		void populateItem(const int parentItemId, FolderExplorerCallback callback);
-
-		std::vector<FolderExplorerItem> populateItem(const int parentItemId);
-
-	private:
-		FileSystemService* fileSystemService = nullptr;
-		Folder rootFolder;
-		// boost::bimap<int, Xenoide::Path> pathItemsCache;
+    private:
+        FileSystemService *fileSystemService = nullptr;
+        Folder rootFolder;
+        // boost::bimap<int, Xenoide::Path> pathItemsCache;
         std::map<int, Xenoide::Path> pathItemsCacheLeft;
         std::map<Xenoide::Path, int> pathItemsCacheRight;
-		std::set<int> populatedItems;
-	};
-}
+        std::set<int> populatedItems;
+    };
+} // namespace Xenoide

@@ -8,76 +8,75 @@
 #include <xenoide/ui/DocumentManager.h>
 #include <xenoide/ui/FolderBrowser.h>
 
-
 namespace xenoide {
-class DocumentManagerPresenter;
-class DocumentManagerModel;
-class DialogManager;
-class FolderBrowser;
-class MenuPanel;
-class IDEFrameModel;
-class IDEFrame;
-class ActionBus;
+    class DocumentManagerPresenter;
+    class DocumentManagerModel;
+    class DialogManager;
+    class FolderBrowser;
+    class MenuPanel;
+    class IDEFrameModel;
+    class IDEFrame;
+    class ActionBus;
 
-class IDEFramePresenter {
-public:
-  IDEFramePresenter(ActionBus *actionBus, IDEFrameModel *model);
+    class IDEFramePresenter {
+    public:
+        IDEFramePresenter(ActionBus *actionBus, IDEFrameModel *model);
 
-  virtual ~IDEFramePresenter();
+        virtual ~IDEFramePresenter();
 
-  void onInitialized(IDEFrame *view, DialogManager *dialogView, MenuPanel *menuView);
+        void onInitialized(IDEFrame *view, DialogManager *dialogView, MenuPanel *menuView);
 
-public:
-  void onFileNew();
+    public:
+        void onFileNew();
 
-  void onFileOpen();
+        void onFileOpen();
 
-  void onFileOpen(const std::string &fileName);
+        void onFileOpen(const std::string &fileName);
 
-  void onFileOpenFolder();
+        void onFileOpenFolder();
 
-  void onFileSave();
+        void onFileSave();
 
-  void onFileSaveAs();
+        void onFileSaveAs();
 
-  void onFileSaveAll();
+        void onFileSaveAll();
 
-  void onFileClose();
+        void onFileClose();
 
-  void onFileExit();
+        void onFileExit();
 
-  void onEditUndo();
+        void onEditUndo();
 
-  void onEditRedo();
+        void onEditRedo();
 
-  void onEditCut();
+        void onEditCut();
 
-  void onEditCopy();
+        void onEditCopy();
 
-  void onEditPaste();
+        void onEditPaste();
 
-  void onViewFolderBrowser();
+        void onViewFolderBrowser();
 
-  void onToolsFileSearch();
+        void onToolsFileSearch();
 
-  bool onCloseRequested();
+        bool onCloseRequested();
 
-public:
-  DocumentManagerPresenter* getDocumentManagerPresenter();
+    public:
+        DocumentManagerPresenter *getDocumentManagerPresenter();
 
-  FolderBrowserPresenter* getFolderBrowserPresenter();
+        FolderBrowserPresenter *getFolderBrowserPresenter();
 
-  // TODO: Make it private (used in Main.cpp)
-  void openFolder(const std::string &fullPath);
+        // TODO: Make it private (used in Main.cpp)
+        void openFolder(const std::string &fullPath);
 
-private:
-  DialogManager *dialogView = nullptr;
-  MenuPanel *menuView = nullptr;
-  IDEFrame *view = nullptr;
-  IDEFrameModel *model = nullptr;
+    private:
+        DialogManager *dialogView = nullptr;
+        MenuPanel *menuView = nullptr;
+        IDEFrame *view = nullptr;
+        IDEFrameModel *model = nullptr;
 
-  std::unique_ptr<DocumentManagerPresenter> documentManagerPresenter;
-  std::unique_ptr<FolderBrowserPresenter> folderBrowserPresenter;
-};
+        std::unique_ptr<DocumentManagerPresenter> documentManagerPresenter;
+        std::unique_ptr<FolderBrowserPresenter> folderBrowserPresenter;
+    };
 
-}
+} // namespace xenoide

@@ -15,17 +15,15 @@
 #include <xenoide/ui/IDEFrame.h>
 
 namespace xenoide {
-    const char* appTitle = "Xenoide";
+    const char *appTitle = "Xenoide";
 
     std::string getScintillaText(ScintillaEdit *scintillaEdit) {
         const QByteArray text = scintillaEdit->getText(scintillaEdit->textLength());
-        return { text.constData(), static_cast<size_t>(text.size()) };
+        return {text.constData(), static_cast<size_t>(text.size())};
     }
 
     std::vector<FileFilter> getFileFilters() {
-        return {
-            FileFilter{"All Files", {"*"}}
-        };
+        return {FileFilter{"All Files", {"*"}}};
     }
 
     MainWindowQt::MainWindowQt() : dialogManager(this) {
@@ -37,7 +35,7 @@ namespace xenoide {
         const auto areas = QFlags<Qt::DockWidgetArea>(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
         folderBrowserDock = new QDockWidget("Folder Browser", this);
         folderBrowser = new FolderBrowserQt(folderBrowserDock);
-        QObject::connect(folderBrowser, &FolderBrowserQt::pathActivated, this, [this] (const QString& path) {
+        QObject::connect(folderBrowser, &FolderBrowserQt::pathActivated, this, [this](const QString &path) {
             if (checkIfCanCloseDocument() != CloseCheckResult::CanClose) {
                 return;
             }
@@ -70,8 +68,16 @@ namespace xenoide {
         documentManager->appendDocumentWindow();
     }
 
-    void MainWindowQt::scintillaModified(Scintilla::ModificationFlags type, Scintilla::Position position, Scintilla::Position length, Scintilla::Position linesAdded,
-          const QByteArray &text, Scintilla::Position line, Scintilla::FoldLevel foldNow, Scintilla::FoldLevel foldPrev) {
+    void MainWindowQt::scintillaModified(
+        Scintilla::ModificationFlags type,
+        Scintilla::Position position,
+        Scintilla::Position length,
+        Scintilla::Position linesAdded,
+        const QByteArray &text,
+        Scintilla::Position line,
+        Scintilla::FoldLevel foldNow,
+        Scintilla::FoldLevel foldPrev
+    ) {
 
         // do other actions
         document.flags = static_cast<DocumentFlags>(document.flags | DF_MODIFIED);
@@ -80,16 +86,14 @@ namespace xenoide {
         documentChangedAction->trigger();
     }
 
-    QAction *
-    MainWindowQt::createAction(const QString &text,
-                               const std::optional<QKeySequence> &keySequence) {
-      auto action = new QAction(text, this);
+    QAction *MainWindowQt::createAction(const QString &text, const std::optional<QKeySequence> &keySequence) {
+        auto action = new QAction(text, this);
 
-      if (keySequence.has_value()) {
-        action->setShortcut(keySequence.value());
-      }
+        if (keySequence.has_value()) {
+            action->setShortcut(keySequence.value());
+        }
 
-      return action;
+        return action;
     }
 
     void MainWindowQt::updateWindowTitle() {
@@ -107,8 +111,8 @@ namespace xenoide {
     }
 
     std::optional<std::filesystem::path> MainWindowQt::pickFile(const FileDialogType &type) {
-        auto fileDialog = FileDialogData {};
-        fileDialog.title = type == FileDialogType::SaveFile ?  "Save File" : "Open File";
+        auto fileDialog = FileDialogData{};
+        fileDialog.title = type == FileDialogType::SaveFile ? "Save File" : "Open File";
         fileDialog.type = type;
         fileDialog.defaultPath = document.computeFileTitle();
         fileDialog.filters = getFileFilters();
@@ -175,9 +179,7 @@ namespace xenoide {
         appAboutAction = createAction("&About", QKeySequence("F1"));
         documentChangedAction = createAction("");
 
-        QObject::connect(documentChangedAction, &QAction::triggered, [this]() {
-            updateWindowTitle();
-        });
+        QObject::connect(documentChangedAction, &QAction::triggered, [this]() { updateWindowTitle(); });
 
         QObject::connect(documentOpenAction, &QAction::triggered, [this]() {
             if (checkIfCanCloseDocument() != CloseCheckResult::CanClose) {
@@ -246,4 +248,4 @@ namespace xenoide {
             close();
         }
     }
-}
+} // namespace xenoide

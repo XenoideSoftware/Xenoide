@@ -6,73 +6,72 @@
 #include <xenoide/core/FileService.h>
 #include <xenoide/ui/DialogManager.h>
 
-
-
 namespace xenoide {
-        DocumentModel::DocumentModel(int tag) {
-            id = ++count;
+    DocumentModel::DocumentModel(int tag) {
+        id = ++count;
 
-            this->tag = tag;
-        }
+        this->tag = tag;
+    }
 
-        DocumentModel::DocumentModel(const std::string &filePath) {
-            id = ++count;
-        
-            this->setFilePath(filePath);
-        }
+    DocumentModel::DocumentModel(const std::string &filePath) {
+        id = ++count;
 
-        DocumentModel::DocumentModel(const std::string &filePath, const std::string &content) {
-            id = ++count;
+        this->setFilePath(filePath);
+    }
 
-            this->setFilePath(filePath);
-            this->setContent(content);
-        }
+    DocumentModel::DocumentModel(const std::string &filePath, const std::string &content) {
+        id = ++count;
 
-        int DocumentModel::getTag() const {
-            return tag;
-        }
+        this->setFilePath(filePath);
+        this->setContent(content);
+    }
 
-        int DocumentModel::getId() const {
-            return id;
-        }
+    int DocumentModel::getTag() const {
+        return tag;
+    }
 
-        void DocumentModel::setModifiedFlag(const bool value) {
-            modified = value;
-        }
+    int DocumentModel::getId() const {
+        return id;
+    }
 
-        bool DocumentModel::getModifiedFlag() const {
-            return modified;
-        }
+    void DocumentModel::setModifiedFlag(const bool value) {
+        modified = value;
+    }
 
-        void DocumentModel::modify() {
-            modified = true;
-        }
+    bool DocumentModel::getModifiedFlag() const {
+        return modified;
+    }
 
-        void DocumentModel::setFilePath(const std::string &value) {
-            filePath = value;
-        }
+    void DocumentModel::modify() {
+        modified = true;
+    }
 
-        std::string DocumentModel::getFilePath() const {
-            return filePath;
-        }
+    void DocumentModel::setFilePath(const std::string &value) {
+        filePath = value;
+    }
 
-        bool DocumentModel::hasFilePath() const {
-            return filePath != "";
-        }
+    std::string DocumentModel::getFilePath() const {
+        return filePath;
+    }
 
-        void DocumentModel::setContent(const std::string &value) {
-            content = value;
-        }
+    bool DocumentModel::hasFilePath() const {
+        return filePath != "";
+    }
 
-        std::string DocumentModel::getContent() const {
-            return content;        
-        }
+    void DocumentModel::setContent(const std::string &value) {
+        content = value;
+    }
+
+    std::string DocumentModel::getContent() const {
+        return content;
+    }
 
     int DocumentModel::count = 0;
 
-    DocumentModel::~DocumentModel() {}
+    DocumentModel::~DocumentModel() {
+    }
 
     int DocumentModel::getCount() {
         return DocumentModel::count;
     }
-}
+} // namespace xenoide

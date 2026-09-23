@@ -20,10 +20,9 @@
 struct CommandData {
     wl::tstring caption;
     wl::tstring hint;
-    BYTE   fVirt = 0;
-    WORD   key = 0;
+    BYTE fVirt = 0;
+    WORD key = 0;
 };
-
 
 class MainWindow : public wl::window_main, public MainWindowView {
 public:
@@ -31,7 +30,7 @@ public:
 
 private:
     void update(const MainWindowNotification &notification) override;
-    
+
     void buildMenu();
     void buildMenuToolbar();
     void buildStatusBar();
@@ -39,9 +38,9 @@ private:
     void buildAcceleratorTable();
     void buildToolbars();
     void buildActionToolbar();
-    
+
     void layout();
-    
+
     void buildRebar();
     void addRebarBand(UINT wId, HWND hChild, bool breakBand = false);
 

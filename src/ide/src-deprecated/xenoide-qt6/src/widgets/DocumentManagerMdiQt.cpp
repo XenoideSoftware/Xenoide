@@ -24,7 +24,7 @@ namespace xenoide {
         connect(closeAllAction, &QAction::triggered, [this]() {});
         connect(closeToTheRightAction, &QAction::triggered, [this]() {});
 
-        contextMenu = new QMenu ("Context Menu", this);
+        contextMenu = new QMenu("Context Menu", this);
         contextMenu->addAction(closeAction);
         contextMenu->addAction(closeAllButThisAction);
         contextMenu->addAction(closeAllAction);
@@ -48,10 +48,10 @@ namespace xenoide {
         this->setLayout(layout);
     }
 
-    std::optional<int>  DocumentManagerMdiQt::getDocumentIndex(const QPoint &pos) const {
-        QList<QMdiSubWindow*> subWindows = mdiArea->subWindowList();
+    std::optional<int> DocumentManagerMdiQt::getDocumentIndex(const QPoint &pos) const {
+        QList<QMdiSubWindow *> subWindows = mdiArea->subWindowList();
 
-        for (int i=0; i<subWindows.count(); i++) {
+        for (int i = 0; i < subWindows.count(); i++) {
             if (const QRect rect = subWindows[i]->rect(); rect.contains(pos)) {
                 return i;
             }
@@ -60,7 +60,7 @@ namespace xenoide {
         return {};
     }
 
-    DocumentMdiSubWindowQt * DocumentManagerMdiQt::appendDocumentWindow() {
+    DocumentMdiSubWindowQt *DocumentManagerMdiQt::appendDocumentWindow() {
         assert(mdiArea);
 
         // TODO: This document-tab initialization logic is private to the CustomMdiSubWindow. Consider refactor it later
@@ -88,7 +88,6 @@ namespace xenoide {
         return documentSubWindowQt;
     }
 
-
     void DocumentManagerMdiQt::setCurrentDocument(DocumentMdiSubWindowQt *documentWindow) {
         assert(mdiArea);
         assert(documentWindow);
@@ -96,9 +95,9 @@ namespace xenoide {
         mdiArea->setActiveSubWindow(documentWindow);
     }
 
-    DocumentMdiSubWindowQt* DocumentManagerMdiQt::getCurrentDocument() const{
+    DocumentMdiSubWindowQt *DocumentManagerMdiQt::getCurrentDocument() const {
         assert(mdiArea);
 
-        return dynamic_cast<DocumentMdiSubWindowQt*>(mdiArea->activeSubWindow());
+        return dynamic_cast<DocumentMdiSubWindowQt *>(mdiArea->activeSubWindow());
     }
-}
+} // namespace xenoide

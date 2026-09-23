@@ -20,10 +20,7 @@
 #include "widgets/DocumentManagerMdiQt.h"
 
 namespace xenoide {
-    enum class CloseCheckResult {
-        Cancelled,
-        CanClose
-    };
+    enum class CloseCheckResult { Cancelled, CanClose };
 
     class FolderBrowserQt;
     class MainWindowQt : public QMainWindow {
@@ -39,14 +36,20 @@ namespace xenoide {
 
         void updateWindowTitle();
 
-        QAction *
-        createAction(const QString &text,
-                     const std::optional<QKeySequence> &keySequence = {});
+        QAction *createAction(const QString &text, const std::optional<QKeySequence> &keySequence = {});
 
         void initializeActions();
 
-        void scintillaModified(Scintilla::ModificationFlags type, Scintilla::Position position, Scintilla::Position length, Scintilla::Position linesAdded,
-          const QByteArray &text, Scintilla::Position line, Scintilla::FoldLevel foldNow, Scintilla::FoldLevel foldPrev);
+        void scintillaModified(
+            Scintilla::ModificationFlags type,
+            Scintilla::Position position,
+            Scintilla::Position length,
+            Scintilla::Position linesAdded,
+            const QByteArray &text,
+            Scintilla::Position line,
+            Scintilla::FoldLevel foldNow,
+            Scintilla::FoldLevel foldPrev
+        );
 
         QMessageBox::StandardButton askForSavingChanges();
 
@@ -91,6 +94,6 @@ namespace xenoide {
 
         FileService fileService;
     };
-}
+} // namespace xenoide
 
 #endif

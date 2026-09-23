@@ -13,13 +13,13 @@ HWND MainFrame::Create(HWND parent) {
     return CDockFrame::Create(parent);
 }
 
-void MainFrame::PreCreate(CREATESTRUCT& cs) {
+void MainFrame::PreCreate(CREATESTRUCT &cs) {
     CDockFrame::PreCreate(cs);
     cs.cx = 1100;
     cs.cy = 700;
 }
 
-int MainFrame::OnCreate(CREATESTRUCT& cs) {
+int MainFrame::OnCreate(CREATESTRUCT &cs) {
     UseToolBar(FALSE);
     UseReBar(FALSE);
     UseIndicatorStatus(FALSE);
@@ -34,30 +34,14 @@ void MainFrame::OnInitialUpdate() {
 void MainFrame::LoadDefaultDockers() {
     const DWORD style = DS_CLIENTEDGE;
 
-    CDocker* leftRoot = AddDockedChild(
-        std::make_unique<FilesTabDocker>(),
-        DS_DOCKED_LEFT | style,
-        DpiScaleInt(260),
-        ID_DOCK_LEFT);
+    CDocker *leftRoot = AddDockedChild(std::make_unique<FilesTabDocker>(), DS_DOCKED_LEFT | style, DpiScaleInt(260), ID_DOCK_LEFT);
     if (leftRoot) {
-        leftRoot->AddDockedChild(
-            std::make_unique<OutlineTabDocker>(),
-            DS_DOCKED_CONTAINER | style,
-            DpiScaleInt(260),
-            ID_DOCK_LEFT + 1);
+        leftRoot->AddDockedChild(std::make_unique<OutlineTabDocker>(), DS_DOCKED_CONTAINER | style, DpiScaleInt(260), ID_DOCK_LEFT + 1);
     }
 
-    CDocker* bottomRoot = AddDockedChild(
-        std::make_unique<OutputTabDocker>(),
-        DS_DOCKED_BOTTOM | style,
-        DpiScaleInt(200),
-        ID_DOCK_BOTTOM);
+    CDocker *bottomRoot = AddDockedChild(std::make_unique<OutputTabDocker>(), DS_DOCKED_BOTTOM | style, DpiScaleInt(200), ID_DOCK_BOTTOM);
     if (bottomRoot) {
-        bottomRoot->AddDockedChild(
-            std::make_unique<LogsTabDocker>(),
-            DS_DOCKED_CONTAINER | style,
-            DpiScaleInt(200),
-            ID_DOCK_BOTTOM + 1);
+        bottomRoot->AddDockedChild(std::make_unique<LogsTabDocker>(), DS_DOCKED_CONTAINER | style, DpiScaleInt(200), ID_DOCK_BOTTOM + 1);
     }
 
     SetDockStyle(style);
@@ -66,8 +50,10 @@ void MainFrame::LoadDefaultDockers() {
 BOOL MainFrame::OnCommand(WPARAM wparam, LPARAM) {
     UINT id = LOWORD(wparam);
     switch (id) {
-    case IDM_FILE_EXIT:    return OnFileExit();
-    case IDM_HELP_ABOUT:   return OnHelpAbout();
+    case IDM_FILE_EXIT:
+        return OnFileExit();
+    case IDM_HELP_ABOUT:
+        return OnHelpAbout();
     case IDM_FILE_NEW:
     case IDM_FILE_OPEN:
     case IDM_FILE_SAVE:
@@ -95,8 +81,7 @@ BOOL MainFrame::OnHelpAbout() {
 LRESULT MainFrame::WndProc(UINT msg, WPARAM wparam, LPARAM lparam) {
     try {
         return WndProcDefault(msg, wparam, lparam);
-    }
-    catch (const CException& e) {
+    } catch (const CException &e) {
         CString msg1;
         msg1 << e.GetText() << L'\n' << e.GetErrorString();
         CString msg2;

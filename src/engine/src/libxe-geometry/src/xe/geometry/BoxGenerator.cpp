@@ -20,7 +20,7 @@ namespace xe {
 
         //! Six rotations that carry the base face (z = -0.5, normal = -Z) to each face of the cube.
         constexpr std::array<FaceRotation, kFaceCount> kFaceRotations = {{
-            {0.0f, xe::Vector3{0.0f, 1.0f, 0.0f}},                  // -Z (front)
+            {0.0f, xe::Vector3{0.0f, 1.0f, 0.0f}},       // -Z (front)
             {xe::pi<float> * 0.5f, {0.0f, 1.0f, 0.0f}},  // +X (right)
             {xe::pi<float>, {0.0f, 1.0f, 0.0f}},         // +Z (back)
             {xe::pi<float> * 1.5f, {0.0f, 1.0f, 0.0f}},  // -X (left)
@@ -82,7 +82,8 @@ namespace xe {
 
         for (int face = 0; face < kFaceCount; ++face) {
             const FaceRotation &rot = kFaceRotations[face];
-            const tmat<T, 4, 4> rotation = xe::mat4Rotation(static_cast<T>(rot.radians), xe::TVector<T, 3>{static_cast<T>(rot.axis.x), static_cast<T>(rot.axis.y), static_cast<T>(rot.axis.z)});
+            const tmat<T, 4, 4> rotation =
+                xe::mat4Rotation(static_cast<T>(rot.radians), xe::TVector<T, 3>{static_cast<T>(rot.axis.x), static_cast<T>(rot.axis.y), static_cast<T>(rot.axis.z)});
 
             const std::size_t vertBase = static_cast<std::size_t>(face) * vertsPerFace;
 

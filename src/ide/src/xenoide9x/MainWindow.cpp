@@ -37,9 +37,7 @@ namespace {
         SendMessage(hWnd, SCI_STYLECLEARALL, 0, 0);
 
         SendMessage(hWnd, SCI_SETMARGINTYPEN, 0, SC_MARGIN_NUMBER);
-        const int lineNumberMarginWidth = static_cast<int>(
-            SendMessage(hWnd, SCI_TEXTWIDTH, STYLE_LINENUMBER, reinterpret_cast<LPARAM>("_99999"))
-        );
+        const int lineNumberMarginWidth = static_cast<int>(SendMessage(hWnd, SCI_TEXTWIDTH, STYLE_LINENUMBER, reinterpret_cast<LPARAM>("_99999")));
         SendMessage(hWnd, SCI_SETMARGINWIDTHN, 0, lineNumberMarginWidth);
 
         SendMessage(hWnd, SCI_SETCARETLINEVISIBLE, 1, 0);

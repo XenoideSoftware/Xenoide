@@ -10,7 +10,7 @@ namespace xenoide {
 
     extern void setupMenu(QMenu *parentMenuPtr, const Menu &menu, ActionBusQt *actionBus = nullptr);
 
-    extern QMenuBar* createMenuBar(QWidget *parent, const Menu &menuBar, ActionBusQt *actionBus = nullptr);
-}
+    extern QMenuBar *createMenuBar(QWidget *parent, const Menu &menuBar, ActionBusQt *actionBus = nullptr);
+} // namespace xenoide
 
 #endif

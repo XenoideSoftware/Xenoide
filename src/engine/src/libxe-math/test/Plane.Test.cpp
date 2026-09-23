@@ -170,4 +170,3 @@ TEST_CASE("Plane serialization generates different strings for different planes"
 
     REQUIRE(ss1.str() != ss2.str());
 }
-

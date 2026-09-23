@@ -7,8 +7,7 @@
 #include <iostream>
 
 namespace felide {
-    ProjectBrowser::ProjectBrowser (QWidget *parent) 
-        : QWidget(parent) {
+    ProjectBrowser::ProjectBrowser(QWidget *parent) : QWidget(parent) {
 
         m_treeView = new QTreeView(this);
 
@@ -31,7 +30,8 @@ namespace felide {
         });
     }
 
-    ProjectBrowser::~ProjectBrowser() {}
+    ProjectBrowser::~ProjectBrowser() {
+    }
 
     void ProjectBrowser::setProjectFolder(const QString &projectFolder) {
         m_treeView->setVisible(true);
@@ -47,4 +47,4 @@ namespace felide {
     QString ProjectBrowser::projectFolder() const {
         return m_projectFolder;
     }
-}
+} // namespace felide

@@ -3,7 +3,6 @@
 
 #include <filesystem>
 
-
 namespace Xenoide {
     std::vector<std::filesystem::path> FolderService::listChildFolders(const std::filesystem::path &folderPath) const {
         auto childPathVector = std::vector<std::filesystem::path>{};
@@ -21,4 +20,4 @@ namespace Xenoide {
 
         return childPathVector;
     }
-}
+} // namespace Xenoide

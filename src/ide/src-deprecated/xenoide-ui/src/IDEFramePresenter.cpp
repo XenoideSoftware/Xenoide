@@ -18,7 +18,8 @@ namespace xenoide {
         folderBrowserPresenter = std::make_unique<FolderBrowserPresenter>(actionBus, model->getFolderBrowserModel());
     }
 
-    IDEFramePresenter::~IDEFramePresenter() {}
+    IDEFramePresenter::~IDEFramePresenter() {
+    }
 
     void IDEFramePresenter::onInitialized(IDEFrame *view, DialogManager *dialogView, MenuPanel *menuView) {
         assert(view);
@@ -28,44 +29,39 @@ namespace xenoide {
         this->menuView = menuView;
 
         const auto menu = MenuData{MenuData::menuBar({
-            MenuData::menu("&File", {
-                MenuData::action([this] () { this->onFileNew(); }, "&New", ActionId::DocumentNew, {Modifier::Ctrl, Key::N}),
-                MenuData::separator(),
-                MenuData::action([this] () { this->onFileOpen(); }, "&Open ...", ActionId::ShowOpenDocumentDialog, {Modifier::Ctrl, Key::O}),
-                MenuData::action([this] () { this->onFileOpenFolder(); }, "Open &Folder ...", ActionId::ShowOpenFolderDialog, {Modifier::CtrlShift, Key::O}),
-                MenuData::separator(),
-                MenuData::action([this] () { this->onFileSave(); }, "&Save", ActionId::DocumentSave, {Modifier::Ctrl, Key::S}),
-                MenuData::action([this] () { this->onFileSaveAs(); }, "Sa&ve As ...", ActionId::ShowSaveDocumentDialog),
-                MenuData::action([this] () { this->onFileSaveAll(); }, "Save &All", ActionId::DocumentSaveAll),
-                MenuData::separator(),
-                MenuData::action([this] () { this->onFileClose(); }, "&Close", ActionId::DocumentClose),
-                MenuData::separator(),
-                MenuData::action([this] () { this->onFileExit(); }, "&Exit", ActionId::AppExit)
-            }),
-            MenuData::menu("&Edit", {
-                MenuData::action([this] () { this->onEditUndo(); }, "&Undo", {}, {Modifier::Ctrl, Key::Z}),
-                MenuData::action([this] () { this->onEditRedo(); }, "&Redo", {}, {Modifier::CtrlShift, Key::Z}),
-                MenuData::separator(),
-                MenuData::action([this] () { this->onEditCut(); }, "&Cut", {}, {Modifier::Ctrl, Key::X}),
-                MenuData::action([this] () { this->onEditCopy(); }, "C&opy", {}, {Modifier::Ctrl, Key::C}),
-                MenuData::action([this] () { this->onEditPaste(); }, "&Paste", {}, {Modifier::Ctrl, Key::V}),
-                MenuData::separator(),
-                MenuData::action([] () {}, "Find ..."),
-                MenuData::action([] () {}, "Replace ..."),
-            }),
-            MenuData::menu("&View", {
-                MenuData::action([this] () { this->onViewFolderBrowser(); }, "&Folder Browser")
-            }),
-            MenuData::menu("&Tools", {
-                MenuData::action([this] () { this->onToolsFileSearch(); }, "File &Search ...", {}, {Modifier::CtrlShift, Key::P})
-            }),
-            MenuData::menu("&Build", {
-                MenuData::action([] () {}, "&Clean"),
-                MenuData::action([] () {}, "&Execute")
-            }),
-            MenuData::menu("&Help", {
-                MenuData::action([] () {}, "&About", ActionId::ShowAboutDialog, {Key::F1})
-            }),
+            MenuData::menu(
+                "&File",
+                {MenuData::action([this]() { this->onFileNew(); }, "&New", ActionId::DocumentNew, {Modifier::Ctrl, Key::N}),
+                 MenuData::separator(),
+                 MenuData::action([this]() { this->onFileOpen(); }, "&Open ...", ActionId::ShowOpenDocumentDialog, {Modifier::Ctrl, Key::O}),
+                 MenuData::action([this]() { this->onFileOpenFolder(); }, "Open &Folder ...", ActionId::ShowOpenFolderDialog, {Modifier::CtrlShift, Key::O}),
+                 MenuData::separator(),
+                 MenuData::action([this]() { this->onFileSave(); }, "&Save", ActionId::DocumentSave, {Modifier::Ctrl, Key::S}),
+                 MenuData::action([this]() { this->onFileSaveAs(); }, "Sa&ve As ...", ActionId::ShowSaveDocumentDialog),
+                 MenuData::action([this]() { this->onFileSaveAll(); }, "Save &All", ActionId::DocumentSaveAll),
+                 MenuData::separator(),
+                 MenuData::action([this]() { this->onFileClose(); }, "&Close", ActionId::DocumentClose),
+                 MenuData::separator(),
+                 MenuData::action([this]() { this->onFileExit(); }, "&Exit", ActionId::AppExit)}
+            ),
+            MenuData::menu(
+                "&Edit",
+                {
+                    MenuData::action([this]() { this->onEditUndo(); }, "&Undo", {}, {Modifier::Ctrl, Key::Z}),
+                    MenuData::action([this]() { this->onEditRedo(); }, "&Redo", {}, {Modifier::CtrlShift, Key::Z}),
+                    MenuData::separator(),
+                    MenuData::action([this]() { this->onEditCut(); }, "&Cut", {}, {Modifier::Ctrl, Key::X}),
+                    MenuData::action([this]() { this->onEditCopy(); }, "C&opy", {}, {Modifier::Ctrl, Key::C}),
+                    MenuData::action([this]() { this->onEditPaste(); }, "&Paste", {}, {Modifier::Ctrl, Key::V}),
+                    MenuData::separator(),
+                    MenuData::action([]() {}, "Find ..."),
+                    MenuData::action([]() {}, "Replace ..."),
+                }
+            ),
+            MenuData::menu("&View", {MenuData::action([this]() { this->onViewFolderBrowser(); }, "&Folder Browser")}),
+            MenuData::menu("&Tools", {MenuData::action([this]() { this->onToolsFileSearch(); }, "File &Search ...", {}, {Modifier::CtrlShift, Key::P})}),
+            MenuData::menu("&Build", {MenuData::action([]() {}, "&Clean"), MenuData::action([]() {}, "&Execute")}),
+            MenuData::menu("&Help", {MenuData::action([]() {}, "&About", ActionId::ShowAboutDialog, {Key::F1})}),
         })};
 
         this->menuView->setupMenuBar(menu);
@@ -157,7 +153,7 @@ namespace xenoide {
         assert(this);
         assert(view->getDialogManager());
 
-        auto messageDialog = MessageDialogData {};
+        auto messageDialog = MessageDialogData{};
         messageDialog.title = "Xenoide";
         messageDialog.message = "Exit?";
         messageDialog.icon = DialogIcon::Question;
@@ -176,11 +172,11 @@ namespace xenoide {
         view->getFolderBrowser()->displayFolder(fullPath);
     }
 
-    DocumentManagerPresenter*  IDEFramePresenter::getDocumentManagerPresenter() {
+    DocumentManagerPresenter *IDEFramePresenter::getDocumentManagerPresenter() {
         return documentManagerPresenter.get();
     }
 
-    FolderBrowserPresenter* IDEFramePresenter::getFolderBrowserPresenter() {
+    FolderBrowserPresenter *IDEFramePresenter::getFolderBrowserPresenter() {
         return folderBrowserPresenter.get();
     }
-}
+} // namespace xenoide

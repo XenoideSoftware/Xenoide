@@ -20,7 +20,7 @@ namespace xenoide::qt6 {
         Q_OBJECT
 
     public:
-        explicit QFolderBrowser(const gsl_lite::not_null<FolderBrowserPresenter*> &presenter, QWidget *parent = nullptr);
+        explicit QFolderBrowser(const gsl_lite::not_null<FolderBrowserPresenter *> &presenter, QWidget *parent = nullptr);
 
         // ------------------------------------------------------------------
         // FolderBrowser interface
@@ -48,6 +48,6 @@ namespace xenoide::qt6 {
 
         QTreeWidget *treeWidget = nullptr;
         std::unordered_map<int, QTreeWidgetItem *> items;
-        gsl_lite::not_null<FolderBrowserPresenter*> presenter;
+        gsl_lite::not_null<FolderBrowserPresenter *> presenter;
     };
 } // namespace xenoide::qt6

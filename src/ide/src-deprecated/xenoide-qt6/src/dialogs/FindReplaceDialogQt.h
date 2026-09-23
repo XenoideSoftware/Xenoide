@@ -55,4 +55,4 @@ namespace xenoide {
         QPushButton *replaceAllButton = nullptr;
         QPushButton *closeButton = nullptr;
     };
-}
+} // namespace xenoide

@@ -1,5 +1,5 @@
 
-#pragma once 
+#pragma once
 
 #include <memory>
 #include <string>
@@ -13,19 +13,21 @@
 
 namespace xenoide {
     struct TreeItemId {
-        TreeItemId() {}
-        
-        explicit TreeItemId(const int value) : value(value) {}
-        
-        bool operator== (const TreeItemId& item) const {
+        TreeItemId() {
+        }
+
+        explicit TreeItemId(const int value) : value(value) {
+        }
+
+        bool operator==(const TreeItemId &item) const {
             return value == item.value;
         }
 
-        bool operator!= (const TreeItemId& item) const {
+        bool operator!=(const TreeItemId &item) const {
             return value != item.value;
         }
-        
-        bool operator< (const TreeItemId& item) const {
+
+        bool operator<(const TreeItemId &item) const {
             return value < item.value;
         }
 
@@ -34,12 +36,13 @@ namespace xenoide {
 
     class TreeManagerController {
     public:
-        virtual ~TreeManagerController() {}
+        virtual ~TreeManagerController() {
+        }
 
         //! gets the contextual menu data model from the specified TreeItem.
         virtual std::vector<MenuData> getItemPopupMenuData(const TreeItemId itemId) const = 0;
 
-        // 
+        //
         virtual void clicked(const TreeItemId itemId) = 0;
 
         //! the number of children for a given tree item
@@ -53,8 +56,8 @@ namespace xenoide {
 
         //! get the image text from a given item
         virtual int getItemImage(const TreeItemId itemId) const = 0;
-        
+
         //! compares two items, for sorting operations in the treeview
-        virtual int compare(const TreeItemId& item1, const TreeItemId& item2) const = 0;
+        virtual int compare(const TreeItemId &item1, const TreeItemId &item2) const = 0;
     };
-}
+} // namespace xenoide

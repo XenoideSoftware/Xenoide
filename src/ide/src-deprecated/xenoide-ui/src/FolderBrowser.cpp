@@ -6,5 +6,6 @@ namespace xenoide {
         this->presenter = presenter;
     }
 
-    FolderBrowser::~FolderBrowser() {}
-}
+    FolderBrowser::~FolderBrowser() {
+    }
+} // namespace xenoide

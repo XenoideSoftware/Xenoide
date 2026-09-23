@@ -5,7 +5,6 @@
 #include <numeric>
 #include <stdexcept>
 
-
 MainWindowModel::MainWindowModel(const SciEditor &editor, const std::optional<std::string> &filePath) : editor(editor), filePath(filePath) {
     languageConfigMap["c++"] = {
         SCLEX_CPP,
@@ -15,14 +14,15 @@ MainWindowModel::MainWindowModel(const SciEditor &editor, const std::optional<st
         "friend goto if inline int import long module mutable namespace new noexcept not not_eq nullptr "
         "operator or or_eq private protected public register reinterpret_cast requires return short signed "
         "sizeof static static_assert static_cast struct switch synchronized template this thread_local throw "
-        "true try typedef typeid typename union unsigned using virtual void volatile wchar_t while xor xor_eq", {
+        "true try typedef typeid typename union unsigned using virtual void volatile wchar_t while xor xor_eq",
+        {
             {SCE_C_COMMENT, makeRGB(0, 128, 0)},
-        {SCE_C_COMMENTLINE, makeRGB(0, 128, 0)},
-        {SCE_C_WORD, makeRGB(0, 0, 255)},
-        {SCE_C_STRING, makeRGB(163, 21, 21)},
-        {SCE_C_NUMBER, makeRGB(128, 0, 128)},
-    },
-    "C/C++ Files",
+            {SCE_C_COMMENTLINE, makeRGB(0, 128, 0)},
+            {SCE_C_WORD, makeRGB(0, 0, 255)},
+            {SCE_C_STRING, makeRGB(163, 21, 21)},
+            {SCE_C_NUMBER, makeRGB(128, 0, 128)},
+        },
+        "C/C++ Files",
         {"*.cpp", "*.c", "*.cc", "*.c++", "*.hpp", "*.h", "*.hh", "*.h++"}
     };
 
@@ -47,16 +47,17 @@ MainWindowModel::MainWindowModel(const SciEditor &editor, const std::optional<st
         "textureCube itextureCube utextureCube textureCubeArray itextureCubeArray utextureCubeArray textureBuffer itextureBuffer utextureBuffer sampler samplerShadow subpassInput "
         "isubpassInput usubpassInput subpassInputMS isubpassInputMS usubpassInputMS "
 
-        // reserved 
+        // reserved
         "common partition active asm class union enum typedef template this resource goto inline noinline public static extern external interface long short half fixed unsigned "
-        "superp input output hvec2 hvec3 hvec4 fvec2 fvec3 fvec4 filter sizeof cast namespace using sampler3DRect ", {
+        "superp input output hvec2 hvec3 hvec4 fvec2 fvec3 fvec4 filter sizeof cast namespace using sampler3DRect ",
+        {
             {SCE_C_COMMENT, makeRGB(0, 128, 0)},
-        {SCE_C_COMMENTLINE, makeRGB(0, 128, 0)},
-        {SCE_C_WORD, makeRGB(0, 0, 255)},
-        {SCE_C_STRING, makeRGB(163, 21, 21)},
-        {SCE_C_NUMBER, makeRGB(128, 0, 128)},
-    },
-    "GLSL Shaders",
+            {SCE_C_COMMENTLINE, makeRGB(0, 128, 0)},
+            {SCE_C_WORD, makeRGB(0, 0, 255)},
+            {SCE_C_STRING, makeRGB(163, 21, 21)},
+            {SCE_C_NUMBER, makeRGB(128, 0, 128)},
+        },
+        "GLSL Shaders",
         {"*.glsl", "*.vert", "*.frag", "*.prog", "*.tess", "*.geom"}
     };
 
@@ -64,18 +65,18 @@ MainWindowModel::MainWindowModel(const SciEditor &editor, const std::optional<st
         SCLEX_CMAKE,
 
         // keywords
-        "add_custom_command add_custom_target add_definitions add_dependencies add_executable add_library " 
-        "add_subdirectory add_test aux_source_directory build_command build_name cmake_minimum_required " 
-        "configure_file create_test_sourcelist else elseif enable_language enable_testing endforeach endif " 
-        "endmacro endwhile exec_program execute_process export_library_dependencies file find_file find_library " 
-        "find_package find_path find_program fltk_wrap_ui foreach get_cmake_property get_directory_property " 
-        "get_filename_component get_source_file_property get_target_property get_test_property if include include_directories " 
-        "include_external_msproject include_regular_expression install install_files install_programs install_targets " 
-        "link_directories link_libraries list load_cache load_command macro make_directory mark_as_advanced " 
-        "math message option output_required_files project qt_wrap_cpp qt_wrap_ui remove remove_definitions " 
-        "separate_arguments set set_directory_properties set_source_files_properties set_target_properties set_tests_properties " 
-        "site_name source_group string subdir_depends subdirs target_link_libraries try_compile try_run " 
-        "use_mangled_mesa utility_source variable_requires vtk_make_instantiator vtk_wrap_java vtk_wrap_python " 
+        "add_custom_command add_custom_target add_definitions add_dependencies add_executable add_library "
+        "add_subdirectory add_test aux_source_directory build_command build_name cmake_minimum_required "
+        "configure_file create_test_sourcelist else elseif enable_language enable_testing endforeach endif "
+        "endmacro endwhile exec_program execute_process export_library_dependencies file find_file find_library "
+        "find_package find_path find_program fltk_wrap_ui foreach get_cmake_property get_directory_property "
+        "get_filename_component get_source_file_property get_target_property get_test_property if include include_directories "
+        "include_external_msproject include_regular_expression install install_files install_programs install_targets "
+        "link_directories link_libraries list load_cache load_command macro make_directory mark_as_advanced "
+        "math message option output_required_files project qt_wrap_cpp qt_wrap_ui remove remove_definitions "
+        "separate_arguments set set_directory_properties set_source_files_properties set_target_properties set_tests_properties "
+        "site_name source_group string subdir_depends subdirs target_link_libraries try_compile try_run "
+        "use_mangled_mesa utility_source variable_requires vtk_make_instantiator vtk_wrap_java vtk_wrap_python "
         "vtk_wrap_tcl while write_file "
 
         // keywords2
@@ -88,28 +89,26 @@ MainWindowModel::MainWindowModel(const SciEditor &editor, const std::optional<st
         "PREFIX PREORDER PRE_BUILD PRE_INSTALL_SCRIPT PRE_LINK PROGRAM PROGRAM_ARGS PROPERTIES QUIET RANGE READ REGEX REGULAR_EXPRESSION REPLACE "
         "REQUIRED RETURN_VALUE RUNTIME_DIRECTORY SEND_ERROR SHARED SOURCES STATIC STATUS STREQUAL STRGREATER STRLESS SUFFIX TARGET TOLOWER TOUPPER "
         "VAR VARIABLES VERSION WIN32 WRAP_EXCLUDE WRITE APPLE MINGW MSYS CYGWIN BORLAND WATCOM MSVC MSVC_IDE MSVC60 MSVC70 MSVC71 MSVC80 "
-        "CMAKE_COMPILER_2005 OFF ON", {
-            {SCE_CMAKE_DEFAULT, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_COMMENT, makeRGB(0, 128, 0)},
-        {SCE_CMAKE_STRINGDQ, makeRGB(128, 50, 0)},
-        {SCE_CMAKE_STRINGLQ, makeRGB(128, 0, 50)},
-        {SCE_CMAKE_STRINGRQ, makeRGB(128, 0, 0)},
-        {SCE_CMAKE_COMMANDS, makeRGB(0, 0, 128)},
-        {SCE_CMAKE_PARAMETERS, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_VARIABLE, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_USERDEFINED, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_WHILEDEF, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_FOREACHDEF, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_IFDEFINEDEF, makeRGB(0, 0, 128)},
-        {SCE_CMAKE_MACRODEF, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_STRINGVAR, makeRGB(0, 0, 0)},
-        {SCE_CMAKE_NUMBER, makeRGB(0, 0, 0)}
-    },
+        "CMAKE_COMPILER_2005 OFF ON",
+        {{SCE_CMAKE_DEFAULT, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_COMMENT, makeRGB(0, 128, 0)},
+         {SCE_CMAKE_STRINGDQ, makeRGB(128, 50, 0)},
+         {SCE_CMAKE_STRINGLQ, makeRGB(128, 0, 50)},
+         {SCE_CMAKE_STRINGRQ, makeRGB(128, 0, 0)},
+         {SCE_CMAKE_COMMANDS, makeRGB(0, 0, 128)},
+         {SCE_CMAKE_PARAMETERS, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_VARIABLE, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_USERDEFINED, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_WHILEDEF, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_FOREACHDEF, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_IFDEFINEDEF, makeRGB(0, 0, 128)},
+         {SCE_CMAKE_MACRODEF, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_STRINGVAR, makeRGB(0, 0, 0)},
+         {SCE_CMAKE_NUMBER, makeRGB(0, 0, 0)}},
         "CMake Files",
         {"CMakeLists.txt", "*.cmake"}
     };
 }
-
 
 std::string MainWindowModel::getFileFilter() const {
     std::vector<std::string> filters;
@@ -141,7 +140,7 @@ std::map<std::string, LanguageConfig>::const_iterator MainWindowModel::detectLan
         }
 
         return false;
-        });
+    });
 }
 
 std::string MainWindowModel::getEditorTitle() const {
@@ -149,80 +148,79 @@ std::string MainWindowModel::getEditorTitle() const {
 
     std::string const fileName = fs::path((filePath.value_or("Untitled"))).filename().string();
 
-	return fileName + (isModified() ? "*" : "");
+    return fileName + (isModified() ? "*" : "");
 }
 
 std::optional<std::string> MainWindowModel::getFilePath() const {
-	return filePath;
+    return filePath;
 }
 
 bool MainWindowModel::canSave() const {
-	return filePath.has_value();
+    return filePath.has_value();
 }
 
 bool MainWindowModel::isModified() const {
-	return editor.getModify();
+    return editor.getModify();
 }
 
 void MainWindowModel::new_() {
-	filePath.reset();
+    filePath.reset();
 
-	editor.clearAll();
-	editor.clearState();
+    editor.clearAll();
+    editor.clearState();
     updateLexer();
 
-	MainWindowNotification notification;
-	notification.filePathChanged = true;
-	notification.modifiedFlagChanged = true;
-	notification.undoBufferChanged = true;
+    MainWindowNotification notification;
+    notification.filePathChanged = true;
+    notification.modifiedFlagChanged = true;
+    notification.undoBufferChanged = true;
 
-	notify(notification);
+    notify(notification);
 }
 
 void MainWindowModel::save(const std::optional<std::string> &newFilePath) {
-	MainWindowNotification notification;
-	notification.filePathChanged = filePath != newFilePath;
-	notification.modifiedFlagChanged = true;
+    MainWindowNotification notification;
+    notification.filePathChanged = filePath != newFilePath;
+    notification.modifiedFlagChanged = true;
 
-	filePath = newFilePath;
+    filePath = newFilePath;
 
-	if (!filePath) {
-		throw std::runtime_error("");
-	}
+    if (!filePath) {
+        throw std::runtime_error("");
+    }
 
-	xenoide::FileService fileService;
-	fileService.save(*filePath, editor.getText());
+    xenoide::FileService fileService;
+    fileService.save(*filePath, editor.getText());
 
-	editor.setSavePoint();
-    
+    editor.setSavePoint();
+
     updateLexer();
 
-	notify(notification);
+    notify(notification);
 }
 
 void MainWindowModel::load(const std::optional<std::string> &newFilePath) {
-	MainWindowNotification notification;
-	notification.filePathChanged = filePath != newFilePath;
-	notification.modifiedFlagChanged = true;
-	notification.undoBufferChanged = true;
+    MainWindowNotification notification;
+    notification.filePathChanged = filePath != newFilePath;
+    notification.modifiedFlagChanged = true;
+    notification.undoBufferChanged = true;
 
-	filePath = newFilePath;
+    filePath = newFilePath;
 
-	if (!filePath) {
-		throw std::runtime_error("");
-	}
+    if (!filePath) {
+        throw std::runtime_error("");
+    }
 
-	xenoide::FileService fileService;
+    xenoide::FileService fileService;
 
-	editor.setText(fileService.load(*filePath));
-	editor.setSavePoint();
-	editor.clearState();
+    editor.setText(fileService.load(*filePath));
+    editor.setSavePoint();
+    editor.clearState();
 
     updateLexer();
 
-	notify(notification);
+    notify(notification);
 }
-
 
 void MainWindowModel::updateLexer() {
     if (!filePath) {

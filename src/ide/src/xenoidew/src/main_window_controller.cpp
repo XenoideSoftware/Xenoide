@@ -9,7 +9,6 @@
 
 #include "xenoide/core/StringUtil.h"
 
-
 MainWindowController::MainWindowController() = default;
 
 MainWindowController::MainWindowController(MainWindowView *view, const SciEditor &editor) : view(view) {
@@ -22,20 +21,19 @@ void MainWindowController::onNewFileCommand() {
 
 void MainWindowController::onOpenFileCommand() {
     std::string const filter = model->getFileFilter();
-    std::optional<std::string> const selectedPath = view->showFileDialog(ShowFileDialog::Open, { filter });
-    
+    std::optional<std::string> const selectedPath = view->showFileDialog(ShowFileDialog::Open, {filter});
+
     if (!selectedPath) {
         return;
     }
-    
+
     model->load(selectedPath);
 }
 
 void MainWindowController::onSaveFileCommand() {
     if (model->canSave()) {
         model->save({});
-    }
-    else {
+    } else {
         onSaveAsFileCommand();
     }
 }
@@ -76,7 +74,6 @@ void MainWindowController::onEditorPasteCommand() {
     model->getEditor().paste();
 }
 
-
 void MainWindowController::onEditorModified() {
     model->getEditor().syncMarginLineNumber(0);
 
@@ -116,8 +113,7 @@ void MainWindowController::onClose() {
         default:
             return;
         }
-    }
-    else {
+    } else {
         view->postQuitMessage();
     }
 }

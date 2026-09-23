@@ -7,15 +7,15 @@
 
 namespace xenoide {
 
-class ActionBusQt: public ActionBus {
-public:
-  void registerAction(ActionId id, QAction* action);
+    class ActionBusQt : public ActionBus {
+    public:
+        void registerAction(ActionId id, QAction *action);
 
-protected:
-  void sendAction(ActionId id) override;
+    protected:
+        void sendAction(ActionId id) override;
 
-private:
-  std::map<ActionId, QAction*> actionMap;
-};
+    private:
+        std::map<ActionId, QAction *> actionMap;
+    };
 
-}
+} // namespace xenoide

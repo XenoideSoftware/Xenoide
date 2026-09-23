@@ -22,7 +22,8 @@ namespace xenoide {
             this->basePath = basePath;
         }
 
-        virtual ~FileSearchDialogModelImpl() {}
+        virtual ~FileSearchDialogModelImpl() {
+        }
 
         virtual std::vector<std::filesystem::path> searchFilePattern(const std::string &filePattern, const int maxResults) override {
             std::string filePatternUppercased = filePattern;
@@ -49,12 +50,12 @@ namespace xenoide {
 
         void searchImpl(std::vector<std::filesystem::path> &files, const std::filesystem::path &folder, const std::string &filePattern, const int maxResults) const {
             // skips search inside files ...
-            if (! std::filesystem::is_directory(folder)) {
+            if (!std::filesystem::is_directory(folder)) {
                 return;
             }
 
             // skips hidden directories
-            if ( std::filesystem::is_directory(folder) && is_logically_hidden(folder)) {
+            if (std::filesystem::is_directory(folder) && is_logically_hidden(folder)) {
                 return;
             }
 
@@ -83,9 +84,10 @@ namespace xenoide {
         std::vector<std::filesystem::path> files;
     };
 
-    FileSearchDialogModel::~FileSearchDialogModel() {}
+    FileSearchDialogModel::~FileSearchDialogModel() {
+    }
 
     std::unique_ptr<FileSearchDialogModel> FileSearchDialogModel::create(const std::filesystem::path &basePath) {
         return std::make_unique<FileSearchDialogModelImpl>(basePath);
     }
-}
+} // namespace xenoide

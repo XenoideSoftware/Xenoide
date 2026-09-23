@@ -17,7 +17,7 @@ namespace xenoide {
         menu.text = text;
         menu.childs = childs;
         menu.kind = MenuKind::SubMenu;
-        
+
         return menu;
     }
 
@@ -40,4 +40,4 @@ namespace xenoide {
 
         return menu;
     }
-}
+} // namespace xenoide

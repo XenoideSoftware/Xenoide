@@ -9,15 +9,13 @@
 
 #include <filesystem>
 
-
 namespace xenoide {
     DocumentPresenter::DocumentPresenter(DocumentModel *model) {
         this->model = model;
     }
 
-
-    DocumentPresenter::~DocumentPresenter() {}
-
+    DocumentPresenter::~DocumentPresenter() {
+    }
 
     void DocumentPresenter::onInitialized(Document *view, DialogManager *dialogView) {
         this->view = view;
@@ -36,7 +34,6 @@ namespace xenoide {
         view->setConfig(DocumentConfig::Default());
     }
 
-
     void DocumentPresenter::onContentChanged() {
         model->modify();
 
@@ -44,18 +41,15 @@ namespace xenoide {
         view->setTitle(title);
     }
 
-
     DocumentPresenter::UserResponse DocumentPresenter::onSave() {
         // TODO: Put FileFilter getters from a PresenterService
 
         if (!model->hasFilePath()) {
-            auto fileDialog = FileDialogData {};
+            auto fileDialog = FileDialogData{};
             fileDialog.title = "Save File";
             fileDialog.type = FileDialogType::SaveFile;
             fileDialog.defaultPath = this->computeFileTitle(model);
-            fileDialog.filters = {
-                FileFilter{"All Files", {"*"}}
-            };
+            fileDialog.filters = {FileFilter{"All Files", {"*"}}};
 
             if (auto filePath = dialogView->showFileDialog(fileDialog)) {
                 // model->setFilePath(filePath.get().string());
@@ -70,7 +64,7 @@ namespace xenoide {
 
         const std::string fileName = model->getFilePath();
         const std::string content = model->getContent();
-        
+
         fileService.save(fileName, content);
 
         model->setFilePath(fileName);
@@ -83,16 +77,13 @@ namespace xenoide {
         return DocumentPresenter::UserResponse::Accept;
     }
 
-
     DocumentPresenter::UserResponse DocumentPresenter::onSaveAs() {
         // TODO: Setup a PresenterService to support the UI
-        auto fileDialog = FileDialogData {};
+        auto fileDialog = FileDialogData{};
 
         fileDialog.title = "Save File";
         fileDialog.type = FileDialogType::SaveFile;
-        fileDialog.filters = {
-            FileFilter{"All Files", {"*"}}
-        };
+        fileDialog.filters = {FileFilter{"All Files", {"*"}}};
 
         if (auto filePath = dialogView->showFileDialog(fileDialog)) {
             // model->setFilePath(filePath.get().string());
@@ -104,7 +95,6 @@ namespace xenoide {
 
         return DocumentPresenter::UserResponse::Cancel;
     }
-
 
     DocumentPresenter::UserResponse DocumentPresenter::onCloseRequested() {
         if (!model->getModifiedFlag()) {
@@ -120,14 +110,14 @@ namespace xenoide {
         auto dialogResult = dialogView->showMessageDialog(messageDialog);
 
         switch (dialogResult) {
-            case DialogButton::Cancel:
-                return DocumentPresenter::UserResponse::Cancel;
+        case DialogButton::Cancel:
+            return DocumentPresenter::UserResponse::Cancel;
 
-            case DialogButton::Yes:
-                return this->onSave();
+        case DialogButton::Yes:
+            return this->onSave();
 
-            case DialogButton::No:
-                return DocumentPresenter::UserResponse::Accept;
+        case DialogButton::No:
+            return DocumentPresenter::UserResponse::Accept;
         }
 
         return DocumentPresenter::UserResponse::Cancel;
@@ -156,12 +146,12 @@ namespace xenoide {
     bool DocumentPresenter::hasFilePath(const std::filesystem::path &filePath) const {
         return std::filesystem::path(model->getFilePath()) == filePath;
     }
-    
-    Document* DocumentPresenter::getView() const {
+
+    Document *DocumentPresenter::getView() const {
         return view;
     }
 
-    DocumentModel* DocumentPresenter::getModel() const {
+    DocumentModel *DocumentPresenter::getModel() const {
         return model;
     }
-}
+} // namespace xenoide

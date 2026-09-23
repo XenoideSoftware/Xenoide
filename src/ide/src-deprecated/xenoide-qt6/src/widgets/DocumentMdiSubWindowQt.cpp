@@ -55,4 +55,4 @@ namespace xenoide {
             // this->presenter->onCloseDocumentsToTheRight(editor);
         });
     }
-}
+} // namespace xenoide

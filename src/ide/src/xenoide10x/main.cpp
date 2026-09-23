@@ -18,27 +18,27 @@ namespace {
         STARTUPINFOA startupInfo = {0};
         startupInfo.cb = sizeof(STARTUPINFOA);
         startupInfo.dwFlags = STARTF_USESTDHANDLES;
-        startupInfo.hStdInput   = hStdinRead;
-        startupInfo.hStdOutput  = hStdoutWrite;
-        startupInfo.hStdError   = hStdoutWrite;
+        startupInfo.hStdInput = hStdinRead;
+        startupInfo.hStdOutput = hStdoutWrite;
+        startupInfo.hStdError = hStdoutWrite;
 
         PROCESS_INFORMATION processInformation = {0};
 
         // char commandLine[] = "C:\\TDM-GCC-32-5.1.0-3\\bin\\gcc.exe";
         // "C:\\Windows\\System32\\cmd.exe"
         // "C:\\Command.com"
-        if (CreateProcess(NULL, 
-            "C:\\Command.com", 
-            &processAttribs, 
-            &threadAttribs, 
-            TRUE,
-            creationFlags, 
-            NULL /*lpEnvironment*/,
-            NULL /*lpCurrentDirectory*/, 
-            &startupInfo, 
-            &processInformation
-            ) == 0L
-        ) {
+        if (CreateProcess(
+                NULL,
+                "C:\\Command.com",
+                &processAttribs,
+                &threadAttribs,
+                TRUE,
+                creationFlags,
+                NULL /*lpEnvironment*/,
+                NULL /*lpCurrentDirectory*/,
+                &startupInfo,
+                &processInformation
+            ) == 0L) {
             char buffer[256] = {0};
             const int errorCode = GetLastError();
             sprintf(buffer, "Create process failed!\nError code: %d\n", errorCode);
@@ -51,7 +51,6 @@ namespace {
         return processInformation;
     }
 
-
     DWORD WINAPI displayConsoleOutputThreadProc(LPVOID lpParameter) {
         DWORD dwRead = 0;
         char buffer[16] = {0};
@@ -63,7 +62,7 @@ namespace {
             ::SendMessage(hWndEdit, EM_SETSEL, -1, -1);
             ::SendMessage(hWndEdit, EM_REPLACESEL, TRUE, reinterpret_cast<LPARAM>(buffer));
         }
-        
+
         /*
         const char *buffer = "Hello from the console output thread!\n";
         ::SendMessage(hWndEdit, EM_SETSEL, -1, -1);
@@ -79,11 +78,11 @@ namespace {
     int promptStart = 0;
 
     DWORD selStart = 0, selEnd = 0;
-    
+
     LRESULT CALLBACK ConsoleWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        
+
         switch (message) {
-        case WM_CHAR: 
+        case WM_CHAR:
             /*
             if (wParam == -1) {
                 LRESULT result = CallWindowProc(editWndProc, hwnd, message, wParam, lParam);
@@ -106,7 +105,7 @@ namespace {
 
                 MessageBox(NULL, text.c_str(), "Xenoide", MB_OK);
                 MessageBox(NULL, ("\"" + line + "\"").c_str(), "Xenoide", MB_OK);
-                
+
                 DWORD dw = 0;
                 WriteFile(hStdinWrite, line.c_str(), line.size(), &dw, NULL);
                 WriteFile(hStdinWrite, "\r\n", 2, &dw, NULL);
@@ -147,14 +146,13 @@ namespace {
                 ::SendMessage(hwnd, EM_SETSEL, promptStart, selStart);
                 ::SendMessage(hwnd, EM_REPLACESEL, FALSE, reinterpret_cast<LPARAM>(""));
                 startTracking = false;
-                
+
                 DWORD dw = 0;
                 WriteFile(hStdinWrite, "\r\n", 2, &dw, NULL);
 
                 return 0L;
-            }
-            else {
-                char buffer[2] = {(char)wParam, '\0' };
+            } else {
+                char buffer[2] = {(char)wParam, '\0'};
                 DWORD dw = 0;
                 WriteFile(hStdinWrite, buffer, 1, &dw, NULL);
 
@@ -165,11 +163,11 @@ namespace {
         case WM_KEYDOWN:
             if (!startTracking) {
                 ::SendMessage(hwnd, EM_GETSEL, (WPARAM)&selStart, (LPARAM)&selEnd);
-                promptStart = (int) selStart;
+                promptStart = (int)selStart;
 
                 startTracking = true;
             }
-            
+
             break;
         }
 
@@ -182,7 +180,7 @@ namespace {
         pipeAttributes.nLength = sizeof(SECURITY_ATTRIBUTES);
         pipeAttributes.bInheritHandle = TRUE;
 
-        CreatePipe(&hStdinRead,  &hStdinWrite,  &pipeAttributes, 0);
+        CreatePipe(&hStdinRead, &hStdinWrite, &pipeAttributes, 0);
         CreatePipe(&hStdoutRead, &hStdoutWrite, &pipeAttributes, 0);
 
         // setup process
@@ -203,32 +201,35 @@ namespace {
 
     LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
-            case WM_CREATE:
-                hWndEdit = CreateWindowEx(
-                    0,
-                    TEXT("EDIT"),
-                    NULL,
-                    WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
-                    0, 0, 0, 0,
-                    hwnd,
-                    NULL,
-                    (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-                    NULL
-                );
+        case WM_CREATE:
+            hWndEdit = CreateWindowEx(
+                0,
+                TEXT("EDIT"),
+                NULL,
+                WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL,
+                0,
+                0,
+                0,
+                0,
+                hwnd,
+                NULL,
+                (HINSTANCE)GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
+                NULL
+            );
 
-                editWndProc = (WNDPROC)SetWindowLongPtr(hWndEdit, GWLP_WNDPROC, (LONG_PTR)ConsoleWndProc);
+            editWndProc = (WNDPROC)SetWindowLongPtr(hWndEdit, GWLP_WNDPROC, (LONG_PTR)ConsoleWndProc);
 
-                return 0;
+            return 0;
 
-            case WM_SIZE:
-                if (hWndEdit) {
-                    MoveWindow(hWndEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
-                }
-                return 0;
+        case WM_SIZE:
+            if (hWndEdit) {
+                MoveWindow(hWndEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
+            }
+            return 0;
 
-            case WM_DESTROY:
-                PostQuitMessage(0);
-                return 0;
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
         }
 
         return DefWindowProc(hwnd, message, wParam, lParam);
@@ -245,22 +246,9 @@ namespace {
     }
 
     HWND CreateMainWindow(HINSTANCE instance) {
-        return CreateWindowEx(
-            0,
-            kWindowClassName,
-            TEXT("Xenoide10X"),
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT,
-            CW_USEDEFAULT,
-            400,
-            300,
-            NULL,
-            NULL,
-            instance,
-            NULL
-        );
+        return CreateWindowEx(0, kWindowClassName, TEXT("Xenoide10X"), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 400, 300, NULL, NULL, instance, NULL);
     }
-}
+} // namespace
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
     if (!RegisterMainWindowClass(hInstance)) {

@@ -1,5 +1,5 @@
 
-#pragma once 
+#pragma once
 
 #include "TreeManagerController.h"
 
@@ -7,11 +7,10 @@
 #include <map>
 #include <filesystem>
 
-
 namespace xenoide {
     class TreeManagerControllerFileSystem : public TreeManagerController {
     public:
-        explicit TreeManagerControllerFileSystem(const std::filesystem::path& rootPath);
+        explicit TreeManagerControllerFileSystem(const std::filesystem::path &rootPath);
 
         virtual ~TreeManagerControllerFileSystem();
 
@@ -26,13 +25,13 @@ namespace xenoide {
         int getItemImage(const TreeItemId itemId) const override;
 
         std::vector<MenuData> getItemPopupMenuData(const TreeItemId itemId) const override;
-        
-        int compare(const TreeItemId& item1, const TreeItemId& item2) const override;
+
+        int compare(const TreeItemId &item1, const TreeItemId &item2) const override;
 
     private:
         TreeItemId generateItemId() const;
 
-        const std::filesystem::path& pathFromItem(const TreeItemId) const;
+        const std::filesystem::path &pathFromItem(const TreeItemId) const;
 
         int populateChildren(const TreeItemId itemId, const std::filesystem::path &path) const;
 
@@ -47,4 +46,4 @@ namespace xenoide {
         mutable std::map<TreeItemId, std::filesystem::path> itemPathMap;
         mutable std::map<TreeItemId, std::vector<std::filesystem::path>> itemChildMap;
     };
-}
+} // namespace xenoide

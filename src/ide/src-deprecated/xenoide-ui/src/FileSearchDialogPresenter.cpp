@@ -7,7 +7,6 @@
 #include <cassert>
 #include <filesystem>
 
-
 namespace xenoide {
     FileSearchDialogPresenter::FileSearchDialogPresenter(FileSearchDialogModel *model) {
         this->model = model;
@@ -54,4 +53,4 @@ namespace xenoide {
 
         view->displayFileList(fileList);
     }
-}
+} // namespace xenoide

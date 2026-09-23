@@ -33,11 +33,9 @@ namespace xenoide {
         view->show(viewData);
     }
 
-
     void FindReplaceDialogPresenter::handleFindWhatTextBox_Change(const std::string &value) {
         findWhat = value;
     }
-
 
     void FindReplaceDialogPresenter::handleReplaceWithCheckBox_Click(const bool checked) {
         replaceInsteadOfFind = checked;
@@ -45,40 +43,33 @@ namespace xenoide {
         view->toggleReplaceControls(checked);
     }
 
-
     void FindReplaceDialogPresenter::handleReplaceWithTextBox_Change(const std::string &value) {
         replaceWith = value;
     }
-
 
     void FindReplaceDialogPresenter::handleMatchCaseCheckBox_Click(const bool checked) {
         matchCase = checked;
     }
 
-
     void FindReplaceDialogPresenter::handleMatchWholeWordCheckBox_Click(const bool checked) {
         matchWholeWord = checked;
     }
-
 
     void FindReplaceDialogPresenter::handleSelectionScopeOptionBox_Click() {
         scope = Selection;
     }
 
-
     void FindReplaceDialogPresenter::handleCurrentDocumentScopeOptionBox_Click() {
         scope = CurrentDocument;
     }
 
-
     void FindReplaceDialogPresenter::handleFindNextButton_Click() {
         const size_t currentOffset = documentView->getSelection().end;
 
-        if (! findNext(currentOffset)) {
+        if (!findNext(currentOffset)) {
             findNext(0);
         }
     }
-
 
     bool FindReplaceDialogPresenter::findNext(const size_t currentOffset) {
         const std::string content = this->documentView->getContent();
@@ -88,30 +79,27 @@ namespace xenoide {
 
         if (offset == std::string::npos) {
             return false;
-        } 
+        }
 
         const std::size_t length = findWhat.size();
         documentView->setSelection({(int)offset, (int)(offset + length)});
-        
+
         return true;
     }
-
 
     void FindReplaceDialogPresenter::handleReplaceNextButton_Click() {
         // TODO: Add implementation
         std::cout << "asdad" << std::endl;
     }
 
-
     void FindReplaceDialogPresenter::handleReplaceAllButton_Click() {
         // TODO: Add implementation
         std::cout << "asdad" << std::endl;
     }
-
 
     void FindReplaceDialogPresenter::handleCloseButton_Click() {
         // TODO: Add implementation
         std::cout << "asdad" << std::endl;
     }
 
-}
+} // namespace xenoide

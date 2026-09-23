@@ -13,7 +13,7 @@ namespace {
 } // anonymous namespace
 
 namespace xenoide::qt6 {
-    QFolderBrowser::QFolderBrowser(const gsl_lite::not_null<FolderBrowserPresenter*> &presenter, QWidget *parent) : QWidget(parent), presenter(presenter) {
+    QFolderBrowser::QFolderBrowser(const gsl_lite::not_null<FolderBrowserPresenter *> &presenter, QWidget *parent) : QWidget(parent), presenter(presenter) {
         treeWidget = new QTreeWidget(this);
         treeWidget->setHeaderHidden(true);
         treeWidget->setAnimated(true);

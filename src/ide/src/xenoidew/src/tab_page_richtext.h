@@ -25,6 +25,6 @@ public:
      */
     TabPageRichText();
 
-    TabPageRichText(TabPageRichText&&) = default;
-    TabPageRichText& operator=(TabPageRichText&&) = default; ///< Move-only.
+    TabPageRichText(TabPageRichText &&) = default;
+    TabPageRichText &operator=(TabPageRichText &&) = default; ///< Move-only.
 };

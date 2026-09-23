@@ -15,11 +15,9 @@
 #include "glcore3-api.h"
 #include "glcore3-context.h"
 
-
 //! Suppresses unused warnings
 //! TODO: Move to a common header
 #define XE_UNUSED(var) ((void)(var))
-
 
 namespace xe {
     tl::expected<UniformLocation, BackendError> resolveUniformLocationGL(RenderDeviceBackendContext *ctx, ShaderHandle handle, const char *name) {
@@ -169,7 +167,7 @@ namespace xe {
         gl::clear(flags);
     }
 
-    void bindPipeline(RenderDeviceBackendContextGL */*glctx*/, const PipelineGL &pipeline) {
+    void bindPipeline(RenderDeviceBackendContextGL * /*glctx*/, const PipelineGL &pipeline) {
         // TODO: Apply list of enable / render state, cull mode, etc
         gl::useProgram(pipeline.shaderProgram);
     }
@@ -179,7 +177,7 @@ namespace xe {
         return static_cast<gl::TextureUnit>(static_cast<int>(gl::TextureUnit::eTexture0) + unit);
     }
 
-    void bindTexture(RenderDeviceBackendContextGL */*glctx*/, const uint32_t unit, gl::TextureTarget target, const gl::Texture &texture) {
+    void bindTexture(RenderDeviceBackendContextGL * /*glctx*/, const uint32_t unit, gl::TextureTarget target, const gl::Texture &texture) {
         gl::activeTexture(getTextureUnit(unit));
         gl::bindTexture(target, texture);
     }
@@ -228,7 +226,7 @@ namespace xe {
         XE_UNUSED(glctx);
         XE_UNUSED(c);
     }
-    
+
     void submitCommandGL(RenderDeviceBackendContext *ctx, const CommandBuffer::Command *command, size_t count) {
         for (size_t i = 0; i < count; ++i) {
             switch (command[i].opcode) {

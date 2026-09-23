@@ -8,39 +8,22 @@
 #include <optional>
 
 namespace xenoide {
-    enum class MenuKind {
-        SubMenu,
-        Action,
-        Separator
-    };
+    enum class MenuKind { SubMenu, Action, Separator };
 
-    enum class Modifier {
-        None = 0,
-        Ctrl = 1,
-        Shift = 2, 
-        Alt = 4,
-        CtrlShift = Ctrl + Shift,
-        CtrlShiftAlt = Ctrl + Shift + Alt,
-        ShiftAlt = Shift + Alt
-    };
+    enum class Modifier { None = 0, Ctrl = 1, Shift = 2, Alt = 4, CtrlShift = Ctrl + Shift, CtrlShiftAlt = Ctrl + Shift + Alt, ShiftAlt = Shift + Alt };
 
-    inline bool operator& (const Modifier &modifiers, const Modifier &modifier) {
+    inline bool operator&(const Modifier &modifiers, const Modifier &modifier) {
         return static_cast<int>(modifiers) & static_cast<int>(modifier);
     }
 
-    enum class Key {
-        None = 0,
-        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-        Q, W, E, R, T, Y, U, I, O, P,
-        A, S, D, F, G, H, J, K, L,
-        Z, X, C, V, B, N, M
-    };
+    enum class Key { None = 0, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, Q, W, E, R, T, Y, U, I, O, P, A, S, D, F, G, H, J, K, L, Z, X, C, V, B, N, M };
 
     struct Shortcut {
         Modifier modifier = Modifier::None;
         Key key = Key::None;
 
-        Shortcut() {}
+        Shortcut() {
+        }
 
         Shortcut(const Key key) {
             this->key = key;
@@ -79,6 +62,6 @@ namespace xenoide {
     };
 
     using Menu = MenuData;
-}
+} // namespace xenoide
 
 #endif

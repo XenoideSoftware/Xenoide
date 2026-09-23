@@ -14,7 +14,8 @@ namespace xenoide {
         this->model = model;
     }
 
-    DocumentManagerPresenter::~DocumentManagerPresenter() {}
+    DocumentManagerPresenter::~DocumentManagerPresenter() {
+    }
 
     void DocumentManagerPresenter::onInitialized(DocumentManager *view, DialogManager *dialogView) {
         this->view = view;
@@ -124,11 +125,11 @@ namespace xenoide {
         }
     }
 
-    DocumentPresenter* DocumentManagerPresenter::createDocumentMVP() {
+    DocumentPresenter *DocumentManagerPresenter::createDocumentMVP() {
         return this->createDocumentMVP("");
     }
 
-    DocumentPresenter* DocumentManagerPresenter::createDocumentMVP(const std::filesystem::path &filePath) {
+    DocumentPresenter *DocumentManagerPresenter::createDocumentMVP(const std::filesystem::path &filePath) {
         auto documentModel = model->createDocument(filePath);
         auto documentPresenter = new DocumentPresenter(documentModel);
         auto documentView = view->appendDocument(documentPresenter);
@@ -138,11 +139,9 @@ namespace xenoide {
         return documentPresenter;
     }
 
-    DocumentPresenter* DocumentManagerPresenter::findDocumentPresenter(Document *document) {
+    DocumentPresenter *DocumentManagerPresenter::findDocumentPresenter(Document *document) {
         auto &dps = documentPresenters;
-        auto documentPresenterIt = std::find_if(dps.begin(), dps.end(), [document](std::unique_ptr<DocumentPresenter> &dp) {
-            return dp->getView() == document;
-        });
+        auto documentPresenterIt = std::find_if(dps.begin(), dps.end(), [document](std::unique_ptr<DocumentPresenter> &dp) { return dp->getView() == document; });
 
         if (documentPresenterIt != dps.end()) {
             return documentPresenterIt->get();
@@ -150,12 +149,10 @@ namespace xenoide {
 
         return nullptr;
     }
-    
-    DocumentPresenter* DocumentManagerPresenter::findDocumentPresenter(const std::filesystem::path &filePath) {
+
+    DocumentPresenter *DocumentManagerPresenter::findDocumentPresenter(const std::filesystem::path &filePath) {
         auto &dps = documentPresenters;
-        auto documentPresenterIt = std::find_if(dps.begin(), dps.end(), [filePath](std::unique_ptr<DocumentPresenter> &dp) {
-            return dp->hasFilePath(filePath);
-        });
+        auto documentPresenterIt = std::find_if(dps.begin(), dps.end(), [filePath](std::unique_ptr<DocumentPresenter> &dp) { return dp->hasFilePath(filePath); });
 
         if (documentPresenterIt != dps.end()) {
             return documentPresenterIt->get();
@@ -166,9 +163,7 @@ namespace xenoide {
 
     void DocumentManagerPresenter::closeDocumentPresenter(DocumentPresenter *documentPresenter) {
         auto &dps = documentPresenters;
-        auto documentPresenterIt = std::find_if(dps.begin(), dps.end(), [documentPresenter](std::unique_ptr<DocumentPresenter> &dp) {
-            return dp.get() == documentPresenter;
-        });
+        auto documentPresenterIt = std::find_if(dps.begin(), dps.end(), [documentPresenter](std::unique_ptr<DocumentPresenter> &dp) { return dp.get() == documentPresenter; });
 
         documentPresenters.erase(documentPresenterIt);
     }
@@ -181,4 +176,4 @@ namespace xenoide {
 
         this->closeDocumentPresenter(documentPresenter);
     }
-}
+} // namespace xenoide

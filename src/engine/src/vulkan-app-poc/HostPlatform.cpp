@@ -59,13 +59,12 @@ std::vector<const char *> HostPlatform::enumerateRequiredInstanceExtensions() co
 }
 
 std::vector<const char *> HostPlatform::enumerateRequiredDeviceExtensions() const {
-    return {
-        // these extensions provide all the objects required for swapchains
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    return {// these extensions provide all the objects required for swapchains
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 
     // required for platforms where Vulkan isn't supported directly by the OS
 #if defined(XE_OS_MACOS) || defined(XE_OS_IOS)
-        "VK_KHR_portability_subset"
+            "VK_KHR_portability_subset"
 #endif
     };
 }

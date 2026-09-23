@@ -1,5 +1,5 @@
 
-#pragma once 
+#pragma once
 
 #ifndef __XENOIDE_UI_SEARCHREPLACE_DIALOG_HPP__
 #define __XENOIDE_UI_SEARCHREPLACE_DIALOG_HPP__
@@ -12,10 +12,7 @@ namespace xenoide {
     class FindReplaceDialogPresenter;
     class FindReplaceDialog {
     public:
-        enum SearchScope {
-            Selection = 0,
-            CurrentDocument = 1
-        };
+        enum SearchScope { Selection = 0, CurrentDocument = 1 };
 
         struct ViewData {
             std::string title;
@@ -38,6 +35,6 @@ namespace xenoide {
 
         virtual void toggleReplaceControls(const bool status) = 0;
     };
-}
+} // namespace xenoide
 
 #endif

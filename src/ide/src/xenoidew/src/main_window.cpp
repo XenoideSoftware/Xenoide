@@ -25,39 +25,39 @@ namespace {
     // Child window IDs for the dock layout and its contents.
     enum {
         IDC_DOCKS = 5100,
-        IDC_LEFT_DOCK   ,
-        IDC_DOCUMENTS    ,
-        IDC_BOTTOM_DOCK   ,
-        IDC_FILES_PAGE    ,
-        IDC_OUTLINE_PAGE  ,
-        IDC_EDITOR1_PAGE  ,
-        IDC_OUTPUT_PAGE  ,
-        IDC_LOGS_PAGE    ,
+        IDC_LEFT_DOCK,
+        IDC_DOCUMENTS,
+        IDC_BOTTOM_DOCK,
+        IDC_FILES_PAGE,
+        IDC_OUTLINE_PAGE,
+        IDC_EDITOR1_PAGE,
+        IDC_OUTPUT_PAGE,
+        IDC_LOGS_PAGE,
         IDC_TB,
         IDC_TB_MENU,
         IDC_REBAR
     };
 
-    constexpr const TCHAR* statusReady = _T("Ready");
+    constexpr const TCHAR *statusReady = _T("Ready");
 
     enum {
         ID_FILE_NEW = 101,
         ID_FILE_OPEN,
-        ID_FILE_SAVE ,
+        ID_FILE_SAVE,
         ID_FILE_SAVEAS,
-        ID_FILE_EXIT  ,
+        ID_FILE_EXIT,
 
-        ID_EDIT_UNDO  ,
-        ID_EDIT_REDO  ,
-        ID_EDIT_CUT   ,
-        ID_EDIT_COPY  ,
-        ID_EDIT_PASTE ,
+        ID_EDIT_UNDO,
+        ID_EDIT_REDO,
+        ID_EDIT_CUT,
+        ID_EDIT_COPY,
+        ID_EDIT_PASTE,
         ID_EDIT_FIND,
         ID_EDIT_REPLACE,
 
         ID_HELP_ABOUT,
 
-        // for the toolbar menu 
+        // for the toolbar menu
         ID_FILE,
         ID_EDIT,
         ID_HELP
@@ -66,7 +66,7 @@ namespace {
     wl::tstring to_tstring(const std::filesystem::path &path) {
 #if defined(_UNICODE) || defined(UNICODE)
         return path.wstring();
-#else 
+#else
         return path.string();
 #endif
     }
@@ -106,18 +106,17 @@ namespace {
 
         return str;
     }
-}
+} // namespace
 
 MainWindow::MainWindow() {
     HINSTANCE hInst = GetModuleHandle(nullptr);
 
     setup.wndClassEx.lpszClassName = _T("Xenoide");
-    setup.wndClassEx.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(IDI_APPICON));
-    setup.wndClassEx.hIconSm       = static_cast<HICON>(LoadImage(hInst,
-        MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-    setup.title                    = _T("Xenoide");
-    setup.style                    = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
-    setup.size                     = {1100, 700};
+    setup.wndClassEx.hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_APPICON));
+    setup.wndClassEx.hIconSm = static_cast<HICON>(LoadImage(hInst, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
+    setup.title = _T("Xenoide");
+    setup.style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN;
+    setup.size = {1100, 700};
 
     on_message(WM_CREATE, [this](wl::params) -> LRESULT {
         // buildMenuToolbar();
@@ -140,10 +139,9 @@ MainWindow::MainWindow() {
         return 0;
     });
 
-
     on_message(WM_MENUSELECT, [this](wl::params p) -> LRESULT {
         const WORD itemId = LOWORD(p.wParam);
-        const WORD flags  = HIWORD(p.wParam);
+        const WORD flags = HIWORD(p.wParam);
 
         // Menu closed: wParam == 0xFFFF and lParam == 0.
         if (flags == 0xFFFF && p.lParam == 0) {
@@ -168,20 +166,26 @@ MainWindow::MainWindow() {
     });
 
     on_notify(IDC_TB_MENU, TBN_DROPDOWN, [this](wl::params p) -> LRESULT {
-        auto const &nmtb = *reinterpret_cast<NMTOOLBAR*>(p.lParam);
+        auto const &nmtb = *reinterpret_cast<NMTOOLBAR *>(p.lParam);
         auto const hdr = &nmtb.hdr;
 
         RECT rc{};
-        SendMessageW(hdr->hwndFrom, TB_GETRECT,
-            static_cast<WPARAM>(nmtb.iItem), reinterpret_cast<LPARAM>(&rc));
-        MapWindowPoints(hdr->hwndFrom, HWND_DESKTOP, reinterpret_cast<POINT*>(&rc), 2);
+        SendMessageW(hdr->hwndFrom, TB_GETRECT, static_cast<WPARAM>(nmtb.iItem), reinterpret_cast<LPARAM>(&rc));
+        MapWindowPoints(hdr->hwndFrom, HWND_DESKTOP, reinterpret_cast<POINT *>(&rc), 2);
 
         wl::menu m;
         switch (nmtb.iItem) {
-        case ID_FILE: m = filePopupMenu;  break;
-        case ID_EDIT: m = editPopupMenu;  break;
-        case ID_HELP: m = helpPopupMenu;  break;
-        default: return TBDDRET_NODEFAULT;
+        case ID_FILE:
+            m = filePopupMenu;
+            break;
+        case ID_EDIT:
+            m = editPopupMenu;
+            break;
+        case ID_HELP:
+            m = helpPopupMenu;
+            break;
+        default:
+            return TBDDRET_NODEFAULT;
         }
 
         TrackPopupMenu(m.hmenu(), TPM_LEFTALIGN | TPM_TOPALIGN, rc.left, rc.bottom, 0, this->hwnd(), nullptr);
@@ -239,54 +243,44 @@ MainWindow::MainWindow() {
     });
 
     on_command(ID_HELP_ABOUT, [this](wl::params) -> LRESULT {
-        MessageBox(hwnd(), _T("Xenoide"), _T("About"),
-            MB_OK | MB_ICONINFORMATION);
+        MessageBox(hwnd(), _T("Xenoide"), _T("About"), MB_OK | MB_ICONINFORMATION);
         return 0;
     });
 
-    on_command(ID_EDIT_FIND, [this](wl::params) -> LRESULT {
-
-
-
-        return 0;
-    });
+    on_command(ID_EDIT_FIND, [this](wl::params) -> LRESULT { return 0; });
 
     on_command(ID_EDIT_REPLACE, [this](wl::params) -> LRESULT {
-        MessageBox(hwnd(), _T("Xenoide"), _T("About"),
-            MB_OK | MB_ICONINFORMATION);
+        MessageBox(hwnd(), _T("Xenoide"), _T("About"), MB_OK | MB_ICONINFORMATION);
         return 0;
     });
 
-    on_notify(IDC_EDITOR1_PAGE, SCN_MODIFIED, [this] (wl::params) -> LRESULT {
+    on_notify(IDC_EDITOR1_PAGE, SCN_MODIFIED, [this](wl::params) -> LRESULT {
         controller.onEditorModified();
         return 0;
     });
 
     on_notify(IDC_EDITOR1_PAGE, SCN_CHARADDED, [this](wl::params p) -> LRESULT {
-        auto const &notification = *reinterpret_cast<SCNotification*>(p.lParam);
+        auto const &notification = *reinterpret_cast<SCNotification *>(p.lParam);
         controller.onEditorCharAdded(notification);
         return 0;
     });
 
+    commandDataMap = {
+        {ID_FILE_NEW, {_T("&New"), _T("Create a new file"), FVIRTKEY | FCONTROL, 'N'}},
+        {ID_FILE_OPEN, {_T("&Open ..."), _T("Open an existing file"), FVIRTKEY | FCONTROL, 'O'}},
+        {ID_FILE_SAVE, {_T("&Save"), _T("Save the active document"), FVIRTKEY | FCONTROL, 'S'}},
+        {ID_FILE_SAVEAS, {_T("S&ave As ..."), _T("Save the active document under a new name"), 0, 0}},
+        {ID_FILE_EXIT, {_T("&Exit"), _T("Exit Xenoide"), 0, 0}},
 
+        {ID_EDIT_UNDO, {_T("&Undo"), _T("Undo the last action"), FVIRTKEY | FCONTROL, 'Z'}},
+        {ID_EDIT_REDO, {_T("&Redo"), _T("Redo the last undone action"), FVIRTKEY | FCONTROL | FSHIFT, 'Z'}},
+        {ID_EDIT_CUT, {_T("&Cut"), _T("Cut the selection to the clipboard"), FVIRTKEY | FCONTROL, 'X'}},
+        {ID_EDIT_COPY, {_T("C&opy"), _T("Copy the selection to the clipboard"), FVIRTKEY | FCONTROL, 'C'}},
+        {ID_EDIT_PASTE, {_T("&Paste"), _T("Paste the clipboard contents"), FVIRTKEY | FCONTROL, 'V'}},
+        {ID_EDIT_FIND, {_T("&Find ..."), _T("Find text at current editor"), FCONTROL, 'F'}},
+        {ID_EDIT_REPLACE, {_T("&Replace ..."), _T("Repalce text at current editor"), FCONTROL, 'H'}},
 
-    commandDataMap = 
-    {
-        { ID_FILE_NEW,  { _T("&New"),  _T("Create a new file"), FVIRTKEY | FCONTROL, 'N' } },
-        { ID_FILE_OPEN,  { _T("&Open ..."),  _T("Open an existing file"), FVIRTKEY | FCONTROL, 'O' } },
-        { ID_FILE_SAVE,  { _T("&Save"),  _T("Save the active document"), FVIRTKEY | FCONTROL, 'S' } },
-        { ID_FILE_SAVEAS,  { _T("S&ave As ..."),  _T("Save the active document under a new name"), 0, 0 } },
-        { ID_FILE_EXIT,  { _T("&Exit"),  _T("Exit Xenoide"), 0, 0 } },
-
-        { ID_EDIT_UNDO,  { _T("&Undo"),  _T("Undo the last action"), FVIRTKEY | FCONTROL, 'Z' } },
-        { ID_EDIT_REDO,  { _T("&Redo"),  _T("Redo the last undone action"), FVIRTKEY | FCONTROL | FSHIFT, 'Z' } },
-        { ID_EDIT_CUT,  { _T("&Cut"),  _T("Cut the selection to the clipboard"), FVIRTKEY | FCONTROL, 'X' } },
-        { ID_EDIT_COPY,  { _T("C&opy"),  _T("Copy the selection to the clipboard"), FVIRTKEY | FCONTROL, 'C' } },
-        { ID_EDIT_PASTE,  { _T("&Paste"),  _T("Paste the clipboard contents"), FVIRTKEY | FCONTROL, 'V' } },
-        { ID_EDIT_FIND,  { _T("&Find ..."),  _T("Find text at current editor"), FCONTROL, 'F' } },
-        { ID_EDIT_REPLACE,  { _T("&Replace ..."),  _T("Repalce text at current editor"), FCONTROL, 'H' } },
-
-        { ID_HELP_ABOUT,  { _T("&About"),  _T("Display version and license information"), 0, 0 } },
+        {ID_HELP_ABOUT, {_T("&About"), _T("Display version and license information"), 0, 0}},
     };
 }
 
@@ -339,21 +333,13 @@ void MainWindow::buildMenuToolbar() {
 }
 
 void MainWindow::buildStatusBar() {
-    statusbar.create(this)
-        .add_resizable_part(1)
-        .set_text(_T("Ready"), 0);
+    statusbar.create(this).add_resizable_part(1).set_text(_T("Ready"), 0);
 }
 
 void MainWindow::buildUI() {
-    editor.create(this, IDC_EDITOR1_PAGE,  {0, 0}, {0, 0});
+    editor.create(this, IDC_EDITOR1_PAGE, {0, 0}, {0, 0});
 
-    controller = MainWindowController {
-        this,
-        SciEditor {
-            this->editor.get_direct_pointer(),
-            this->editor.get_direct_function()
-        }
-    };
+    controller = MainWindowController{this, SciEditor{this->editor.get_direct_pointer(), this->editor.get_direct_function()}};
 
     controller.getModel()->attach(this);
     controller.onEditorModified();
@@ -362,7 +348,8 @@ void MainWindow::buildUI() {
 }
 
 void MainWindow::layout() {
-    if (!editor.hwnd()) return;
+    if (!editor.hwnd())
+        return;
 
     RECT clientRc{};
     GetClientRect(hwnd(), &clientRc);
@@ -384,7 +371,7 @@ void MainWindow::layout() {
 
     int dockW = clientRc.right;
     int dockH = clientRc.bottom - statusH - toolbarHeight;
-    if (dockH < 0)  {
+    if (dockH < 0) {
         dockH = 0;
     }
 
@@ -402,15 +389,11 @@ void MainWindow::buildAcceleratorTable() {
 
 HIMAGELIST g_hImageList = nullptr;
 
-HWND CreateMenuToolbar(HWND hWndParent)
-{
+HWND CreateMenuToolbar(HWND hWndParent) {
     // Create the toolbar.
-    DWORD const style = WS_CHILD |  TBSTYLE_FLAT | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | 
-        CCS_NORESIZE | CCS_NOPARENTALIGN | CCS_NODIVIDER;
+    DWORD const style = WS_CHILD | TBSTYLE_FLAT | TBSTYLE_TRANSPARENT | TBSTYLE_LIST | CCS_NORESIZE | CCS_NOPARENTALIGN | CCS_NODIVIDER;
 
-    HWND hWndToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr, style,  
-        0, 0, 0, 0, 
-        hWndParent, (HMENU)IDC_TB_MENU, GetModuleHandle(nullptr), nullptr);
+    HWND hWndToolbar = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr, style, 0, 0, 0, 0, hWndParent, (HMENU)IDC_TB_MENU, GetModuleHandle(nullptr), nullptr);
 
     if (hWndToolbar == nullptr) {
         return nullptr;
@@ -418,26 +401,25 @@ HWND CreateMenuToolbar(HWND hWndParent)
 
     // configure the toolbar
     SendMessage(hWndToolbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
-    SendMessage(hWndToolbar, TB_SETIMAGELIST, 0, (LPARAM)nullptr);
+    SendMessage(hWndToolbar, TB_SETIMAGELIST, 0, (LPARAM) nullptr);
 
     // add buttons
     const DWORD buttonStyles = BTNS_AUTOSIZE | BTNS_DROPDOWN;
-    const int numButtons     = 3;
-    TBBUTTON tbButtons[numButtons] = 
-    {
-        { I_IMAGENONE, ID_FILE,  TBSTATE_ENABLED, buttonStyles, {0}, 0, (INT_PTR)L"&File" },
-        { I_IMAGENONE, ID_EDIT, TBSTATE_ENABLED, buttonStyles, {0}, 0, (INT_PTR)L"Edit"},
-        { I_IMAGENONE, ID_HELP, TBSTATE_ENABLED, buttonStyles, {0}, 0, (INT_PTR)L"Help"}
+    const int numButtons = 3;
+    TBBUTTON tbButtons[numButtons] = {
+        {I_IMAGENONE, ID_FILE, TBSTATE_ENABLED, buttonStyles, {0}, 0, (INT_PTR)L"&File"},
+        {I_IMAGENONE, ID_EDIT, TBSTATE_ENABLED, buttonStyles, {0}, 0, (INT_PTR)L"Edit"},
+        {I_IMAGENONE, ID_HELP, TBSTATE_ENABLED, buttonStyles, {0}, 0, (INT_PTR)L"Help"}
     };
-    SendMessage(hWndToolbar, TB_ADDBUTTONS,       (WPARAM)numButtons,       (LPARAM)&tbButtons);
+    SendMessage(hWndToolbar, TB_ADDBUTTONS, (WPARAM)numButtons, (LPARAM)&tbButtons);
 
     // Force a button height close to a real menu bar's.
     int menuHeight = GetSystemMetrics(SM_CYMENU);
     SendMessage(hWndToolbar, TB_SETBUTTONSIZE, 0, MAKELPARAM(0, menuHeight));
 
     // Resize the toolbar, and then show it.
-    SendMessage(hWndToolbar, TB_AUTOSIZE, 0, 0); 
-    ShowWindow(hWndToolbar,  TRUE);
+    SendMessage(hWndToolbar, TB_AUTOSIZE, 0, 0);
+    ShowWindow(hWndToolbar, TRUE);
 
     return hWndToolbar;
 }
@@ -447,10 +429,16 @@ void MainWindow::buildRebar() {
         WS_EX_TOOLWINDOW,
         REBARCLASSNAME,
         nullptr,
-        WS_VISIBLE | WS_CHILD | WS_BORDER |
-        RBS_VARHEIGHT | RBS_BANDBORDERS | CCS_NODIVIDER,
-        0, 0, 0, 0,
-        hwnd(), (HMENU)IDC_REBAR, GetModuleHandle(nullptr), nullptr);
+        WS_VISIBLE | WS_CHILD | WS_BORDER | RBS_VARHEIGHT | RBS_BANDBORDERS | CCS_NODIVIDER,
+        0,
+        0,
+        0,
+        0,
+        hwnd(),
+        (HMENU)IDC_REBAR,
+        GetModuleHandle(nullptr),
+        nullptr
+    );
 }
 
 void MainWindow::buildActionToolbar() {
@@ -464,49 +452,61 @@ void MainWindow::buildActionToolbar() {
     const DWORD buttonStyles = BTNS_AUTOSIZE;
 
     // Create the toolbar.
-    hToolBar = CreateWindowEx(0, TOOLBARCLASSNAME, nullptr, 
-        WS_CHILD | TBSTYLE_WRAPABLE | 
+    hToolBar = CreateWindowEx(
+        0,
+        TOOLBARCLASSNAME,
+        nullptr,
+        WS_CHILD | TBSTYLE_WRAPABLE |
 
-        // styles required for the rebar? 
-        CCS_NORESIZE | CCS_NOPARENTALIGN, 
-        0, 0, 0, 0, 
-        hwnd(), nullptr, GetModuleHandle(nullptr), nullptr);
+            // styles required for the rebar?
+            CCS_NORESIZE | CCS_NOPARENTALIGN,
+        0,
+        0,
+        0,
+        0,
+        hwnd(),
+        nullptr,
+        GetModuleHandle(nullptr),
+        nullptr
+    );
 
     if (hToolBar == nullptr) {
         return;
     }
 
     // Set the image list.
-    SendMessage(hToolBar, TB_SETIMAGELIST, 
-        (WPARAM)ImageListID, 
-        (LPARAM)toolbarImageList.himagelist());
+    SendMessage(hToolBar, TB_SETIMAGELIST, (WPARAM)ImageListID, (LPARAM)toolbarImageList.himagelist());
 
     // Load the button images.
-    SendMessage(hToolBar, TB_LOADIMAGES, 
-        (WPARAM)IDB_STD_SMALL_COLOR, 
-        (LPARAM)HINST_COMMCTRL);
+    SendMessage(hToolBar, TB_LOADIMAGES, (WPARAM)IDB_STD_SMALL_COLOR, (LPARAM)HINST_COMMCTRL);
 
     // Initialize button info.
     // IDM_NEW, IDM_OPEN, and IDM_SAVE are application-defined command constants.
-    TBBUTTON tbButtons[3] = 
-    {
-        { MAKELONG(0,  ImageListID), ID_FILE_NEW,  TBSTATE_ENABLED, buttonStyles, {0}, 0, 0 },
-        { MAKELONG(1, ImageListID), ID_FILE_OPEN, TBSTATE_ENABLED, buttonStyles, {0}, 0, 0},
-        { MAKELONG(2, ImageListID), ID_FILE_SAVE, TBSTATE_ENABLED, buttonStyles, {0}, 0, }
+    TBBUTTON tbButtons[3] = {
+        {MAKELONG(0, ImageListID), ID_FILE_NEW, TBSTATE_ENABLED, buttonStyles, {0}, 0, 0},
+        {MAKELONG(1, ImageListID), ID_FILE_OPEN, TBSTATE_ENABLED, buttonStyles, {0}, 0, 0},
+        {
+            MAKELONG(2, ImageListID),
+            ID_FILE_SAVE,
+            TBSTATE_ENABLED,
+            buttonStyles,
+            {0},
+            0,
+        }
     };
 
     // Add buttons.
     SendMessage(hToolBar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
-    SendMessage(hToolBar, TB_ADDBUTTONS,       (WPARAM)3,       (LPARAM)&tbButtons);
+    SendMessage(hToolBar, TB_ADDBUTTONS, (WPARAM)3, (LPARAM)&tbButtons);
 
     // Resize the toolbar, and then show it.
-    SendMessage(hToolBar, TB_AUTOSIZE, 0, 0); 
-    ShowWindow(hToolBar,  TRUE);
+    SendMessage(hToolBar, TB_AUTOSIZE, 0, 0);
+    ShowWindow(hToolBar, TRUE);
 }
 
 void MainWindow::buildToolbars() {
     hToolBarMenu = CreateMenuToolbar(hwndRebar);
-    
+
     buildActionToolbar();
 
     addRebarBand(IDC_TB_MENU, hToolBarMenu, false);
@@ -518,16 +518,15 @@ void MainWindow::addRebarBand(UINT wId, HWND hChild, bool breakBand) {
     SendMessage(hChild, TB_AUTOSIZE, 0, 0);
     SendMessage(hChild, TB_GETMAXSIZE, 0, (LPARAM)&sz);
 
-    REBARBANDINFO rbb = { 0 };
-    rbb.cbSize     = sizeof(REBARBANDINFO);
-    rbb.fMask      = RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE |
-        RBBIM_SIZE  | RBBIM_ID;
+    REBARBANDINFO rbb = {0};
+    rbb.cbSize = sizeof(REBARBANDINFO);
+    rbb.fMask = RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE | RBBIM_ID;
     rbb.fStyle = RBBS_GRIPPERALWAYS | RBBS_CHILDEDGE | (breakBand ? RBBS_BREAK : 0L);
-    rbb.hwndChild  = hChild;
+    rbb.hwndChild = hChild;
     rbb.cxMinChild = 0;
     rbb.cyMinChild = sz.cy;
-    rbb.cx         = sz.cx;
-    rbb.wID        = wId;
+    rbb.cx = sz.cx;
+    rbb.wID = wId;
 
     SendMessage(hwndRebar, RB_INSERTBAND, (WPARAM)-1, (LPARAM)&rbb);
 }
@@ -550,13 +549,13 @@ void MainWindow::update(const MainWindowNotification &notification) {
 
         EnableMenuItem(editMenu.hmenu(), ID_EDIT_UNDO, canUndo ? MF_ENABLED : MF_DISABLED);
         EnableMenuItem(editMenu.hmenu(), ID_EDIT_REDO, canRedo ? MF_ENABLED : MF_DISABLED);
-        EnableMenuItem(editMenu.hmenu(), ID_EDIT_PASTE, canPaste != 0  ? MF_ENABLED : MF_DISABLED);
+        EnableMenuItem(editMenu.hmenu(), ID_EDIT_PASTE, canPaste != 0 ? MF_ENABLED : MF_DISABLED);
     }
 }
 
 std::optional<std::string> MainWindow::showFileDialog(ShowFileDialog dialog, const ShowFileDialogOptions &options) {
     bool selected = false;
-    
+
     wl::tstring filter = to_tstring(options.filter);
     wl::tstring defaultPath = to_tstring(options.defaultFile);
     wl::tstring path;
@@ -570,7 +569,7 @@ std::optional<std::string> MainWindow::showFileDialog(ShowFileDialog dialog, con
         selected = wl::sysdlg::save_file(this->hwnd(), filter.c_str(), path, defaultPath);
         break;
     }
-    
+
     if (!selected) {
         return std::nullopt;
     }

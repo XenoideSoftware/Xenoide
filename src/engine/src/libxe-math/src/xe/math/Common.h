@@ -13,17 +13,15 @@
 #include <string>
 
 namespace xe {
-    template<typename T>
-    struct DefaultEpsilon {
+    template <typename T> struct DefaultEpsilon {
         DefaultEpsilon() = delete;
 
-        static T value()  {
+        static T value() {
             return T{0.000001};
         }
     };
 
-    template<typename T>
-    inline const T defaultEpsilon = DefaultEpsilon<T>::value();
+    template <typename T> inline const T defaultEpsilon = DefaultEpsilon<T>::value();
 
     //! Perform a safe comparison between two floating point using the default reference "infinitesimal" epsilon
     template <typename T> bool equals(const T a, const T b) {

@@ -86,7 +86,7 @@ namespace xe {
     GraphicsDeviceGL::~GraphicsDeviceGL() {
     }
 
-    Subset *GraphicsDeviceGL::createSubset(const SubsetDescriptor &/*desc*/) {
+    Subset *GraphicsDeviceGL::createSubset(const SubsetDescriptor & /*desc*/) {
         return nullptr;
     }
 
@@ -94,7 +94,7 @@ namespace xe {
         return nullptr;
     }
 
-    Program *GraphicsDeviceGL::createProgram(const ProgramDescriptor &/*desc*/) {
+    Program *GraphicsDeviceGL::createProgram(const ProgramDescriptor & /*desc*/) {
         return nullptr;
     }
 
@@ -131,7 +131,7 @@ namespace xe {
         context->present();
     }
 
-    void GraphicsDeviceGL::preRenderMaterial(const Material */*material*/) {
+    void GraphicsDeviceGL::preRenderMaterial(const Material * /*material*/) {
         /*
         const auto &rs = material->renderState;
 
@@ -183,7 +183,7 @@ namespace xe {
         }*/
     }
 
-    void GraphicsDeviceGL::postRenderMaterial(const Material */*material*/) {
+    void GraphicsDeviceGL::postRenderMaterial(const Material * /*material*/) {
         /*
         const auto &rs = material->renderState;
 
@@ -229,7 +229,7 @@ namespace xe {
         m_material = material;
     }
 
-    void GraphicsDeviceGL::setProgram(const Program */*program*/) {
+    void GraphicsDeviceGL::setProgram(const Program * /*program*/) {
     }
 
     const Program *GraphicsDeviceGL::getProgram() const {
@@ -290,7 +290,7 @@ namespace xe {
 
     void GraphicsDeviceGL::applyUniform(const Uniform *uniform, const size_t count, const void *data) {
         assert(m_program);
-        
+
         XE_UNUSED(uniform);
         XE_UNUSED(count);
         XE_UNUSED(data);

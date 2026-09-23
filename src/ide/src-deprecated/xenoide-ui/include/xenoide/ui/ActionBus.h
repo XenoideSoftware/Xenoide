@@ -7,88 +7,88 @@
 
 namespace xenoide {
 
-enum class ActionId {
-  DocumentNew,
-  DocumentOpen,
-  DocumentSave,
-  DocumentSaveAll,
-  DocumentClose,
-  FolderOpen,
-  AppExit,
-  ShowOpenDocumentDialog,
-  ShowSaveDocumentDialog,
-  ShowOpenFolderDialog,
-  ShowAboutDialog,
+    enum class ActionId {
+        DocumentNew,
+        DocumentOpen,
+        DocumentSave,
+        DocumentSaveAll,
+        DocumentClose,
+        FolderOpen,
+        AppExit,
+        ShowOpenDocumentDialog,
+        ShowSaveDocumentDialog,
+        ShowOpenFolderDialog,
+        ShowAboutDialog,
 
-  // add new elements here
-  // don't forget to update to_string as well
-};
+        // add new elements here
+        // don't forget to update to_string as well
+    };
 
-/**
- * @brief Application-wide event bus
- */
-class ActionBus {
-public:
-  virtual ~ActionBus() = default;
+    /**
+     * @brief Application-wide event bus
+     */
+    class ActionBus {
+    public:
+        virtual ~ActionBus() = default;
 
-  // Allows Presenters to send events, without having references to the other presenters
-  // these events are supported by the native UI system
-  virtual void sendAction(ActionId action) = 0;
-};
+        // Allows Presenters to send events, without having references to the other presenters
+        // these events are supported by the native UI system
+        virtual void sendAction(ActionId action) = 0;
+    };
 
-using MessageId = ActionId;
+    using MessageId = ActionId;
 
-class MessageBus;
-class MessageHandler {
-public:
-  explicit MessageHandler(MessageBus* bus);
+    class MessageBus;
+    class MessageHandler {
+    public:
+        explicit MessageHandler(MessageBus *bus);
 
-  virtual ~MessageHandler();
+        virtual ~MessageHandler();
 
-  virtual void handle(const MessageId &messageId, const std::string &data) = 0;
+        virtual void handle(const MessageId &messageId, const std::string &data) = 0;
 
-protected:
-  MessageBus* bus = nullptr;
-};
+    protected:
+        MessageBus *bus = nullptr;
+    };
 
-class MessageBus {
-  friend class MessageHandler;
+    class MessageBus {
+        friend class MessageHandler;
 
-  void registerHandler(MessageHandler* handler);
+        void registerHandler(MessageHandler *handler);
 
-  void unregisterHandler(MessageHandler* handler);
+        void unregisterHandler(MessageHandler *handler);
 
-public:
-  void postMessage(const MessageId &messageId, const std::string &data);
+    public:
+        void postMessage(const MessageId &messageId, const std::string &data);
 
-private:
-  std::set<MessageHandler*> handlers;
-};
+    private:
+        std::set<MessageHandler *> handlers;
+    };
 
-}
+} // namespace xenoide
 
 inline std::string_view to_string(const xenoide::ActionId &id) {
-  constexpr std::array<std::string_view, 11> actionIdNames  {
-    "DocumentNew",
-    "DocumentOpen",
-    "DocumentSave",
-    "DocumentSaveAll",
-    "DocumentClose",
-    "FolderOpen",
-    "AppExit",
-    "ShowOpenDocumentDialog",
-    "ShowSaveDocumentDialog",
-    "ShowOpenFolderDialog",
-    "ShowAboutDialog",
-  };
+    constexpr std::array<std::string_view, 11> actionIdNames{
+        "DocumentNew",
+        "DocumentOpen",
+        "DocumentSave",
+        "DocumentSaveAll",
+        "DocumentClose",
+        "FolderOpen",
+        "AppExit",
+        "ShowOpenDocumentDialog",
+        "ShowSaveDocumentDialog",
+        "ShowOpenFolderDialog",
+        "ShowAboutDialog",
+    };
 
-  if (const auto i = static_cast<int>(id); i >= 0 && i < actionIdNames.size()) {
-    return actionIdNames[i];
-  }
+    if (const auto i = static_cast<int>(id); i >= 0 && i < actionIdNames.size()) {
+        return actionIdNames[i];
+    }
 
-  return "UnknownActionId";
+    return "UnknownActionId";
 }
 
-inline std::ostream& operator<<(std::ostream &os, const xenoide::ActionId& id) {
-  return os << to_string(id);
+inline std::ostream &operator<<(std::ostream &os, const xenoide::ActionId &id) {
+    return os << to_string(id);
 }

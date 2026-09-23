@@ -55,7 +55,7 @@ GLuint TextureRepository::createTexture(Renderer &renderer, const std::string &i
     return createTexture(renderer, image->getData());
 }
 
-GLuint TextureRepository::createTexture(Renderer &/*renderer*/, const ImageData &/*image*/) const {
-    
+GLuint TextureRepository::createTexture(Renderer & /*renderer*/, const ImageData & /*image*/) const {
+
     return {};
 }

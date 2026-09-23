@@ -38,6 +38,6 @@ namespace xenoide {
         QTreeView *treeView = nullptr;
         QFileSystemModel *model = nullptr;
     };
-}
+} // namespace xenoide
 
 #endif

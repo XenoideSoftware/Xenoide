@@ -2,5 +2,6 @@
 #include <xenoide/ui/MenuPanel.h>
 
 namespace xenoide {
-    MenuPanel::~MenuPanel() {}
-}
+    MenuPanel::~MenuPanel() {
+    }
+} // namespace xenoide

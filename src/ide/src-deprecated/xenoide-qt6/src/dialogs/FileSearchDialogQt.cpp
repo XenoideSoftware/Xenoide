@@ -24,24 +24,21 @@ namespace xenoide {
 
         this->setLayout(layout);
 
-        QObject::connect(this->filePatternLineEdit, &QLineEdit::textEdited, [this](const QString &text) {
-            this->presenter->onFilenameFilterRequested(text.toStdString());
-        });
+        QObject::connect(this->filePatternLineEdit, &QLineEdit::textEdited, [this](const QString &text) { this->presenter->onFilenameFilterRequested(text.toStdString()); });
 
-        QObject::connect(this->filesListWidget, &QListView::doubleClicked, [this]() {
-            this->accept();
-        });
+        QObject::connect(this->filesListWidget, &QListView::doubleClicked, [this]() { this->accept(); });
 
         this->presenter->onInitialized(this);
     }
 
-    FileSearchDialogQt::~FileSearchDialogQt() {}
+    FileSearchDialogQt::~FileSearchDialogQt() {
+    }
 
     QString FileSearchDialogQt::selectedFile() const {
         QString selectedFile;
 
         if (auto item = this->filesListWidget->currentItem()) {
-            if (auto widget = dynamic_cast<FileSearchDialogItemWidgetQt*>(filesListWidget->itemWidget(item))) {
+            if (auto widget = dynamic_cast<FileSearchDialogItemWidgetQt *>(filesListWidget->itemWidget(item))) {
                 selectedFile = widget->getFilePath();
             }
         }
@@ -56,12 +53,7 @@ namespace xenoide {
             auto fileItem = new QListWidgetItem();
             this->filesListWidget->addItem(fileItem);
 
-            auto fileItemWidget = new FileSearchDialogItemWidgetQt(
-                nullptr, 
-                fileViewData.fileTitle.c_str(), 
-                fileViewData.fileFolder.c_str(),
-                fileViewData.filePath.c_str()
-            );
+            auto fileItemWidget = new FileSearchDialogItemWidgetQt(nullptr, fileViewData.fileTitle.c_str(), fileViewData.fileFolder.c_str(), fileViewData.filePath.c_str());
 
             this->filesListWidget->setItemWidget(fileItem, fileItemWidget);
         }
@@ -72,6 +64,5 @@ namespace xenoide {
     }
 
     void FileSearchDialogQt::hide() {
-        
     }
-}
+} // namespace xenoide

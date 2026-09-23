@@ -1,7 +1,7 @@
 
 #include <xenoide/core/FileSystemService.h>
 
-
 namespace Xenoide {
-	FileSystemService::~FileSystemService() {}
-}
+    FileSystemService::~FileSystemService() {
+    }
+} // namespace Xenoide

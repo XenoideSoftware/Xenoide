@@ -13,7 +13,9 @@ namespace Xenoide {
     class DialogManager;
     class FolderService;
 
-    struct Point { int x, y; };
+    struct Point {
+        int x, y;
+    };
 
     class FolderBrowser {
     public:
@@ -52,20 +54,20 @@ namespace Xenoide {
             virtual void onOpenSelectedFile();
 
             virtual void onDeleteSelectedPath();
-        
+
             virtual void onDisplayFolder(const boost::filesystem::path &folderPath);
 
             virtual void onContextMenuRequested(const Point &point);
 
         private:
-            boost::optional<std::string> askValidPath(const std::string &title, const std::string &prompt, const std::string &promptForInvalidInput, const std::string &defaultValue);
+            boost::optional<std::string>
+            askValidPath(const std::string &title, const std::string &prompt, const std::string &promptForInvalidInput, const std::string &defaultValue);
 
         private:
             DialogManager *dialogView;
             FolderBrowser *view;
             FolderBrowserModel *model;
         };
-
 
     public:
         explicit FolderBrowser(FolderBrowserPresenter *presenter);
@@ -80,6 +82,6 @@ namespace Xenoide {
     protected:
         FolderBrowserPresenter *presenter;
     };
-} 
+} // namespace Xenoide
 
 #endif

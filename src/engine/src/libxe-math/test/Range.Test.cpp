@@ -100,4 +100,3 @@ TEST_CASE("Range overlap should return false when using tightly positioned range
         }
     }
 }
-

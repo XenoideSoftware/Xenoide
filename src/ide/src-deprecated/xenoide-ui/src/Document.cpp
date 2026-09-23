@@ -5,13 +5,11 @@
 #include <xenoide/core/FileService.h>
 #include <xenoide/ui/DialogManager.h>
 
-
-
-
 namespace xenoide {
     DocumentConfig DocumentConfig::Default() {
-        return { "Consolas", 10, 4, true, true };
+        return {"Consolas", 10, 4, true, true};
     }
 
-    Document::~Document() {}
-}
+    Document::~Document() {
+    }
+} // namespace xenoide

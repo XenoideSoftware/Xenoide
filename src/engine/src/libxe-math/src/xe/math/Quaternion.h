@@ -162,9 +162,9 @@ namespace xe {
 
         TQuaternion<T> operator*(const TQuaternion<T> &rhs) const {
             const TVector<T, 3> v1 = cross(V, rhs.V);
-            const TVector<T, 3>  v2 = rhs.V * W;
-            const TVector<T, 3>  v3 = V * rhs.W;
-            const TVector<T, 3>  v = v1 + v2 + v3;
+            const TVector<T, 3> v2 = rhs.V * W;
+            const TVector<T, 3> v3 = V * rhs.W;
+            const TVector<T, 3> v = v1 + v2 + v3;
 
             const T w = W * rhs.W - dot(V, rhs.V);
 

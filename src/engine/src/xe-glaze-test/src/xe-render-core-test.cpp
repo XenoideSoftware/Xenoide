@@ -195,10 +195,7 @@ void main() {
     // Vertex Layout initialization
     xe::VertexLayoutDescriptor layoutDesc;
     layoutDesc.resolveMode = xe::VertexLayoutResolveMode::Explicit;
-    layoutDesc.attribs = {
-        { 0, xe::VertexAttribFormat::float3, false},
-        { 1, xe::VertexAttribFormat::float2, false}
-    };
+    layoutDesc.attribs = {{0, xe::VertexAttribFormat::float3, false}, {1, xe::VertexAttribFormat::float2, false}};
 
     auto layoutResult = vtable.createVertexLayout(ctx, layoutDesc);
     if (!layoutResult) {

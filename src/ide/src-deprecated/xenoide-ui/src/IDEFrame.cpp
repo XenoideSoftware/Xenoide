@@ -15,5 +15,6 @@ namespace xenoide {
         mPresenter = presenter;
     }
 
-    IDEFrame::~IDEFrame() {}
-}
+    IDEFrame::~IDEFrame() {
+    }
+} // namespace xenoide

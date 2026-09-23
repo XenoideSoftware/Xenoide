@@ -18,4 +18,4 @@ namespace xenoide {
 
         this->filePath = filePath;
     }
-}
+} // namespace xenoide

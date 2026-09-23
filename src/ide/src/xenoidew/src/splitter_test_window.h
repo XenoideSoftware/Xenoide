@@ -10,8 +10,8 @@
  */
 class SplitterTestWindow : public wl::window_main {
 private:
-    HWND              _hEditLeft = nullptr;
-    HWND              _hEditRight = nullptr;
+    HWND _hEditLeft = nullptr;
+    HWND _hEditRight = nullptr;
     wlx::splitter_horizontal _splitter;
 
     /**
@@ -22,6 +22,6 @@ private:
 public:
     SplitterTestWindow();
 
-    SplitterTestWindow(SplitterTestWindow&&) = default;
-    SplitterTestWindow& operator=(SplitterTestWindow&&) = default;
+    SplitterTestWindow(SplitterTestWindow &&) = default;
+    SplitterTestWindow &operator=(SplitterTestWindow &&) = default;
 };

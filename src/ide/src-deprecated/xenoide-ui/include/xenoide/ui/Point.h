@@ -6,6 +6,6 @@ namespace Xenoide {
     struct Point {
         int x, y;
     };
-}
+} // namespace Xenoide
 
 #endif

@@ -5,15 +5,14 @@
 #include <vector>
 #include <memory>
 
-
 namespace xenoide {
-class FileSearchDialogPresenter;
+    class FileSearchDialogPresenter;
     class FileSearchDialog {
     public:
         struct FileViewData {
             //! File to be shown to the User
             std::string fileTitle;
-            
+
             //! Parent folder
             std::string fileFolder;
 
@@ -30,8 +29,8 @@ class FileSearchDialogPresenter;
         virtual void displayFileList(const std::vector<FileViewData> &files) = 0;
 
         virtual void hide() = 0;
-        
+
     protected:
         FileSearchDialogPresenter *presenter = nullptr;
     };
-}
+} // namespace xenoide

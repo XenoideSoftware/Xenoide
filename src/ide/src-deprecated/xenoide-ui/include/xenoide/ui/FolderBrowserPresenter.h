@@ -8,46 +8,46 @@
 #include <xenoide/ui/Menu.h>
 
 namespace xenoide {
-class FolderBrowser;
-class FolderBrowserModel;
-class DialogManager;
-class FolderService;
-struct Point;
+    class FolderBrowser;
+    class FolderBrowserModel;
+    class DialogManager;
+    class FolderService;
+    struct Point;
 
-class ActionBus;
-class FolderBrowserPresenter {
-public:
-  FolderBrowserPresenter(ActionBus *actionBus, FolderBrowserModel *model);
+    class ActionBus;
+    class FolderBrowserPresenter {
+    public:
+        FolderBrowserPresenter(ActionBus *actionBus, FolderBrowserModel *model);
 
-  void onInitialized(FolderBrowser *folderBrowser, DialogManager *dialogManager);
+        void onInitialized(FolderBrowser *folderBrowser, DialogManager *dialogManager);
 
-  virtual ~FolderBrowserPresenter();
+        virtual ~FolderBrowserPresenter();
 
-  virtual void onBrowseFolder();
+        virtual void onBrowseFolder();
 
-  virtual void onCreateFile();
+        virtual void onCreateFile();
 
-  virtual void onCreateFolder();
+        virtual void onCreateFolder();
 
-  virtual void onMoveSelectedPath(const std::string &targetFolder);
+        virtual void onMoveSelectedPath(const std::string &targetFolder);
 
-  virtual void onRenameSelectedPath();
+        virtual void onRenameSelectedPath();
 
-  virtual void onOpenSelectedFile();
+        virtual void onOpenSelectedFile();
 
-  virtual void onDeleteSelectedPath();
+        virtual void onDeleteSelectedPath();
 
-  virtual void onDisplayFolder(const std::filesystem::path &folderPath);
+        virtual void onDisplayFolder(const std::filesystem::path &folderPath);
 
-  virtual void onContextMenuRequested(const Point &point);
+        virtual void onContextMenuRequested(const Point &point);
 
-private:
-  std::optional<std::string> askValidPath(const std::string &title, const std::string &prompt, const std::string &promptForInvalidInput, const std::string &defaultValue);
+    private:
+        std::optional<std::string> askValidPath(const std::string &title, const std::string &prompt, const std::string &promptForInvalidInput, const std::string &defaultValue);
 
-  DialogManager *dialogView;
-  FolderBrowser *view;
-  FolderBrowserModel *model;
-  ActionBus *actionBus = nullptr;
-};
+        DialogManager *dialogView;
+        FolderBrowser *view;
+        FolderBrowserModel *model;
+        ActionBus *actionBus = nullptr;
+    };
 
-}
+} // namespace xenoide

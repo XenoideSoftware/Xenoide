@@ -12,6 +12,6 @@ namespace xenoide {
 
         ~FileFilter();
     };
-} 
+} // namespace xenoide
 
 #endif

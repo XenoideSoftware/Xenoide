@@ -16,6 +16,6 @@ namespace xenoide {
 
         virtual void setupMenuBar(const MenuData &menu) = 0;
     };
-}
+} // namespace xenoide
 
 #endif

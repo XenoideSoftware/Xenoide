@@ -1,7 +1,6 @@
 
 #include <xenoide/ui/FolderBrowser.h>
 
-
 #include <iostream>
 #include <fstream>
 #include <boost/filesystem.hpp>
@@ -12,11 +11,11 @@
 #include <xenoide/ui/IDEFrame.h>
 #include <xenoide/ui/FolderBrowserModel.h>
 
-
 namespace Xenoide {
     FolderBrowser::FolderBrowser(FolderBrowserPresenter *presenter) {
         presenter = presenter;
     }
 
-    FolderBrowser::~FolderBrowser() {}
-}
+    FolderBrowser::~FolderBrowser() {
+    }
+} // namespace Xenoide

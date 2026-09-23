@@ -1,11 +1,9 @@
 
 #include <xenoide/ui/FolderBrowserModel.h>
 
-
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-
 
 #include <xenoide/ui/DialogManager.h>
 #include <xenoide/ui/Menu.h>
@@ -25,9 +23,10 @@ namespace xenoide {
         return currentFolderPath;
     }
 
-    std::vector<std::filesystem::path> FolderBrowserModel::listChildPaths(const std::filesystem::path &folderPath) const{
+    std::vector<std::filesystem::path> FolderBrowserModel::listChildPaths(const std::filesystem::path &folderPath) const {
         return folderService->listChildFolders(folderPath);
     }
 
-    FolderBrowserModel::~FolderBrowserModel() {}
-}
+    FolderBrowserModel::~FolderBrowserModel() {
+    }
+} // namespace xenoide

@@ -18,27 +18,27 @@ namespace xenoide {
 
         virtual ~DocumentManager();
 
-        virtual Document* appendDocument(DocumentPresenter *presenter) = 0;
+        virtual Document *appendDocument(DocumentPresenter *presenter) = 0;
 
-        virtual Document* getCurrentDocument() = 0;
+        virtual Document *getCurrentDocument() = 0;
 
         virtual void setCurrentDocument(Document *document) = 0;
 
         virtual std::size_t getDocumentCount() const = 0;
 
-        virtual Document* getDocument(const std::size_t index) = 0;
-        
+        virtual Document *getDocument(const std::size_t index) = 0;
+
         virtual void closeDocument(Document *editor) = 0;
 
         virtual void showDocument(Document *editor) = 0;
 
-        virtual void closeDocuments(const std::vector<Document*> &documents);
+        virtual void closeDocuments(const std::vector<Document *> &documents);
 
-        std::vector<Document*> enumerateDocuments();
+        std::vector<Document *> enumerateDocuments();
 
     protected:
         DocumentManagerPresenter *presenter = nullptr;
     };
-} 
+} // namespace xenoide
 
 #endif

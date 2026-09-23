@@ -4,12 +4,11 @@
 #include <iostream>
 #include <cassert>
 
-
 namespace xenoide {
     FileSearchDialog::FileSearchDialog(FileSearchDialogPresenter *presenter) {
         this->presenter = presenter;
     }
 
-    FileSearchDialog::~FileSearchDialog() {}
-}
-
+    FileSearchDialog::~FileSearchDialog() {
+    }
+} // namespace xenoide

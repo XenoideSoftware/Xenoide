@@ -12,7 +12,6 @@
 #include <filesystem>
 #include <system_error>
 
-
 #include <xenoide/ui/DialogManager.h>
 #include <xenoide/ui/Menu.h>
 #include <xenoide/ui/IDEFrame.h>
@@ -31,7 +30,8 @@ namespace xenoide {
         this->model = model;
     }
 
-    FolderBrowserPresenter::~FolderBrowserPresenter() {}
+    FolderBrowserPresenter::~FolderBrowserPresenter() {
+    }
 
     void FolderBrowserPresenter::onInitialized(FolderBrowser *folderBrowser, DialogManager *dialogManager) {
         this->view = folderBrowser;
@@ -54,12 +54,7 @@ namespace xenoide {
         const auto selectedPath = std::filesystem::path(*selectedPathOptional);
 
         // ask for the new filename
-        const auto newFileName = this->askValidPath(
-            "Xenoide",
-            "Please, enter the new file name", 
-            "Previous name was invalid. Enter the new file name", 
-            "Newfile"
-        );
+        const auto newFileName = this->askValidPath("Xenoide", "Please, enter the new file name", "Previous name was invalid. Enter the new file name", "Newfile");
 
         if (!newFileName) {
             return;
@@ -82,7 +77,7 @@ namespace xenoide {
     }
 
     void FolderBrowserPresenter::onCreateFolder() {
-        // 
+        //
         const auto selectedPathOptional = view->getSelectedPath();
         if (!selectedPathOptional) {
             return;
@@ -91,12 +86,7 @@ namespace xenoide {
         const auto selectedPath = std::filesystem::path(*selectedPathOptional);
 
         // ask the new folder name
-        const auto newFolderName = this->askValidPath(
-            "Xenoide",
-            "Please, enter the new folder name", 
-            "Previous name was invalid. Enter the new folder name", 
-            "Newfolder"
-        );
+        const auto newFolderName = this->askValidPath("Xenoide", "Please, enter the new folder name", "Previous name was invalid. Enter the new folder name", "Newfolder");
 
         if (!newFolderName) {
             return;
@@ -135,7 +125,7 @@ namespace xenoide {
         // TODO: Add directory check to the targetFolder variable
 
         namespace fs = std::filesystem;
-        
+
         // determine the currently selected path
         const auto selectedPathOptional = view->getSelectedPath();
         if (!selectedPathOptional) {
@@ -153,7 +143,7 @@ namespace xenoide {
 
         // existence check!
         if (fs::exists(destinationPath)) {
-            auto messageDialog = MessageDialogData {};
+            auto messageDialog = MessageDialogData{};
             messageDialog.title = "Xenoide";
             messageDialog.message = "File/Directory already exists. Replace it?";
             messageDialog.icon = DialogIcon::Warning;
@@ -166,7 +156,7 @@ namespace xenoide {
             }
         } else if (std::filesystem::is_directory(selectedPath)) {
             // prompt the user confirmation
-            auto messageDialog = MessageDialogData {};
+            auto messageDialog = MessageDialogData{};
             messageDialog.title = "Xenoide";
             messageDialog.message = "Move the directory \"" + selectedPath.filename().string() + "\"?";
             messageDialog.icon = DialogIcon::Warning;
@@ -193,11 +183,9 @@ namespace xenoide {
         const auto pathKind = describePathKind(selectedPath);
         const auto prompt = "Please, enter a new name for the \"" + selectedPath.filename().string() + "\" " + pathKind;
         const auto prefix = "Invalid " + pathKind + " name. ";
-        
+
         // prompt the user for a new path
-        std::optional<std::string> newFilenameOptional = this->askValidPath (
-            "Xenoide", prompt, prefix + prompt, selectedPath.filename().string()
-        );
+        std::optional<std::string> newFilenameOptional = this->askValidPath("Xenoide", prompt, prefix + prompt, selectedPath.filename().string());
 
         if (!newFilenameOptional) {
             return;
@@ -208,7 +196,7 @@ namespace xenoide {
         const auto newPath = selectedPath.parent_path() / newFilename;
 
         if (std::filesystem::exists(newPath)) {
-            auto messageDialog = MessageDialogData {};
+            auto messageDialog = MessageDialogData{};
             messageDialog.title = "Xenoide";
             messageDialog.message = "Another file already exists.";
             messageDialog.icon = DialogIcon::Error;
@@ -220,7 +208,7 @@ namespace xenoide {
 
         // do the rename
         std::filesystem::rename(selectedPath, newPath);
-        
+
         // TODO: Notify to the view the change in the filesystem (?)
     }
 
@@ -234,9 +222,9 @@ namespace xenoide {
         }
 
         const auto selectedPath = fs::path(*selectedPathOptional);
-        
+
         // prompt the user confirmation
-        auto messageDialog = MessageDialogData {};
+        auto messageDialog = MessageDialogData{};
         messageDialog.title = "Xenoide";
         messageDialog.message = "Delete the \"" + selectedPath.filename().string() + "\" " + describePathKind(selectedPath) + "?";
         messageDialog.icon = DialogIcon::Warning;
@@ -245,7 +233,7 @@ namespace xenoide {
         if (auto selectedButton = dialogView->showMessageDialog(messageDialog) == DialogButton::Cancel) {
             return;
         }
-        
+
         // do the delete
         if (std::filesystem::is_directory(selectedPath)) {
             std::filesystem::remove_all(selectedPath);
@@ -256,15 +244,16 @@ namespace xenoide {
         // TODO: Notify to the view the change in the filesystem (?)
     }
 
-    std::optional<std::string> FolderBrowserPresenter::askValidPath(const std::string &title, const std::string &prompt, const std::string &promptForInvalidInput, const std::string &defaultValue) {
+    std::optional<std::string>
+    FolderBrowserPresenter::askValidPath(const std::string &title, const std::string &prompt, const std::string &promptForInvalidInput, const std::string &defaultValue) {
         int attemped = 0;
 
         std::optional<std::string> validNamePath = {};
 
         while (true) {
             const std::string finalPrompt = (!attemped ? prompt : promptForInvalidInput);
-            
-            auto inputDialog = InputDialogData {};
+
+            auto inputDialog = InputDialogData{};
             inputDialog.title = title;
             inputDialog.label = finalPrompt;
             inputDialog.defaultText = defaultValue;
@@ -286,16 +275,17 @@ namespace xenoide {
     }
 
     void FolderBrowserPresenter::onContextMenuRequested(const Point &point) {
-        const auto menu = MenuData::menu("Context Menu", {
-            MenuData::action([this] () { this->onOpenSelectedFile(); }, "Open"),
-            MenuData::separator(),
-            MenuData::action([this] () { this->onCreateFile(); }, "Create File"),
-            MenuData::action([this] () { this->onCreateFolder(); }, "Create Folder"),
-            MenuData::separator(),
-            MenuData::action([this] () { this->onRenameSelectedPath(); }, "Rename"),
-            MenuData::action([this] () { this->onDeleteSelectedPath(); }, "Delete")
-        });
+        const auto menu = MenuData::menu(
+            "Context Menu",
+            {MenuData::action([this]() { this->onOpenSelectedFile(); }, "Open"),
+             MenuData::separator(),
+             MenuData::action([this]() { this->onCreateFile(); }, "Create File"),
+             MenuData::action([this]() { this->onCreateFolder(); }, "Create Folder"),
+             MenuData::separator(),
+             MenuData::action([this]() { this->onRenameSelectedPath(); }, "Rename"),
+             MenuData::action([this]() { this->onDeleteSelectedPath(); }, "Delete")}
+        );
 
         view->displayContextualMenu(point, menu);
     }
-} 
+} // namespace xenoide

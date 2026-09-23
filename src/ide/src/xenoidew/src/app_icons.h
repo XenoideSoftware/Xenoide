@@ -15,14 +15,7 @@
 // also indexes the parallel menu-bitmap table.
 //
 // Keep `count` last.
-enum class IconId : int {
-    none = -1,
-    fileNew,
-    fileOpen,
-    fileSave,
-    fileSaveAll,
-    count
-};
+enum class IconId : int { none = -1, fileNew, fileOpen, fileSave, fileSaveAll, count };
 
 // Loads and owns the application's icon glyphs in two resolutions and
 // pre-renders 16x16 menu bitmaps for option-B (MIIM_BITMAP) menus.
@@ -33,10 +26,10 @@ enum class IconId : int {
 class AppIcons {
 public:
     AppIcons() = default;
-    AppIcons(const AppIcons&) = delete;
-    AppIcons& operator=(const AppIcons&) = delete;
-    AppIcons(AppIcons&&) = delete;
-    AppIcons& operator=(AppIcons&&) = delete;
+    AppIcons(const AppIcons &) = delete;
+    AppIcons &operator=(const AppIcons &) = delete;
+    AppIcons(AppIcons &&) = delete;
+    AppIcons &operator=(AppIcons &&) = delete;
     ~AppIcons();
 
     // Builds both image lists and the menu-bitmap table from the static
@@ -46,7 +39,7 @@ public:
     HIMAGELIST small_image_list() const noexcept; // 16x16, for trees / menus
     HIMAGELIST large_image_list() const noexcept; // 24x24, for toolbars
 
-    int     index_of(IconId id) const noexcept;
+    int index_of(IconId id) const noexcept;
     HBITMAP menu_bitmap(IconId id) const noexcept;
 
     // Convenience for menu builders. No-op when no glyph is registered
@@ -54,7 +47,7 @@ public:
     void attach_to_menu(HMENU menu, unsigned cmdId, IconId id) const noexcept;
 
 private:
-    wl::image_list       _small;
-    wl::image_list       _large;
+    wl::image_list _small;
+    wl::image_list _large;
     std::vector<HBITMAP> _menuBitmaps; // owned, parallel to IconId values
 };

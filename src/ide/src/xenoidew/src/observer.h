@@ -1,11 +1,9 @@
 
-#pragma once 
+#pragma once
 
-template<typename T>
-class Observer {
+template <typename T> class Observer {
 public:
-	virtual ~Observer() = default;
+    virtual ~Observer() = default;
 
-	virtual void update(const T& value) = 0;
+    virtual void update(const T &value) = 0;
 };
-

@@ -56,7 +56,8 @@ namespace xe {
             x = y = static_cast<T>(0);
         }
 
-        constexpr VectorBase(T const x, T const y) : x(x), y(y) {}
+        constexpr VectorBase(T const x, T const y) : x(x), y(y) {
+        }
 
         constexpr size_t size() const {
             return 2;
@@ -75,8 +76,8 @@ namespace xe {
             x = y = z = static_cast<T>(0);
         }
 
-        constexpr VectorBase(T const x, T const y, T const z) : x(x), y(y), z(z) {}
-
+        constexpr VectorBase(T const x, T const y, T const z) : x(x), y(y), z(z) {
+        }
 
         constexpr size_t size() const {
             return 3;
@@ -95,7 +96,8 @@ namespace xe {
             x = y = z = w = static_cast<T>(0);
         }
 
-        constexpr VectorBase(T const x, T const y, T const z, T const w) : x(x), y(y), z(z), w(w) {}
+        constexpr VectorBase(T const x, T const y, T const z, T const w) : x(x), y(y), z(z), w(w) {
+        }
 
         constexpr size_t size() const {
             return 4;
@@ -418,64 +420,52 @@ namespace xe {
     extern template struct TVector<double, 3>;
     extern template struct TVector<double, 4>;
 
-    template<typename T>
-    TVector<T, 2> vec(const T x, const T y) {
+    template <typename T> TVector<T, 2> vec(const T x, const T y) {
         return TVector<T, 2>(x, y);
     }
 
-    template<typename T>
-    TVector<T, 3> vec(const T x, const T y, const T z) {
+    template <typename T> TVector<T, 3> vec(const T x, const T y, const T z) {
         return TVector<T, 3>(x, y, z);
     }
 
-    template<typename T>
-    TVector<T, 3> vec(const TVector2<T> v, const T z) {
+    template <typename T> TVector<T, 3> vec(const TVector2<T> v, const T z) {
         return TVector<T, 3>(v[0], v[1], z);
     }
 
-    template<typename T>
-    TVector<T, 3> vec(const T x, const TVector2<T> v) {
+    template <typename T> TVector<T, 3> vec(const T x, const TVector2<T> v) {
         return TVector<T, 3>(x, v[0], v[1]);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const T x, const T y, const T z, const T w) {
+    template <typename T> TVector<T, 4> vec(const T x, const T y, const T z, const T w) {
         return TVector<T, 4>(x, y, z, w);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const TVector2<T> v, const T z, const T w) {
+    template <typename T> TVector<T, 4> vec(const TVector2<T> v, const T z, const T w) {
         return TVector<T, 4>(v[0], v[1], z, w);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const T x, const TVector2<T> v, const T w) {
+    template <typename T> TVector<T, 4> vec(const T x, const TVector2<T> v, const T w) {
         return TVector<T, 4>(x, v[0], v[1], w);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const T x, const T y, const TVector2<T> v) {
+    template <typename T> TVector<T, 4> vec(const T x, const T y, const TVector2<T> v) {
         return TVector<T, 4>(x, y, v[0], v[1]);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const TVector2<T> v1, const TVector2<T> v2) {
+    template <typename T> TVector<T, 4> vec(const TVector2<T> v1, const TVector2<T> v2) {
         return TVector<T, 4>(v1[0], v1[1], v2[0], v2[1]);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const TVector3<T> v, const T w) {
+    template <typename T> TVector<T, 4> vec(const TVector3<T> v, const T w) {
         return TVector<T, 4>(v[0], v[1], v[2], w);
     }
 
-    template<typename T>
-    TVector<T, 4> vec(const T x, const TVector3<T> v) {
+    template <typename T> TVector<T, 4> vec(const T x, const TVector3<T> v) {
         return TVector<T, 4>(x, v[0], v[1], v[2]);
     }
 
     // vector casting utility
-    template<typename TargetT, typename T, int N>
-    TVector<TargetT, N> cast(const TVector<T, N> &v) {
+    template <typename TargetT, typename T, int N> TVector<TargetT, N> cast(const TVector<T, N> &v) {
         TVector<TargetT, N> result;
 
         for (int i = 0; i < N; i++) {
@@ -486,26 +476,22 @@ namespace xe {
     }
 
     // for tuple destructuring
-    template<std::size_t I, typename T, int N> 
-    constexpr T& get(xe::TVector<T, N> &v) {
+    template <std::size_t I, typename T, int N> constexpr T &get(xe::TVector<T, N> &v) {
         static_assert(I < N, "xe::TVector<T, N> index out of range");
         return v[I];
     }
 
-    template<std::size_t I, typename T, int N> 
-    constexpr const T& get(const xe::TVector<T, N> &v) {
+    template <std::size_t I, typename T, int N> constexpr const T &get(const xe::TVector<T, N> &v) {
         static_assert(I < N, "xe::TVector<T, N> index out of range");
         return v[I];
     }
 
-    template<std::size_t I, typename T, int N> 
-    constexpr T&& get(xe::TVector<T, N> &&v) {
+    template <std::size_t I, typename T, int N> constexpr T &&get(xe::TVector<T, N> &&v) {
         static_assert(I < N, "xe::TVector<T, N> index out of range");
         return std::move(v[I]);
     }
 
-    template<std::size_t I, typename T, int N> 
-    constexpr const T&& get(const xe::TVector<T, N> &&v) {
+    template <std::size_t I, typename T, int N> constexpr const T &&get(const xe::TVector<T, N> &&v) {
         static_assert(I < N, "xe::TVector<T, N> index out of range");
         return std::move(v[I]);
     }
@@ -513,15 +499,13 @@ namespace xe {
 
 // tuple protocol
 namespace std {
-    template<typename T, int N>
-    struct tuple_size<xe::TVector<T, N>> : std::integral_constant<std::size_t, N> {};
+    template <typename T, int N> struct tuple_size<xe::TVector<T, N>> : std::integral_constant<std::size_t, N> {};
 
-    template<std::size_t I, typename T, int N>
-    struct tuple_element<I, xe::TVector<T, N>> {
+    template <std::size_t I, typename T, int N> struct tuple_element<I, xe::TVector<T, N>> {
         static_assert(I < N, "xe::TVector<T, N> index out of range");
         using type = T;
     };
-}
+} // namespace std
 
 #if defined(_MSC_VER)
 #pragma warning(pop)

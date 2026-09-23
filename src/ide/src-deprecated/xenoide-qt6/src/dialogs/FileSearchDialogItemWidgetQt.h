@@ -9,7 +9,7 @@
 namespace xenoide {
     class FileSearchDialogItemWidgetQt : public QWidget {
         Q_OBJECT
-        
+
     public:
         FileSearchDialogItemWidgetQt(QWidget *parent, const QString &fileTitle, const QString &fileFolder, const QString &filePath);
 
@@ -20,6 +20,6 @@ namespace xenoide {
     private:
         QString filePath;
     };
-}
+} // namespace xenoide
 
 #endif

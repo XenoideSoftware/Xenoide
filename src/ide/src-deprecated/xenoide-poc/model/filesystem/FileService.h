@@ -9,7 +9,8 @@
 namespace Xenoide {
     class FileService {
     public:
-        virtual ~FileService() {}
+        virtual ~FileService() {
+        }
 
         virtual std::string load(const std::filesystem::path &filePath);
 
@@ -17,6 +18,6 @@ namespace Xenoide {
 
         virtual void touch(const std::filesystem::path &filePath);
     };
-}
+} // namespace Xenoide
 
 #endif

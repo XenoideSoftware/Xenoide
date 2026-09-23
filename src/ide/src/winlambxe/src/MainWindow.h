@@ -8,7 +8,7 @@ public:
     MainWindow();
 
 private:
-    wl::menu      mainMenu;
+    wl::menu mainMenu;
     wl::statusbar statusbar;
 
     void buildMenu();

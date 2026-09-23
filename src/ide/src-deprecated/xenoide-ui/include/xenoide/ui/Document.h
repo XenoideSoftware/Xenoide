@@ -51,7 +51,7 @@ namespace xenoide {
         virtual void cut() = 0;
         virtual void copy() = 0;
         virtual void paste() = 0;
-        
+
         virtual void setSelection(const TextSelection &selection) = 0;
 
         virtual void selectAll() = 0;
@@ -59,7 +59,7 @@ namespace xenoide {
         virtual void clearSelection() = 0;
 
         virtual TextSelection getSelection() const = 0;
-    };    
-}
+    };
+} // namespace xenoide
 
 #endif

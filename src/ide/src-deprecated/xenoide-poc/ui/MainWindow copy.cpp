@@ -24,7 +24,7 @@
 namespace felide {
 
     struct MainWindow::Private {
-        std::map<std::string, QAction*> actions;
+        std::map<std::string, QAction *> actions;
         std::map<std::string, std::function<void()>> functions;
 
         const StringResource *stringResource = nullptr;
@@ -35,12 +35,10 @@ namespace felide {
 
         Private(const MenuBar menuBar_, const StringResource *stringResource_) : menuBar(menuBar_), stringResource(stringResource) {
             // inicializar las cadenas
-            functions = {
-                {"file.openfolder", std::bind(&MainWindow::Private::onOpenFolder, this)}
-            };
+            functions = {{"file.openfolder", std::bind(&MainWindow::Private::onOpenFolder, this)}};
         }
 
-        QMenu* generateMenu(const Menu &menu) {
+        QMenu *generateMenu(const Menu &menu) {
             const std::string menuTitle = stringResource->get(menu.getKey());
 
             auto result = new QMenu(QString::fromStdString(menuTitle));
@@ -65,7 +63,7 @@ namespace felide {
             return result;
         }
 
-        QMenuBar* generateMenuBar(const MenuBar &menuBar) {
+        QMenuBar *generateMenuBar(const MenuBar &menuBar) {
             auto result = new QMenuBar();
 
             for (const Menu &menu : menuBar.getMenues()) {
@@ -129,7 +127,7 @@ namespace felide {
 
         void onOpenFolder() {
             QFileDialog dialog;
-            
+
             dialog.setFileMode(QFileDialog::Directory);
             dialog.setOption(QFileDialog::ShowDirsOnly);
 
@@ -145,12 +143,12 @@ namespace felide {
         }
     };
 
-    MainWindow::MainWindow(const MenuBar &menuBar, const StringResource *stringResource) 
-        : m_impl(new MainWindow::Private(menuBar, stringResource)) {
+    MainWindow::MainWindow(const MenuBar &menuBar, const StringResource *stringResource) : m_impl(new MainWindow::Private(menuBar, stringResource)) {
 
         m_impl->setupUI(this);
         m_impl->connectSignals();
     }
-    
-    MainWindow::~MainWindow() {}
-}
+
+    MainWindow::~MainWindow() {
+    }
+} // namespace felide

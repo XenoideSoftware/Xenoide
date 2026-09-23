@@ -6,18 +6,13 @@
 #include <cctype>
 
 namespace {
-    bool iequals(const std::string& a, const std::string& b) {
-        return std::equal(a.begin(), a.end(),
-                          b.begin(), b.end(),
-                          [](char a, char b) {
-                              return tolower(a) == tolower(b);
-                          });
+    bool iequals(const std::string &a, const std::string &b) {
+        return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char a, char b) { return tolower(a) == tolower(b); });
     }
-}
+} // namespace
 
 namespace xenoide {
-    TreeManagerControllerFileSystem::TreeManagerControllerFileSystem(const std::filesystem::path& rootPath) 
-        : rootPath{rootPath} {
+    TreeManagerControllerFileSystem::TreeManagerControllerFileSystem(const std::filesystem::path &rootPath) : rootPath{rootPath} {
 
         fileContextMenu = {
             MenuData::action([]() {}, "&Open"),
@@ -48,9 +43,11 @@ namespace xenoide {
         populateChildren({}, rootPath);
     }
 
-    TreeManagerControllerFileSystem::~TreeManagerControllerFileSystem() {}
+    TreeManagerControllerFileSystem::~TreeManagerControllerFileSystem() {
+    }
 
-    void TreeManagerControllerFileSystem::clicked(const TreeItemId itemId) {}
+    void TreeManagerControllerFileSystem::clicked(const TreeItemId itemId) {
+    }
 
     int TreeManagerControllerFileSystem::getChildCount(const TreeItemId itemId) const {
         // determine current path
@@ -70,11 +67,10 @@ namespace xenoide {
         return populateChildren(itemId, path);
     }
 
-
     int TreeManagerControllerFileSystem::populateChildren(const TreeItemId itemId, const std::filesystem::path &path) const {
         int i = 0;
 
-        for (std::filesystem::directory_iterator end, path_it{ path }; path_it != end; path_it++) {
+        for (std::filesystem::directory_iterator end, path_it{path}; path_it != end; path_it++) {
             const std::filesystem::path childPath = path_it->path();
             itemChildMap[itemId].push_back(childPath);
 
@@ -87,21 +83,19 @@ namespace xenoide {
         return i + 1;
     }
 
-
     TreeItemId TreeManagerControllerFileSystem::getChildId(const TreeItemId parentId, const int i) const {
         const auto key = std::tuple(parentId, i);
 
         if (const auto it = parentItemMap.find(key); it != parentItemMap.end()) {
             return it->second;
         }
-            
+
         const TreeItemId itemId = generateItemId();
 
-        parentItemMap.insert({ key, itemId });
+        parentItemMap.insert({key, itemId});
 
         return itemId;
     }
-
 
     std::string TreeManagerControllerFileSystem::getItemCaption(const TreeItemId itemId) const {
         const auto it = itemPathMap.find(itemId);
@@ -109,7 +103,6 @@ namespace xenoide {
 
         return it->second.filename().string();
     }
-
 
     int TreeManagerControllerFileSystem::getItemImage(const TreeItemId itemId) const {
         const auto it = itemPathMap.find(itemId);
@@ -129,10 +122,10 @@ namespace xenoide {
     }
 
     TreeItemId TreeManagerControllerFileSystem::generateItemId() const {
-        return TreeItemId { ++count };
+        return TreeItemId{++count};
     }
 
-    int TreeManagerControllerFileSystem::compare(const TreeItemId& item1, const TreeItemId& item2) const {
+    int TreeManagerControllerFileSystem::compare(const TreeItemId &item1, const TreeItemId &item2) const {
         namespace fs = std::filesystem;
 
         if (item1 == item2) {
@@ -156,7 +149,7 @@ namespace xenoide {
         return iequals(name1, name2);
     }
 
-    const std::filesystem::path& TreeManagerControllerFileSystem::pathFromItem(const TreeItemId itemId) const {
-        return (itemId == TreeItemId{} ?  rootPath : itemPathMap[itemId]);
+    const std::filesystem::path &TreeManagerControllerFileSystem::pathFromItem(const TreeItemId itemId) const {
+        return (itemId == TreeItemId{} ? rootPath : itemPathMap[itemId]);
     }
-}
+} // namespace xenoide

@@ -21,6 +21,6 @@ namespace felide {
         struct Private;
         std::unique_ptr<Private> m_impl;
     };
-}
+} // namespace felide
 
 #endif

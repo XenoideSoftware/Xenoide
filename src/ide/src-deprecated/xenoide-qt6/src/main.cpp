@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 
     auto model = IDEFrameModel();
     auto presenter = IDEFramePresenter{&actionBus, &model};
-    auto view = MainWindowQt();// {&actionBus, &presenter};
+    auto view = MainWindowQt(); // {&actionBus, &presenter};
 
     view.show();
 

@@ -17,6 +17,6 @@ namespace felide {
 
         static void save(const std::string &file, const std::string &content);
     };
-}
+} // namespace felide
 
 #endif

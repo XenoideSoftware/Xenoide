@@ -26,37 +26,37 @@
 
 namespace wlx {
 
-class document_tabs : public wl::window_control {
-public:
-    static constexpr int IDC_TABS = 9201;
+    class document_tabs : public wl::window_control {
+    public:
+        static constexpr int IDC_TABS = 9201;
 
-    document_tabs();
+        document_tabs();
 
-    document_tabs(document_tabs&&)            = default;
-    document_tabs& operator=(document_tabs&&) = default;
+        document_tabs(document_tabs &&) = default;
+        document_tabs &operator=(document_tabs &&) = default;
 
-    document_tabs& add_document(const wl::tstring& label, HWND page);
+        document_tabs &add_document(const wl::tstring &label, HWND page);
 
-    document_tabs& select_document(size_t index);
+        document_tabs &select_document(size_t index);
 
-    int    selected_index() const noexcept;
-    size_t count() const noexcept;
+        int selected_index() const noexcept;
+        size_t count() const noexcept;
 
-    document_tabs& on_close_document(std::function<void(size_t, HWND)> cb);
+        document_tabs &on_close_document(std::function<void(size_t, HWND)> cb);
 
-private:
-    wlx::tabctrl                      _tabs;
-    std::vector<HWND>                 _pages;
-    int                               _activeIdx = -1;
-    std::function<void(size_t, HWND)> _onClose;
-    wl::font                          _font;
-    int                               _tabH = 22;
+    private:
+        wlx::tabctrl _tabs;
+        std::vector<HWND> _pages;
+        int _activeIdx = -1;
+        std::function<void(size_t, HWND)> _onClose;
+        wl::font _font;
+        int _tabH = 22;
 
-    void _recompute_metrics() noexcept;
+        void _recompute_metrics() noexcept;
 
-    void _close_document(size_t index);
+        void _close_document(size_t index);
 
-    void _layout(int w, int h) noexcept;
-};
+        void _layout(int w, int h) noexcept;
+    };
 
 } // namespace wlx

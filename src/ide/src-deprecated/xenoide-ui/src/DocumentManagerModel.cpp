@@ -8,9 +8,10 @@
 #include <xenoide/ui/DocumentModel.h>
 
 namespace xenoide {
-    DocumentManagerModel::~DocumentManagerModel() {}
+    DocumentManagerModel::~DocumentManagerModel() {
+    }
 
-    DocumentModel* DocumentManagerModel::createDocument()  {
+    DocumentModel *DocumentManagerModel::createDocument() {
         auto document = std::make_unique<DocumentModel>(++createdDocumentCount);
         auto documentPtr = document.get();
 
@@ -19,25 +20,23 @@ namespace xenoide {
         return documentPtr;
     }
 
-    DocumentModel* DocumentManagerModel::createDocument(const std::filesystem::path &filePath)  {
+    DocumentModel *DocumentManagerModel::createDocument(const std::filesystem::path &filePath) {
         auto document = this->createDocument();
         document->setFilePath(filePath.string());
 
         return document;
     }
 
-    void DocumentManagerModel::closeDocument(DocumentModel *documentModel)  {
-        auto documentIt = std::find_if(documents.begin(), documents.end(), [documentModel](auto &document) {
-            return document.get() == documentModel;
-        });
+    void DocumentManagerModel::closeDocument(DocumentModel *documentModel) {
+        auto documentIt = std::find_if(documents.begin(), documents.end(), [documentModel](auto &document) { return document.get() == documentModel; });
 
         if (documentIt != documents.end()) {
             documents.erase(documentIt);
         }
     }
 
-    std::vector<DocumentModel*> DocumentManagerModel::enumerateDocuments() const  {
-        std::vector<DocumentModel*> result;
+    std::vector<DocumentModel *> DocumentManagerModel::enumerateDocuments() const {
+        std::vector<DocumentModel *> result;
 
         result.reserve(documents.size());
 
@@ -47,4 +46,4 @@ namespace xenoide {
 
         return result;
     }
-}
+} // namespace xenoide

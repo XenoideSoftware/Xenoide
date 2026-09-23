@@ -10,9 +10,9 @@ namespace xenoide {
     public:
         explicit DialogManagerQt(QWidget *parent);
         virtual ~DialogManagerQt();
-        
+
         virtual DialogButton showMessageDialog(const MessageDialogData &data) const override;
-        virtual std::optional<std::filesystem::path> showFileDialog(const FileDialogData& data) const override;
+        virtual std::optional<std::filesystem::path> showFileDialog(const FileDialogData &data) const override;
         virtual std::optional<std::filesystem::path> showFolderDialog(const FolderDialogData &data) override;
         virtual std::optional<std::string> showInputDialog(const InputDialogData &data) const override;
         virtual std::optional<std::filesystem::path> showFileSearchDialog(const FileSearchDialogData &data) const override;
@@ -20,6 +20,6 @@ namespace xenoide {
     private:
         QWidget *m_parent = nullptr;
     };
-}
+} // namespace xenoide
 
 #endif

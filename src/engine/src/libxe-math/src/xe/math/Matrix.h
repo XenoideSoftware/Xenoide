@@ -777,8 +777,7 @@ namespace xe {
 
     using mat4 = Matrix4;
 
-    template<typename T, int R, int C>
-    using tmat = TMatrix<T, R, C>;
+    template <typename T, int R, int C> using tmat = TMatrix<T, R, C>;
 
 } // namespace xe
 

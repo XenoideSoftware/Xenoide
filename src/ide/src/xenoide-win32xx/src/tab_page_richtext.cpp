@@ -6,10 +6,9 @@ void RichEditView::OnAttach() {
     SetFont(m_font);
 
     if (m_body.IsEmpty()) {
-        SetWindowText(
-            L"Welcome to Xenoide (Win32++ sandbox)\r\n"
-            L"=====================================\r\n\r\n"
-            L"This is a CRichEdit control inside a CDockContainer.\r\n");
+        SetWindowText(L"Welcome to Xenoide (Win32++ sandbox)\r\n"
+                      L"=====================================\r\n\r\n"
+                      L"This is a CRichEdit control inside a CDockContainer.\r\n");
     } else {
         SetWindowText(m_body);
     }

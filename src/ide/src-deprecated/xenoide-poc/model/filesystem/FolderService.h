@@ -9,10 +9,11 @@
 namespace Xenoide {
     class FolderService {
     public:
-        virtual ~FolderService() {}
+        virtual ~FolderService() {
+        }
 
         virtual std::vector<std::filesystem::path> listChildFolders(const std::filesystem::path &folderPath) const;
     };
-}
+} // namespace Xenoide
 
 #endif

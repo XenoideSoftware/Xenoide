@@ -127,7 +127,7 @@ namespace {
 
         // create the texture
         gl::Texture texture = gl::genTextures();
-        
+
         const auto target = gl::TextureTarget::eTexture2d;
         const int width = textureSize.x;
         const int height = textureSize.y;
@@ -183,7 +183,7 @@ namespace {
 
     void updateFpsCamera(FpsCamera &cam, GLFWwindow *window, float dt, double &prevMouseX, double &prevMouseY, bool &mouseInitialized) {
         auto m = xe::vec(0.0, 0.0);
-        
+
         glfwGetCursorPos(window, &m.x, &m.y);
         if (!mouseInitialized) {
             prevMouseX = m.x;

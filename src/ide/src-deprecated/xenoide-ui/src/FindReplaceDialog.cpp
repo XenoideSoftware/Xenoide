@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-
 namespace xenoide {
-    FindReplaceDialog::~FindReplaceDialog() {}
-}
+    FindReplaceDialog::~FindReplaceDialog() {
+    }
+} // namespace xenoide

@@ -26,4 +26,4 @@ namespace xenoide {
     };
 
     extern const std::map<LanguageDialect, LanguageKeywords> languageMap;
-}
+} // namespace xenoide
