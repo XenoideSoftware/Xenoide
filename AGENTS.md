@@ -76,6 +76,11 @@ This script iterates through each directory in `conan/packages/` and executes `c
 
 ## 5. Agent Instructions & Verification Checklist
 
+### General instruction guidelines
+- Ignore any file or folder referenced in `.gitignore` file: Usually 
+
+### Implementing new features 
+
 When assigned a task in this repository, follow this systematic checklist:
 
 1. **Check Local Custom Recipes**:
