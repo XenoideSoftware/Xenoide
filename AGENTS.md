@@ -1,24 +1,8 @@
 # AGENTS.md
 
-> **Authoritative Operational Guide and Source of Truth for Autonomous AI Agents and Contributors in Xenoide**
-> Contains general guidelines across the project. Specific components / folder might have their own AGENTS.md with specific instructions.
-
----
-## 0. AI Usage Guidelines
-
-### Allowed AI-generated code:
-- To create support utilities: code generators, checkers, scaffolding, etc.
-- To support designing and creating unit tests.
-- To perform code review.
-- To create native UIs for each platform.
-- To discuss different approaches via Q/A sessions.
-
-### Not Allowed Usage
-AI might assist here suggesting algorithms, approaches, testing strategies, etc, but rendering, algorithmic code **will remain implemented by humans**.
-
 ## 1. Project Vision & Context
 
-**Xenoide** is a high-performance software and game creation platform comprising several components. Currently, there are two main areas of work, for this **monorepo**:
+**Xenoide** is a high-performance software and game creation platform comprising several components. Currently, there are three main areas of work, for this **monorepo**:
 
 1. **A Custom Engine (`src/engine/`)**.
 2. **A Native Integrated IDE (`src/ide/`)**.
@@ -30,6 +14,8 @@ Eventually, Xenoide will provide native UIs implemented, initially for
 - **Linux**: GTK4 
 - **macOS**. TDB
 
+For development speed reasons, we will start with **Qt6**.
+
 ## 2. Core Technical Stack & Specifications
 - **Language**: C++17, without extensions.
 - **Build System**: CMake 3.25+.
@@ -39,45 +25,16 @@ Eventually, Xenoide will provide native UIs implemented, initially for
 - **Code Formatting**: clang-format.
 - **Static Analysis**: clang-tidy.
 
-## 3. Custom Conan Packages (`conan/packages/`)
 
-Xenoide maintains custom Conan recipes inside `conan/packages/`. Several of these packages contain custom build logic, patches, or source code.
-
-### Exporting Local Recipes
-Whenever changes are made to any local recipe or in-tree package source (such as `glazer` or `glazed`), the recipes must be re-exported to the local Conan cache before installing dependencies:
-```bash
-mise run setup:export-recipes
-```
-This script iterates through each directory in `conan/packages/` and executes `conan export`.
-
-## 4. C++ Coding Standards & Best Practices
-
-### Standard & Language Features
-- **Strict C++17**: Code must strictly conform to C++17. Do not use C++20 features (e.g., concepts, ranges library, `std::span` unless provided by `ms-gsl`/`gsl-lite` and the cpp-backport library, coroutines).
-- **Vendor Extensions Disabled**: Do not rely on compiler-specific non-standard extensions.
-
-### Zero-Warning Tolerance
-- All code is compiled All Warnings and Warnings as Errors enabled.
-
-### Design Principles & Idioms
-- **RAII & Memory Safety**: Never leak raw pointers. Use `std::unique_ptr` for exclusive ownership and `std::shared_ptr` only when ownership is genuinely shared.
-- **Value Semantics & Views**: Prefer `std::string_view` for read-only string parameters. Pass complex types by const-reference unless passing by value for sink parameters.
-- **Error Handling**:
-  - In the engine core and performance-critical loops, avoid throwing exceptions. Prefer monadic types (`tl::expected`, `std::optional`) or explicit result codes.
-  - Ensure assertions (`XE_ASSERT` or equivalent) are used to enforce invariants in debug builds.
-- **Namespaces**:
-  - Engine code belongs in `namespace xe { ... }` or specific sub-namespaces (`xe::graphics`, `xe::math`, etc.).
-  - IDE code belongs in `namespace xenoide { ... }`.
-- **Include Order**:
-  1. Main module header (e.g., `#include "MyClass.h"`).
-  2. Subsystem internal headers.
-  3. Third-party library headers (e.g., `<fmt/format.h>`, `<tl/expected.hpp>`).
-  4. Standard library headers (e.g., `<vector>`, `<string>`, `<memory>`).
-
-## 5. Agent Instructions & Verification Checklist
+## Agent Instructions & Verification Checklist
 
 ### General instruction guidelines
 - Ignore any file or folder referenced in `.gitignore` file: Usually 
+
+### Specific language changes
+- **C/C++**: Refer to @docs/CPP.md
+- **CMake**: Refer to @docs/CMAKE.md
+- **Conan**: Refer to @docs/CONAN.md
 
 ### Implementing new features 
 
