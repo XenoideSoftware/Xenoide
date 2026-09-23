@@ -1,34 +1,43 @@
 # AGENTS.md
 
 > **Authoritative Operational Guide and Source of Truth for Autonomous AI Agents and Contributors in Xenoide**
+> Contains general guidelines across the project. Specific components / folder might have their own AGENTS.md with specific instructions.
 
 ---
+## 0. AI Usage Guidelines
+
+### Allowed AI-generated code:
+- To create support utilities: code generators, checkers, scaffolding, etc.
+- To support designing and creating unit tests.
+- To perform code review.
+- To create native UIs for each platform.
+- To discuss different approaches via Q/A sessions.
+
+### Not Allowed Usage
+AI might assist here suggesting algorithms, approaches, testing strategies, etc, but rendering, algorithmic code **will remain implemented by humans**.
 
 ## 1. Project Vision & Context
 
-**Xenoide** is a high-performance software and game creation platform comprising:
-1. **A Custom Engine (`src/engine/`)**: A modular, performance-oriented C++17 engine delivering core subsystems (graphics abstraction, OpenGL/ES backends, mathematics, procedural geometry, scene graph hierarchy, mesh handling, asset loaders).
-2. **A Native Integrated IDE (`src/ide/`)**: A native desktop development environment tightly coupled with the custom engine. The IDE is engineered not only for game development and shader authoring, but also as a first-class tool for creating high-performance native desktop software and utilities.
-3. **Shared Base Infrastructure (`src/base-target/`)**: Common compiler warning abstractions, sanitizer flags, and interface definitions consumed across all modules.
+**Xenoide** is a high-performance software and game creation platform comprising several components. Currently, there are two main areas of work, for this **monorepo**:
 
-Supported platforms are **Windows**, **Linux** and **macOS**
+1. **A Custom Engine (`src/engine/`)**.
+2. **A Native Integrated IDE (`src/ide/`)**.
+3. **Shared Build Options Infrastructure (`src/base-target/`)**.
 
----
+Eventually, Xenoide will provide native UIs implemented, initially for 
+
+- **Windows**: Windows API 
+- **Linux**: GTK4 
+- **macOS**. TDB
 
 ## 2. Core Technical Stack & Specifications
-
-| Component | Specification | Details |
-|---|---|---|
-| **Language Standard** | **C++17** | `set(CMAKE_CXX_STANDARD 17)` required; extensions disabled (`CMAKE_CXX_EXTENSIONS OFF`). |
-| **Package Manager** | **Conan 2.x** | Configured via `conanfile.py`, profiles in `conan/profiles/`, and custom recipes in `conan/packages/`. |
-| **Build System** | **CMake 3.25+** | Preset-based build configuration (`conan-release`, `conan-debug`, `conan-default`). |
-| **Task Orchestration** | **Mise** | Unified task runner (`mise.toml`, `mise/*.ps1`, `mise/*.sh`) for dependencies, configuration, builds, tests, and formatting. |
-| **Testing Framework** | **Catch2 v3** | Modern Catch2 v3 integration (`find_package(Catch2 3 CONFIG REQUIRED)`). |
-| **Code Formatting** | **Clang-Format** | Configured in `.clang-format` (180 column limit, block indentation, attach braces). |
-| **Static Analysis** | **Clang-Tidy** | Configured in `.clang-tidy`. |
-| **Compiler Warnings** | **Warnings as Errors** | MSVC `/W4 /WX`, GCC/Clang `-Wall -Wextra -Werror` enabled by default via `XE_ENABLE_WERROR`. |
-
----
+- **Language**: C++17, without extensions.
+- **Build System**: CMake 3.25+.
+- **Package Manager**: Conan 2.X.
+- **Dev Tasks Orchestration**: Mise
+- **Testing Framework**: Catch2 v3.
+- **Code Formatting**: clang-format.
+- **Static Analysis**: clang-tidy.
 
 ## 3. Custom Conan Packages (`conan/packages/`)
 
@@ -44,13 +53,11 @@ This script iterates through each directory in `conan/packages/` and executes `c
 ## 4. C++ Coding Standards & Best Practices
 
 ### Standard & Language Features
-- **Strict C++17**: Code must strictly conform to C++17. Do not use C++20 features (e.g., concepts, ranges library, `std::span` unless provided by `ms-gsl`/`gsl-lite`, coroutines).
+- **Strict C++17**: Code must strictly conform to C++17. Do not use C++20 features (e.g., concepts, ranges library, `std::span` unless provided by `ms-gsl`/`gsl-lite` and the cpp-backport library, coroutines).
 - **Vendor Extensions Disabled**: Do not rely on compiler-specific non-standard extensions.
 
 ### Zero-Warning Tolerance
-- All code is compiled with `/WX` (MSVC) or `-Werror` (GCC/Clang).
-- Unused variables, signed/unsigned comparisons, uninitialized variables, and missing return paths are fatal errors.
-- Avoid raw type casts; use `static_cast`, `reinterpret_cast`, or standard conversion helpers.
+- All code is compiled All Warnings and Warnings as Errors enabled.
 
 ### Design Principles & Idioms
 - **RAII & Memory Safety**: Never leak raw pointers. Use `std::unique_ptr` for exclusive ownership and `std::shared_ptr` only when ownership is genuinely shared.
@@ -66,8 +73,6 @@ This script iterates through each directory in `conan/packages/` and executes `c
   2. Subsystem internal headers.
   3. Third-party library headers (e.g., `<fmt/format.h>`, `<tl/expected.hpp>`).
   4. Standard library headers (e.g., `<vector>`, `<string>`, `<memory>`).
-
----
 
 ## 5. Agent Instructions & Verification Checklist
 
@@ -93,10 +98,11 @@ When assigned a task in this repository, follow this systematic checklist:
 4. **Implement Code Changes**:
    - Adhere strictly to **C++17**.
    - Respect target grouping and module boundaries (e.g., do not introduce circular dependencies between `engine` and `ide`).
-5. **Format Modified Code**:
-   - Format source files before building:
-     ```bash
-     mise run format
+5. **Run Static Code Analysis**:
+    - Run tidy to currently modified, with auto-fixes.
+    - For those changes that tidy can't fix, use a conservative approach to fix them.
+    ```bash
+     mise run tidy:release --fix
      ```
 6. **Compile & Verify (Zero Warnings)**:
    - Compile using Mise:
@@ -109,5 +115,10 @@ When assigned a task in this repository, follow this systematic checklist:
      ```bash
      mise run test:release
      ```
-8. **Preserve Repository Cleanliness**:
-   - Never commit generated build directories (`build/`, `build-*/`), compiler dumps, or untracked temporary files.
+8. **Format Modified Code**:
+   - Format currently modified source files before building:
+     ```bash
+     mise run format
+     ```
+   - Build in both debug and release (mise run build)
+   - Run the unit tests to discard any regressions (mise run test)
