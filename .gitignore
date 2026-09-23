@@ -44,6 +44,9 @@ build/
 Build/
 build-*/
 
+# Coverage reports
+coverage/
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt
@@ -70,3 +73,6 @@ Testing/
 
 # conan 
 CMakeUserPresets.json
+
+# Xenoide Coverage
+coverage/

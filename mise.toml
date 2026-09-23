@@ -138,3 +138,115 @@ powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release
 description = "Clean build directories"
 run = "./mise/clean.sh"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/clean.ps1"
+
+# ---------------------------------------------------------------------------
+# Code coverage tasks (GCC/gcov and Clang/llvm-cov)
+# ---------------------------------------------------------------------------
+
+[tasks."coverage:gcov:debug"]
+description = "Generate code coverage using GCC and gcov (Debug configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration Debug"
+
+[tasks."coverage:gcov:release"]
+description = "Generate code coverage using GCC and gcov (Release configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration Release"
+
+[tasks."coverage:gcov:all"]
+description = "Generate code coverage using GCC and gcov (Merged Debug + Release configurations)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration all"
+
+[tasks."coverage:gcov"]
+description = "Default GCC code coverage (Merged Debug + Release)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration all"
+
+[tasks."coverage:llvm-cov:debug"]
+description = "Generate code coverage using Clang and llvm-cov (Debug configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration Debug"
+
+[tasks."coverage:llvm-cov:release"]
+description = "Generate code coverage using Clang and llvm-cov (Release configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration Release"
+
+[tasks."coverage:llvm-cov:all"]
+description = "Generate code coverage using Clang and llvm-cov (Merged Debug + Release configurations)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
+
+[tasks."coverage:llvm-cov"]
+description = "Default LLVM code coverage (Merged Debug + Release)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
+
+[tasks.coverage]
+description = "Default code coverage (llvm-cov all)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
