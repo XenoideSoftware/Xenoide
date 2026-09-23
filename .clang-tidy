@@ -2,3 +2,4 @@ Checks: >
   clang-analyzer-*,
   bugprone-*,
   performance-*
+  readability-braces-around-statements
