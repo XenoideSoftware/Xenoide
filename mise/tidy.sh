@@ -18,7 +18,7 @@ fi
 echo "=== Running clang-tidy ($CONFIG) ==="
 
 # Build run-clang-tidy arguments
-RCT_ARGS="-p $BUILD_DIR -use-color"
+RCT_ARGS="-p $BUILD_DIR -use-color=1"
 
 if [ "${usage_fix:-false}" = "true" ]; then
     RCT_ARGS="$RCT_ARGS -fix"
@@ -32,7 +32,22 @@ if [ "${usage_format:-false}" = "true" ] && [ "${usage_fix:-false}" != "true" ];
     echo "Warning: --format has no effect without --fix. Ignoring."
 fi
 
-if [ "${usage_full:-false}" = "true" ]; then
+if [ -n "${usage_file:-}" ] && [ "${usage_full:-false}" = "true" ]; then
+    echo "Error: --file and --full are mutually exclusive."
+    exit 1
+fi
+
+if [ -n "${usage_file:-}" ]; then
+    file_regex=$(printf '%s' "$usage_file" | sed 's/\./\\./g')
+
+    if ! grep -qE "\"file\": \".*${file_regex}\"" "$BUILD_DIR/compile_commands.json"; then
+        echo "Error: '$usage_file' not found in compile database ($BUILD_DIR/compile_commands.json)."
+        exit 1
+    fi
+
+    echo "Running clang-tidy on $usage_file ($CONFIG)..."
+    run-clang-tidy $RCT_ARGS "$file_regex"
+elif [ "${usage_full:-false}" = "true" ]; then
     echo "Running clang-tidy on all files in compile database ($CONFIG)..."
     run-clang-tidy $RCT_ARGS
 else

@@ -99,6 +99,7 @@ usage = '''
 flag "--fix" help="Apply clang-tidy fix-its to source files"
 flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
 flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+flag "--file <file>" help="Run clang-tidy on a single file, regardless of git status"
 '''
 run = "./mise/tidy.sh Debug"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Debug"
@@ -110,6 +111,7 @@ usage = '''
 flag "--fix" help="Apply clang-tidy fix-its to source files"
 flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
 flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+flag "--file <file>" help="Run clang-tidy on a single file, regardless of git status"
 '''
 run = "./mise/tidy.sh Release"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release"
@@ -121,6 +123,7 @@ usage = '''
 flag "--fix" help="Apply clang-tidy fix-its to source files"
 flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
 flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+flag "--file <file>" help="Run clang-tidy on a single file, regardless of git status"
 '''
 run = """
 ./mise/tidy.sh Debug

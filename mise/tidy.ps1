@@ -17,11 +17,12 @@ if (-not (Test-Path "$BuildDir/compile_commands.json")) {
 Write-Host "=== Running clang-tidy ($Configuration) ==="
 
 # Build run-clang-tidy arguments
-$RctArgs = @("-p", $BuildDir, "-use-color")
+$RctArgs = @("-p", $BuildDir, "-use-color=1")
 
 $fix = if ($env:usage_fix) { $env:usage_fix } else { "false" }
 $full = if ($env:usage_full) { $env:usage_full } else { "false" }
 $format = if ($env:usage_format) { $env:usage_format } else { "false" }
+$file = if ($env:usage_file) { $env:usage_file } else { $null }
 
 if ($fix -eq "true") {
     $RctArgs += "-fix"
@@ -35,7 +36,23 @@ if ($format -eq "true" -and $fix -ne "true") {
     Write-Host "Warning: --format has no effect without --fix. Ignoring."
 }
 
-if ($full -eq "true") {
+if ($file -and $full -eq "true") {
+    Write-Host "Error: --file and --full are mutually exclusive."
+    exit 1
+}
+
+if ($file) {
+    $fileRegex = [regex]::Escape($file)
+
+    $db = Get-Content "$BuildDir/compile_commands.json" -Raw
+    if ($db -notmatch "\"file\": \".*$fileRegex\"") {
+        Write-Host "Error: '$file' not found in compile database $BuildDir/compile_commands.json"
+        exit 1
+    }
+
+    Write-Host "Running clang-tidy on $file ($Configuration)..."
+    run-clang-tidy @RctArgs $fileRegex
+} elseif ($full -eq "true") {
     Write-Host "Running clang-tidy on all files in compile database ($Configuration)..."
     run-clang-tidy @RctArgs
 } else {
