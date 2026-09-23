@@ -26,15 +26,9 @@ Mull instruments code at compile time via an LLVM pass plugin:
 ```
 
 > **Important**: LLVM pass plugins are tightly bound to the exact LLVM major version ABI.
-> - The system currently has `mull-19` installed (`/usr/lib/mull-ir-frontend-19`, `/usr/bin/mull-runner-19`, `/usr/bin/mull-reporter-19`).
-> - The currently installed Clang compiler is `clang-18`.
-> - Loading `mull-ir-frontend-19` into Clang 18 causes an internal LLVM ABI conflict.
->
-> **Required Action**:
-> - Either install Clang 19: `sudo apt install clang-19` (matches `mull-19`)
-> - Or install Mull 18: `sudo apt install mull-18` (matches `clang-18`)
->
-> The scripts in this plan automatically detect and pair the matching version (`mull-runner-19` + `clang++-19`, or `mull-runner-18` + `clang++-18`), and will alert the user if a version mismatch is detected.
+> - The environment has `mull-19` (`/usr/lib/mull-ir-frontend-19`, `/usr/bin/mull-runner-19`, `/usr/bin/mull-reporter-19`) and `clang-19` (`clang-19`, `clang++-19`) installed.
+> - Plugin compatibility between `clang-19` and `/usr/lib/mull-ir-frontend-19` has been tested and verified.
+> - The orchestration scripts automatically detect and pair matching versions (`mull-runner-19` + `clang++-19`, or `mull-runner-18` + `clang++-18`), and fail fast if a version mismatch is detected.
 
 ---
 
