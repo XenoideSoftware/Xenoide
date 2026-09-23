@@ -36,7 +36,7 @@ namespace xe {
     }
 
     //! Variable Template that contains the PI value
-    template <typename T> inline const T pi = static_cast<T>(3.141592653589793238);
+    template <typename T> inline constexpr T pi = static_cast<T>(3.141592653589793238);
 
     //! Converts Degrees to Radians.
     template <typename T> constexpr T radians(const T degrees) {

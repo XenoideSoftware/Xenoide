@@ -250,6 +250,9 @@ namespace xe {
             case CommandOp::Draw:
                 dispatch(glctx(ctx), command[i].cmd.draw);
                 break;
+
+            case CommandOp::Noop:
+                break;
             }
         }
     }

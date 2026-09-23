@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "gl.h"
+#include "GL.h"
 
 #include <cassert>
 

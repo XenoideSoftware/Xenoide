@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <unordered_map>
+#include <cstring>
 
 // Suppress deprecation warnings for codecvt_utf8, which was deprecated in
 // C++17 but has no standard replacement until C++26 (P2871R3). All major

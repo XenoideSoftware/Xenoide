@@ -38,11 +38,11 @@ namespace xe {
             }
 
             friend bool operator==(const Iterator &lhs, const Iterator &rhs) {
-                return _ptr == rhs._ptr;
+                return lhs._ptr == rhs._ptr;
             }
 
             friend bool operator==(const Iterator &lhs, const Iterator &rhs) {
-                return _ptr != rhs._ptr;
+                return lhs._ptr != rhs._ptr;
             }
 
         private:

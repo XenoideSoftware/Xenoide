@@ -1,8 +1,6 @@
 
 #include "GraphicsDeviceGL.h"
 
-#include "gl.h"
-
 #include "Conversion.h"
 #include "SubsetGL.h"
 #include "UtilGL.h"
@@ -11,6 +9,10 @@
 #include <xe/graphics/Material.h>
 #include <xe/graphics/Subset.h>
 #include <xe/graphics/Uniform.h>
+
+//! Suppresses unused warnings
+//! TODO: Move to a common header
+#define XE_UNUSED(var) ((void)(var))
 
 namespace xe {
     static std::string hexstr(const GLenum value) {
@@ -97,39 +99,9 @@ namespace xe {
     }
 
     void GraphicsDeviceGL::draw(const Subset *subset, const SubsetEnvelope *envelopes, const size_t envelopeCount) {
-        assert(subset);
-        assert(envelopes);
-        assert(envelopeCount > 0);
-
-        auto subsetGL = dynamic_cast<const SubsetGL *>(subset);
-
-        glBindVertexArray(subsetGL->getID());
-
-        auto indexBuffer = subsetGL->getIndexBuffer();
-
-        if (!indexBuffer) {
-            for (size_t i = 0; i < envelopeCount; i++) {
-                // const SubsetEnvelope &env = envelopes[i];
-                // glDrawArrays(primitiveGL, env.vertexStart, env.vertexCount);
-            }
-        } else {
-            // TODO: Obtain dynamically the index data-type
-            // const GLenum indexTypeGL = GL_UNSIGNED_INT;
-
-            for (size_t i = 0; i < envelopeCount; i++) {
-                // const SubsetEnvelope &env = envelopes[i];
-                /*const GLenum primitiveGL = convertToGL(env.primitive);
-
-                if (env.vertexStart == 0) {
-                    glDrawElements(primitiveGL, env.vertexCount, indexTypeGL, nullptr);
-                } else {
-                    glDrawElementsBaseVertex(primitiveGL, env.vertexCount, indexTypeGL, nullptr, env.vertexStart);
-                }
-                */
-            }
-        }
-
-        glBindVertexArray(0);
+        XE_UNUSED(subset);
+        XE_UNUSED(envelopes);
+        XE_UNUSED(envelopeCount);
     }
 
     void GraphicsDeviceGL::beginFrame(const ClearFlags flags, const Vector4 &color, const float depth, const int stencil) {
@@ -318,9 +290,10 @@ namespace xe {
 
     void GraphicsDeviceGL::applyUniform(const Uniform *uniform, const size_t count, const void *data) {
         assert(m_program);
-        assert(uniform);
-        assert(count > 0);
-        assert(data);
+        
+        XE_UNUSED(uniform);
+        XE_UNUSED(count);
+        XE_UNUSED(data);
     }
 
     void GraphicsDeviceGL::setViewport(const Viewport &viewport) {
