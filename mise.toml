@@ -70,10 +70,66 @@ description = "Format C/C++ source files in src/ using clang-format"
 run = "./mise/format.sh"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/format.ps1"
 
+[tasks."setup:tidy:debug"]
+description = "Install Conan dependencies for tidy (Debug)"
+run = "./mise/setup-tidy.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Configuration Debug"
+
+[tasks."setup:tidy:release"]
+description = "Install Conan dependencies for tidy (Release)"
+run = "./mise/setup-tidy.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Configuration Release"
+
+[tasks."configure:tidy:debug"]
+description = "Configure CMake for tidy analysis (Debug)"
+depends = ["setup:tidy:debug"]
+run = "./mise/configure-tidy.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 -Configuration Debug"
+
+[tasks."configure:tidy:release"]
+description = "Configure CMake for tidy analysis (Release)"
+depends = ["setup:tidy:release"]
+run = "./mise/configure-tidy.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 -Configuration Release"
+
+[tasks."tidy:debug"]
+description = "Run clang-tidy against the Debug build"
+depends = ["configure:tidy:debug"]
+usage = '''
+flag "--fix" help="Apply clang-tidy fix-its to source files"
+flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
+flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+'''
+run = "./mise/tidy.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Debug"
+
+[tasks."tidy:release"]
+description = "Run clang-tidy against the Release build"
+depends = ["configure:tidy:release"]
+usage = '''
+flag "--fix" help="Apply clang-tidy fix-its to source files"
+flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
+flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+'''
+run = "./mise/tidy.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release"
+
 [tasks.tidy]
-description = "Run clang-tidy on modified or specified source files"
-run = "./mise/tidy.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1"
+description = "Run clang-tidy against both Debug and Release builds for full coverage"
+depends = ["configure:tidy:debug", "configure:tidy:release"]
+usage = '''
+flag "--fix" help="Apply clang-tidy fix-its to source files"
+flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
+flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+'''
+run = """
+./mise/tidy.sh Debug
+./mise/tidy.sh Release
+"""
+run_windows = """
+powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Debug
+powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release
+"""
 
 [tasks.clean]
 description = "Clean build directories"
