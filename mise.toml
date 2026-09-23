@@ -15,7 +15,7 @@ run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configur
 
 [tasks.setup]
 description = "Default dependency setup (Release)"
-depends = ["setup:release"]
+depends = ["setup:release", "setup:debug"]
 
 [tasks."configure:release"]
 description = "Configure CMake for Release build"
