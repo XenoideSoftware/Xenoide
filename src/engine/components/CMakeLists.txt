@@ -31,3 +31,5 @@ add_subdirectory ("libxe-mesh")
 if (XE_ENABLE_ENGINE_PLUGIN_GL_GLFW)
     # add_subdirectory("libxe-core-platform-glfw")
 endif()
+
+add_subdirectory("libxe-imgui")
