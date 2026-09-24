@@ -123,8 +123,11 @@ for cfg in "${CONFIGS[@]}"; do
 
     echo ""
     echo "=== [$TOOL / $cfg] Installing Conan dependencies ==="
+    # The coverage tree does not use presets; skip the root CMakeUserPresets.json
+    # update so duplicate preset names do not break `cmake --preset`.
     conan install . --build=missing -s build_type="$cfg" \
-        -pr:h "$PROFILE" -pr:b "$PROFILE" -of "$BUILD_DIR"
+        -pr:h "$PROFILE" -pr:b "$PROFILE" -of "$BUILD_DIR" \
+        -c "tools.cmake.cmaketoolchain:user_presets="
 
     TOOLCHAIN="$(find "$BUILD_DIR" -name conan_toolchain.cmake -print -quit 2>/dev/null || true)"
     if [ -z "$TOOLCHAIN" ]; then

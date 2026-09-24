@@ -1,0 +1,33 @@
+mutators:
+  - cxx_add_to_sub
+  - cxx_sub_to_add
+  - cxx_mul_to_div
+  - cxx_div_to_mul
+  - cxx_rem_to_div
+  - cxx_logical_and_to_or
+  - cxx_logical_or_to_and
+  - cxx_remove_negation
+  - cxx_eq_to_ne
+  - cxx_ne_to_eq
+  - cxx_le_to_gt
+  - cxx_lt_to_ge
+  - cxx_ge_to_lt
+  - cxx_gt_to_le
+  - cxx_assign_const
+  - cxx_init_const
+
+excludePaths:
+  - .*/Catch2/.*
+  - .*/\.conan2/.*
+  - .*/tests?/.*
+  - .*/unit-test/.*
+  - .*/libxe-.*-test/.*
+  - .*/include/c\+\+/.*
+  - /usr/.*
+
+includePaths:
+  - .*/src/.*
+
+parallelization:
+  workers: 4
+  executionWorkers: 4

@@ -14,6 +14,9 @@ case "$(uname -s 2>/dev/null || echo Windows)" in
     *) PROFILE="conan/profiles/windows" ;;
 esac
 
+# The tidy tree does not use presets; skip the root CMakeUserPresets.json
+# update so duplicate preset names do not break `cmake --preset`.
 conan install . --build=missing -s build_type="$CONFIG" \
     -pr:h "$PROFILE" -pr:b "$PROFILE" \
-    -of "build-tidy/$CONFIG"
+    -of "build-tidy/$CONFIG" \
+    -c "tools.cmake.cmaketoolchain:user_presets="

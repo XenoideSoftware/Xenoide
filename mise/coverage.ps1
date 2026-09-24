@@ -64,7 +64,10 @@ foreach ($cfg in $configs) {
 
     Write-Host ""
     Write-Host "=== [$Tool / $cfg] Installing Conan dependencies ==="
-    conan install . --build=missing -s build_type=$cfg -pr:h $profile -pr:b $profile -of $buildDir
+    # The coverage tree does not use presets; skip the root CMakeUserPresets.json
+    # update so duplicate preset names do not break `cmake --preset`.
+    conan install . --build=missing -s build_type=$cfg -pr:h $profile -pr:b $profile -of $buildDir `
+        -c "tools.cmake.cmaketoolchain:user_presets="
     if ($LASTEXITCODE -ne 0) { exit 1 }
 
     $toolchain = Get-ChildItem -Path $buildDir -Recurse -Filter "conan_toolchain.cmake" -ErrorAction SilentlyContinue |

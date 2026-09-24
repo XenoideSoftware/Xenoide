@@ -1,4 +1,5 @@
 
+#include <cstddef>
 #include <glaze/gl.hpp>
 #include <glaze/raii.hpp>
 #include <GLFW/glfw3.h>
@@ -20,7 +21,7 @@ namespace {
         return (((x / tileSize) + (y / tileSize)) & 1) ? 0.0f : 1.0f;
     }
 
-    int channelCountOf(xe::PixelFormat format) {
+    [[maybe_unused]] int channelCountOf(xe::PixelFormat format) {
         switch (format) {
         case xe::PixelFormat::R8G8B8:
             return 3;
@@ -31,7 +32,7 @@ namespace {
         }
     }
 
-    size_t byteSizeOf(xe::PixelDataType type) {
+    [[maybe_unused]] size_t byteSizeOf(xe::PixelDataType type) {
         return xe::toBytes(xe::getElementSize(static_cast<xe::TypeEncoding>(type)));
     }
 
@@ -40,8 +41,8 @@ namespace {
         return std::cos(x) * std::sin(z);
     }
 
-    void computeSurfaceTriangles(xe::Span<xe::Vector3> &vertices, const float width, const float depth, int slices, int stacks) {
-        const size_t size = (slices + 1) * (stacks + 1);
+    [[maybe_unused]] void computeSurfaceTriangles(xe::Span<xe::Vector3> &vertices, const float width, const float depth, int slices, int stacks) {
+        [[maybe_unused]] const size_t size = static_cast<size_t>((slices + 1) * (stacks + 1));
         assert(vertices.size() == size);
 
         xe::Vector2 const d = xe::Vector2{width, depth} / xe::Vector2{(float)slices, (float)depth};
@@ -59,9 +60,9 @@ namespace {
         }
     }
 
-    void computeSurfaceIndicesTriangles(xe::Span<std::uint32_t> &indices, int slices, int stacks) {
+    [[maybe_unused]] void computeSurfaceIndicesTriangles(xe::Span<std::uint32_t> &indices, int slices, int stacks) {
         int const stride = slices + 1;
-        std::size_t const count = 6 * stride * stacks;
+        [[maybe_unused]] std::size_t const count = static_cast<std::size_t>(6 * stride * stacks);
 
         assert(indices.size() == count);
 
@@ -84,11 +85,11 @@ namespace {
         }
     }
 
-    std::size_t computeImageByteSize(const xe::Vector2i &textureSize, const size_t channelCount) {
-        return textureSize.x * textureSize.y * channelCount;
+    [[maybe_unused]] std::size_t computeImageByteSize(const xe::Vector2i &textureSize, const size_t channelCount) {
+        return static_cast<size_t>(textureSize.x * textureSize.y) * channelCount;
     }
 
-    void fillCheckerboardImage(xe::Span<uint8_t> image, const xe::Vector2i &textureSize, const size_t channelCount, int tileSize) {
+    [[maybe_unused]] void fillCheckerboardImage(xe::Span<uint8_t> image, const xe::Vector2i &textureSize, const size_t channelCount, int tileSize) {
         const size_t pixelStride = channelCount;
 
         assert(image);
@@ -97,7 +98,7 @@ namespace {
 
         const int width = textureSize.x;
         const int height = textureSize.y;
-        const int alphaChannel = 3;
+        const size_t alphaChannel = 3;
 
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
@@ -105,7 +106,7 @@ namespace {
 
                 size_t const pixelOffset = (static_cast<size_t>(y) * width + x) * pixelStride;
 
-                for (int c = 0; c < channelCount; ++c) {
+                for (size_t c = 0; c < channelCount; ++c) {
                     float const out = (c == alphaChannel) ? 1.0f : v;
 
                     auto buffer = image.data() + pixelOffset;
@@ -175,13 +176,13 @@ namespace {
         return {std::sin(cam.yaw) * cp, std::sin(cam.pitch), -std::cos(cam.yaw) * cp};
     }
 
-    xe::mat4 viewMatrixOf(const FpsCamera &cam) {
+    [[maybe_unused]] xe::mat4 viewMatrixOf(const FpsCamera &cam) {
         xe::Vector3 const f = forwardOf(cam);
         xe::Vector3 const target = cam.position + f;
         return xe::mat4LookAtRH<float>(cam.position, target, xe::vec(0.0f, 1.0f, 0.0f));
     }
 
-    void updateFpsCamera(FpsCamera &cam, GLFWwindow *window, float dt, double &prevMouseX, double &prevMouseY, bool &mouseInitialized) {
+    [[maybe_unused]] void updateFpsCamera(FpsCamera &cam, GLFWwindow *window, float dt, double &prevMouseX, double &prevMouseY, bool &mouseInitialized) {
         auto m = xe::vec(0.0, 0.0);
 
         glfwGetCursorPos(window, &m.x, &m.y);

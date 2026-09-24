@@ -250,3 +250,24 @@ flag "--clean" help="Clean existing profile counters before running tests"
 '''
 run = "./mise/coverage.sh llvm-cov --config all"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
+
+# ---------------------------------------------------------------------------
+# Mutation testing tasks (Mull)
+# ---------------------------------------------------------------------------
+
+[tasks."mutation:mull"]
+description = "Run Mull mutation testing against the unit test suite"
+usage = '''
+flag "--generate" help="Discover and generate mutants without running tests (dry run)"
+flag "--kill" help="Execute unit tests against each mutant to kill them (default mode)"
+flag "--config <cfg>" help="Build type: Debug (default) or Release"
+flag "--reporters <list>" help="Report formats: IDE,SQLite,Elements,Patches,Sarif (default IDE,SQLite,Elements)"
+flag "--output-dir <dir>" help="Directory for report files (default mutation/mull)"
+flag "--report-name <name>" help="Report database base name (default xenoide)"
+flag "--clean" help="Delete existing build/mutation artifacts before running"
+flag "--target <name>" help="Run against a specific test target (e.g. xe-core-test)"
+flag "--timeout <ms>" help="Maximum test execution timeout per mutant"
+flag "--threshold <score>" help="Minimum required mutation score (0-100); exits 1 if below"
+'''
+run = "./mise/mutation.sh"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/mutation.ps1"

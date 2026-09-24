@@ -47,6 +47,9 @@ build-*/
 # Coverage reports
 coverage/
 
+# Mutation testing reports
+mutation/
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt
