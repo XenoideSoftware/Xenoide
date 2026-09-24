@@ -79,3 +79,6 @@ CMakeUserPresets.json
 
 # Xenoide Coverage
 coverage/
+
+# CLion 
+.idea 
