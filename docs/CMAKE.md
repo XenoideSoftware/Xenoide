@@ -4,6 +4,8 @@
 - Target name should have the same name as the folder.
 - A Target can exist in either `src/engine` or `src/ide`. 
 
+## Basic Folder Structure
+
 ```
 xe-executable-name
     src
@@ -16,7 +18,7 @@ xe-executable-name
 ```cmake
     find_package(Dependency REQUIRED)
 
-    set (target "targetName")
+    set (target "executable-name")
     set (sources "src/source.cpp" "src/source2.cpp" ...)
 
     add_executable(${target} ${sources})
@@ -32,7 +34,7 @@ xe-executable-name
 ```cmake
     find_package(Dependency REQUIRED)
 
-    set (target "targetName")
+    set (target "library-name")
     set (sources "src/source.cpp" "src/source2.cpp" ...)
 
     add_library(${target} ${sources})
@@ -49,7 +51,7 @@ xe-executable-name
     find_package(Catch2 REQUIRED)
     find_package(Dependency REQUIRED)
 
-    set (target "targetName")
+    set (target "library-name-test")
     set (sources "src/source.cpp" "src/source2.cpp" ...)
 
     add_library(${target} ${sources})
@@ -60,6 +62,7 @@ xe-executable-name
     target_link_libraries(${target} PRIVATE Catch2::Catch2WithMain)
     target_link_library(${target} PUBLIC library::component)
     target_link_library(${target} PUBLIC library::component1)
+    target_link_library(${target} PUBLIC library-name)
 
     # Enable autodiscovering    
     include(Catch)
