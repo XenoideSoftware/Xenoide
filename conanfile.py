@@ -130,7 +130,7 @@ class xenoideRecipe(ConanFile):
             self.requires("wxwidgets/3.2.8")
 
         if self.options.get_safe("with_poc_zeromq"):
-            self.requires("zmqpp/4.2.0")
+            self.requires("zeromq/4.3.5")
 
     def _enumerate_imgui_backends(self):
         # TODO: Check specific package versions to pick correct imgui backend version
