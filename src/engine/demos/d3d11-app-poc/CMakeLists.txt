@@ -1,9 +1,4 @@
 
-if (NOT WIN32)
-	message(STATUS "Windows platform not detected. d3d11-poc target is not available")
-	return()
-endif()
-
 set (target "d3d11-app-poc")
 set (source_base "src")
 set (sources
@@ -17,6 +12,11 @@ set (sources
 	"${source_base}/Color.vs"
 	"${source_base}/Color.ps"
 ) 
+
+if (NOT WIN32)
+	message(STATUS "Windows platform not detected. d3d11-poc target is not available")
+	return()
+endif()
 
 add_executable(${target} ${sources})
 

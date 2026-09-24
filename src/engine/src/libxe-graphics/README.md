@@ -8,7 +8,7 @@ This target consolidates three previously separate graphics subtrees:
 
 - `xe/graphics/` — the device/context/texture/shader/material abstraction layer (originally `src/libxe-core/src/xe/graphics/`).
 - `xe/gl/` — the OpenGL 3 Core Profile reference backend (originally the standalone `src/libxe-gl/` library).
-- `xe/render/` — a newer backend-abstraction prototype built around a flat vtable, typed handles, and a GL Core 3 reference backend (originally `src/xe-glaze-test/src/xe/render/`).
+- `xe/render/` — a newer backend-abstraction prototype built around a flat vtable, typed handles, and a GL Core 3 reference backend (originally `src/xe-glaze-app/src/xe/render/`).
 
 All three represent co-existing iterations of the XE rendering abstraction. Consolidating them under a single target is the first step toward merging them into a single coherent API.
 
@@ -57,4 +57,4 @@ ctest --test-dir build/Debug -R libxe-graphics-test --output-on-failure
 
 ## Status
 
-This library is in active redesign. Downstream consumers (`xe-gltf-view`, `capybaria`, `libxe-core-platform-glfw`, `xe-glaze-test`) still reference the pre-consolidation include paths and library names; their migrations to `xe::graphics` are being done in follow-up tasks.
+This library is in active redesign. Downstream consumers (`xe-gltf-view`, `capybaria`, `libxe-core-platform-glfw`, `xe-glaze-app`) still reference the pre-consolidation include paths and library names; their migrations to `xe::graphics` are being done in follow-up tasks.

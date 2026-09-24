@@ -3,6 +3,8 @@ option (XE_ENABLE_ENGINE_PLUGIN_PNG           "Include PNG image support via Lod
 option (XE_ENABLE_ENGINE_PLUGIN_GL            "Include OpenGL 3+ support" ON)
 option (XE_ENABLE_ENGINE_PLUGIN_GL_GLFW       "Include GLFW-based Window and Context creation support (requires 'XE_ENABLE_ENGINE_PLUGIN_GL')" ON)
 option (XE_ENABLE_ENGINE_PLUGIN_KTX           "Include KTX image support" ON)
+option (XE_ENABLE_ENGINE_PLUGIN_VULKAN        "Include Vulkan support" OFF)
+option (XE_ENABLE_ENGINE_PLUGIN_D3D11         "Include d3d11 support" OFF)
 
 # Options for external assets location
 if (NOT XE_EXTERNAL_ASSET_ROOT_PATH)
@@ -25,3 +27,4 @@ add_definitions (-DXE_VERSION_MINOR=${XE_VERSION_MINOR})
 add_definitions (-DXE_VERSION_REVISION=${XE_VERSION_REVISION})
 
 add_subdirectory ("src")
+add_subdirectory ("demos")

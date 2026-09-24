@@ -5,6 +5,11 @@ find_package(Vulkan 1.2 REQUIRED)
 set (target "vulkan-app-poc")
 set (src VulkanAppMain.cpp HostPlatform.h HostPlatform.cpp VulkanRenderer.h VulkanRenderer.cpp)
 
+if (NOT Vulkan_FOUND)
+	message(STATUS "Vulkan libraries not detected. ${target} is not available")
+	return()
+endif()
+
 add_executable(${target} ${src})
 
 target_include_directories(${target} PUBLIC ${Vulkan_INCLUDE_DIRS})
