@@ -19,7 +19,7 @@ for pkg in $(ls -1 "$packages_dir" | sort); do
         if [ -f "$conandata" ]; then
             in_sources=false
             while IFS= read -r line; do
-                stripped=$(echo "$line" | xargs)
+                stripped=$(echo "$line" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
                 if echo "$stripped" | grep -q '^sources:'; then
                     in_sources=true
                     continue
@@ -30,7 +30,7 @@ for pkg in $(ls -1 "$packages_dir" | sort); do
                         if [ -n "$version" ]; then
                             versions+=("$version")
                         fi
-                    elif [ -n "$stripped" ] && ! echo "$stripped" | grep -qP '^[[:space:]]' && ! echo "$stripped" | grep -q '^#'; then
+                    elif [ -n "$stripped" ] && ! echo "$line" | grep -qP '^\s' && ! echo "$stripped" | grep -q '^#'; then
                         in_sources=false
                     fi
                 fi
