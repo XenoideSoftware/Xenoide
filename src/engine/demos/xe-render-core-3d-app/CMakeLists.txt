@@ -3,7 +3,7 @@ find_package(glfw3 REQUIRED)
 find_package(glaze REQUIRED)
 
 set(target xe-render-core-3d)
-set(sources src/xe-render-core-3d-app.cpp)
+set(sources src/xe-render-core-3d-app-main.cpp)
 
 add_executable(${target} ${sources})
 

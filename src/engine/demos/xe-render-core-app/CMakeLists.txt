@@ -4,7 +4,7 @@ find_package(glaze REQUIRED)
 
 set (target xe-render-core-app)
 set (sources
-    src/xe-render-core-app.cpp
+        src/xe-render-core-app-main.cpp
 )
 add_executable(${target} ${sources})
 target_include_directories(${target} PUBLIC src)
