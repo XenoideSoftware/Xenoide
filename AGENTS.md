@@ -43,14 +43,14 @@ When assigned a task in this repository, follow this systematic checklist:
 1. **Check Local Custom Recipes**:
    - If any file in `conan/recipes/` (especially `glazer`, `glazed`, or `winlamb`) is created or modified, immediately execute:
      ```bash
-     mise run setup:export-recipes
+     mise run export-recipes
      ```
 2. **Setup Dependencies**:
    - Ensure the Conan cache and build layout are up-to-date:
      ```bash
-     mise run setup:release
+     mise run install:release
      # or for debug workflows
-     mise run setup:debug
+     mise run install:debug
      ```
 3. **CMake Configuration**:
    - Generate build system files:

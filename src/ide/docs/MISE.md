@@ -18,11 +18,11 @@
 
 | Command | Description | Dependencies / Subtasks |
 |---|---|---|
-| `mise run setup` | Install Conan dependencies (Release) | `setup:release` -> `setup:export-recipes` |
-| `mise run setup:debug` | Install Conan dependencies (Debug) | `setup:debug` -> `setup:export-recipes` |
-| `mise run setup:export-recipes` | Export local recipes in `conan/packages/*` to cache | None |
-| `mise run configure` | Configure CMake (Release) | `configure:release` -> `setup:release` |
-| `mise run configure:debug` | Configure CMake (Debug) | `configure:debug` -> `setup:debug` |
+| `mise run setup` | Install Conan dependencies (Release) | `install:release` -> `export-recipes` |
+| `mise run install:debug` | Install Conan dependencies (Debug) | `install:debug` -> `export-recipes` |
+| `mise run export-recipes` | Export local recipes in `conan/packages/*` to cache | None |
+| `mise run configure` | Configure CMake (Release) | `configure:release` -> `install:release` |
+| `mise run configure:debug` | Configure CMake (Debug) | `configure:debug` -> `install:debug` |
 | `mise run build` | Build Release binaries | `build:release` -> `configure:release` |
 | `mise run build:debug` | Build Debug binaries | `build:debug` -> `configure:debug` |
 | `mise run test` | Run test suite (Release) | `test:release` -> `build:release` |
@@ -38,10 +38,10 @@
 Mise automatically resolves task dependencies. When you run a downstream task like `mise run build`, Mise runs all prerequisite tasks if needed:
 
 ```
-setup:export-recipes
+export-recipes
         │
         ▼
-   setup:release  (or setup:debug)
+   install:release  (or install:debug)
         │
         ▼
  configure:release (or configure:debug)
@@ -59,29 +59,29 @@ setup:export-recipes
 
 ### 1. Setup & Package Management
 
-#### `setup:export-recipes`
+#### `export-recipes`
 - **Description**: Scans `conan/packages/` for local Conan recipes and exports them into the local Conan cache.
 - **Details**: Detects version information in `conanfile.py` or parses version matrices in `conandata.yml`.
 - **Usage**:
   ```bash
-  mise run setup:export-recipes
+  mise run export-recipes
   ```
 
-#### `setup` / `setup:release`
+#### `setup` / `install:release`
 - **Description**: Installs Conan dependencies using the Release configuration.
 - **Details**: Automatically detects host OS and selects `conan/profiles/unix` on Linux/macOS or `conan/profiles/windows` on Windows/MSYS.
 - **Usage**:
   ```bash
   mise run setup
   # or explicitly
-  mise run setup:release
+  mise run install:release
   ```
 
-#### `setup:debug`
+#### `install:debug`
 - **Description**: Installs Conan dependencies using the Debug configuration (`-s build_type=Debug`).
 - **Usage**:
   ```bash
-  mise run setup:debug
+  mise run install:debug
   ```
 
 ---

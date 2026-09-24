@@ -420,8 +420,8 @@ Add test files:
 ### Automated Tests
 1. **Dependency Export & Setup**:
    ```bash
-   mise run setup:export-recipes
-   mise run setup:release
+   mise run export-recipes
+   mise run install:release
    ```
 2. **CMake Configure**:
    ```bash

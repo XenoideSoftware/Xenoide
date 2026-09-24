@@ -1,31 +1,31 @@
-[tasks."setup:export-recipes"]
+[tasks."export-recipes"]
 description = "Export all local custom Conan recipes to cache"
 run = "./mise/setup-export-recipes.sh"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-export-recipes.ps1"
 
-[tasks."setup:release"]
+[tasks."install:release"]
 description = "Install Conan dependencies for Release configuration"
 run = "./mise/setup.sh Release"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Release"
 
-[tasks."setup:debug"]
+[tasks."install:debug"]
 description = "Install Conan dependencies for Debug configuration"
 run = "./mise/setup.sh Debug"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Debug"
 
 [tasks.setup]
 description = "Default dependency setup (Release)"
-depends = ["setup:release", "setup:debug"]
+depends = ["install:release", "install:debug"]
 
 [tasks."configure:release"]
 description = "Configure CMake for Release build"
-depends = ["setup:release"]
+depends = ["install:release"]
 run = "./mise/configure.sh Release"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Configuration Release"
 
 [tasks."configure:debug"]
 description = "Configure CMake for Debug build"
-depends = ["setup:debug"]
+depends = ["install:debug"]
 run = "./mise/configure.sh Debug"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Configuration Debug"
 
@@ -70,25 +70,25 @@ description = "Format C/C++ source files in src/ using clang-format"
 run = "./mise/format.sh"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/format.ps1"
 
-[tasks."setup:tidy:debug"]
+[tasks."install:tidy:debug"]
 description = "Install Conan dependencies for tidy (Debug)"
 run = "./mise/setup-tidy.sh Debug"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Configuration Debug"
 
-[tasks."setup:tidy:release"]
+[tasks."install:tidy:release"]
 description = "Install Conan dependencies for tidy (Release)"
 run = "./mise/setup-tidy.sh Release"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Configuration Release"
 
 [tasks."configure:tidy:debug"]
 description = "Configure CMake for tidy analysis (Debug)"
-depends = ["setup:tidy:debug"]
+depends = ["install:tidy:debug"]
 run = "./mise/configure-tidy.sh Debug"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 -Configuration Debug"
 
 [tasks."configure:tidy:release"]
 description = "Configure CMake for tidy analysis (Release)"
-depends = ["setup:tidy:release"]
+depends = ["install:tidy:release"]
 run = "./mise/configure-tidy.sh Release"
 run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 -Configuration Release"
 
