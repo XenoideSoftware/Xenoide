@@ -48,7 +48,7 @@ class GlazedConan(ConanFile):
             self.options.rm_safe("fPIC")
 
     def build_requirements(self):
-        self.tool_requires("glazer/1.0.0")
+        self.tool_requires("glazer/1.0.0@xenoide/xenoide")
 
     def source(self):
         from conan.tools.scm import Git

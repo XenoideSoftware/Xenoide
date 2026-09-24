@@ -78,8 +78,8 @@ class xenoideRecipe(ConanFile):
             # required by the ide
             # TODO: Parametrize dependency target OS
             if self.options.get_safe("with_ide_winlamb"):
-                self.requires("winlamb/2026.06.24")
-                self.requires("scintilla3/3.7.6")
+                self.requires("winlamb/2026.06.24@xenoide/xenoide")
+                self.requires("scintilla3/3.7.6@xenoide/xenoide")
 
         if self._require_cli():
             self.requires("cxxopts/3.3.1")
@@ -88,7 +88,7 @@ class xenoideRecipe(ConanFile):
         if self.options.get_safe("with_engine"):
             self.requires("fmt/[>=11 <12]")
             self.requires("ms-gsl/4.2.0")
-            self.requires("backport-cpp/1.2.0")
+            self.requires("backport-cpp/1.2.0@xenoide/xenoide")
             self.requires("tl-expected/1.2.0")
             self.requires("gsl-lite/1.1.0")
 
@@ -97,7 +97,7 @@ class xenoideRecipe(ConanFile):
 
             if self.options.get_safe("with_engine_renderer_gl"):
                 self.requires("glfw/3.4")
-                self.requires("glazed/1.0.0", options={"language": "both", "apis": "gl:4.6,gles2:3.2,gl_compat:2.1"})
+                self.requires("glazed/1.0.0@xenoide/xenoide", options={"language": "both", "apis": "gl:4.6,gles2:3.2,gl_compat:2.1"})
 
             if self.options.get_safe("with_engine_tool_ktxc"):
                 self.requires("ktx/4.4.2")
@@ -118,19 +118,19 @@ class xenoideRecipe(ConanFile):
 
         # POCS dependencies
         if self.options.get_safe("with_poc_clang"):
-            self.requires("llvm/18.1.8")
+            self.requires("llvm/18.1.8@xenoide/xenoide")
 
         if self.options.get_safe("with_poc_lsp"):
-            self.requires("lsp-framework/1.3.1")
+            self.requires("lsp-framework/1.3.1@xenoide/xenoide")
 
         if self.options.get_safe("with_poc_protobuf"):
-            self.requires("protobuf/3.9.1")
+            self.requires("protobuf/3.9.1@xenoide/xenoide")
 
         if self.options.get_safe("with_poc_wxwidgets"):
             self.requires("wxwidgets/3.2.8")
 
         if self.options.get_safe("with_poc_zeromq"):
-            self.requires("zeromq/4.3.5")
+            self.requires("zeromq/4.3.5@xenoide/xenoide")
 
     def _enumerate_imgui_backends(self):
         # TODO: Check specific package versions to pick correct imgui backend version

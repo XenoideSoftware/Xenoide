@@ -24,7 +24,7 @@ class LexillaConanfile(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def requirements(self):
-        self.requires("scintilla/5.5.7")
+        self.requires("scintilla/5.5.7@xenoide/xenoide")
 
     def layout(self):
         cmake_layout(self, src_folder="src")

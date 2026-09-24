@@ -1,6 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $packagesDir = "conan/recipes"
+$exportArgs = @("--user", "xenoide", "--channel", "xenoide")
 
 Get-ChildItem -Path $packagesDir -Directory | Sort-Object Name | ForEach-Object {
     $pkg = $_.Name
@@ -49,7 +50,7 @@ Get-ChildItem -Path $packagesDir -Directory | Sort-Object Name | ForEach-Object 
                     $v = $versions[$i]
                     $folder = $folders[$i]
                     Write-Host "==> Exporting $pkg/$v ($pkgDir/$folder)"
-                    conan export "$pkgDir/$folder" --version $v
+                    conan export "$pkgDir/$folder" --version $v @exportArgs
                 }
                 return
             }
@@ -62,7 +63,7 @@ Get-ChildItem -Path $packagesDir -Directory | Sort-Object Name | ForEach-Object 
 
     if ($hasVersion) {
         Write-Host "==> Exporting $pkg ($pkgDir)"
-        conan export $pkgDir
+        conan export $pkgDir @exportArgs
     } else {
         $versions = @()
         if (Test-Path $conandata) {
@@ -92,11 +93,11 @@ Get-ChildItem -Path $packagesDir -Directory | Sort-Object Name | ForEach-Object 
         if ($versions.Count -gt 0) {
             foreach ($v in $versions) {
                 Write-Host "==> Exporting $pkg/$v ($pkgDir)"
-                conan export $pkgDir --version $v
+                conan export $pkgDir --version $v @exportArgs
             }
         } else {
             Write-Host "==> Exporting $pkg ($pkgDir)"
-            conan export $pkgDir
+            conan export $pkgDir @exportArgs
         }
     }
 }

@@ -2,6 +2,7 @@
 set -e
 
 packages_dir="conan/recipes"
+export_args=(--user xenoide --channel xenoide)
 for pkg in $(ls -1 "$packages_dir" | sort); do
     pkg_dir="$packages_dir/$pkg"
     conanfile="$pkg_dir/conanfile.py"
@@ -42,7 +43,7 @@ for pkg in $(ls -1 "$packages_dir" | sort); do
                     v="${versions[$i]}"
                     folder="${folders[$i]}"
                     echo "==> Exporting $pkg/$v ($pkg_dir/$folder)"
-                    conan export "$pkg_dir/$folder" --version "$v"
+                    conan export "$pkg_dir/$folder" --version "$v" "${export_args[@]}"
                 done
                 continue
             fi
@@ -52,7 +53,7 @@ for pkg in $(ls -1 "$packages_dir" | sort); do
 
     if grep -qP '^\s*version\s*=' "$conanfile"; then
         echo "==> Exporting $pkg ($pkg_dir)"
-        conan export "$pkg_dir"
+        conan export "$pkg_dir" "${export_args[@]}"
     else
         versions=()
         if [ -f "$conandata" ]; then
@@ -79,11 +80,11 @@ for pkg in $(ls -1 "$packages_dir" | sort); do
         if [ ${#versions[@]} -gt 0 ]; then
             for v in "${versions[@]}"; do
                 echo "==> Exporting $pkg/$v ($pkg_dir)"
-                conan export "$pkg_dir" --version "$v"
+                conan export "$pkg_dir" --version "$v" "${export_args[@]}"
             done
         else
             echo "==> Exporting $pkg ($pkg_dir)"
-            conan export "$pkg_dir"
+            conan export "$pkg_dir" "${export_args[@]}"
         fi
     fi
 done
