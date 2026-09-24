@@ -1,0 +1,60 @@
+#pragma once
+/*
+ * {{ generation_header_formatted }}
+ */
+
+#ifndef __GLAZE_{{ api_upper }}_HANDLE_HPP__
+#define __GLAZE_{{ api_upper }}_HANDLE_HPP__
+
+#include <glaze/{{ api }}.hpp>
+#include <glaze/raii.hpp>
+
+namespace {{ api }} {
+namespace handle {
+
+{% for hc in handle_classes %}
+class {{ hc.class_name }} {
+public:
+    {{ hc.handle_type }} m_id;
+    {{ hc.class_name }}() = default;
+    explicit {{ hc.class_name }}({{ hc.handle_type }} id) : m_id(id) {}
+    constexpr explicit operator bool() const { return static_cast<bool>(m_id); }
+
+{% for m in hc.methods %}
+#if GLAZE_GL_VERSION >= {{ m.version_int }}
+{% if m.has_doc_brief %}
+    /**
+     * @brief {{ m.doc_brief }}
+{% for p in m.doc_params %}
+     * @param {{ p.name }} {{ p.desc }}
+{% endfor %}
+     */
+{% endif %}
+    inline {{ m.return_type }} {{ m.name }}({{ m.params_str }}) const {
+{{ m.body }}
+    }
+#endif
+{% endfor %}
+};
+{% endfor %}
+
+} // namespace handle
+} // namespace {{ api }}
+
+// ── RAII Traits specializations for legacy handle wrappers ──────────────────
+namespace glaze {
+{% for r in handle_raii_resources %}
+template <>
+struct Traits<{{ api }}::handle::{{ r.class_name }}> {
+    static {{ api }}::handle::{{ r.class_name }} create() {
+        return {{ api }}::handle::{{ r.class_name }}{{ "{" }}{{ api }}::{{ r.gen_func_name }}(){{ "}" }};
+    }
+    static void destroy({{ api }}::handle::{{ r.class_name }}& v) {
+        {{ api }}::{{ r.delete_func_name }}(v.m_id);
+    }
+    static bool valid(const {{ api }}::handle::{{ r.class_name }}& v) { return static_cast<bool>(v); }
+};
+{% endfor %}
+} // namespace glaze
+
+#endif // __GLAZE_{{ api_upper }}_HANDLE_HPP__

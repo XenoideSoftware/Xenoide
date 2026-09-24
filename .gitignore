@@ -44,6 +44,12 @@ build/
 Build/
 build-*/
 
+# Coverage reports
+coverage/
+
+# Mutation testing reports
+mutation/
+
 # CMake generated files
 CMakeFiles/
 CMakeCache.txt
@@ -67,3 +73,12 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# conan 
+CMakeUserPresets.json
+
+# Xenoide Coverage
+coverage/
+
+# CLion 
+.idea 

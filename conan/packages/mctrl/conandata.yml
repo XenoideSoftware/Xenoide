@@ -1,0 +1,4 @@
+sources:
+  "0.11.5-xenoide":
+    url: "https://github.com/XenoideSoftware/mctrl.git"
+    commit: "b73384ba63e1a534f03f05d8b29860eb3d5782f7"

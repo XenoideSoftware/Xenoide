@@ -1,0 +1,47 @@
+add_subdirectory("xenoide-base")
+add_subdirectory("xenoide-sanitize")
+
+# TODO: These don't build either of a missing std::filesystem reference
+add_subdirectory("xenoide-core")
+# add_subdirectory("xenoide-ui-codeeditor")
+# add_subdirectory("xenoide-ui-folderbrowser")
+
+if (XE_ENABLE_IDE_WINLAMB)
+    add_subdirectory("winlambxe")
+    # add_subdirectory("xenoide9x")
+    # add_subdirectory("xenoide10x")
+    add_subdirectory("xenoidew")
+endif ()
+
+if (XENOIDE_UI_WIN32XX)
+    add_subdirectory("xenoide-win32xx")
+endif()
+
+if (XENOIDE_UI_QT6)
+    add_subdirectory("xenoide-qt6")
+endif()
+
+if (XENOIDE_UI_WX)
+    set(CMAKE_FOLDER "IDE/Pocs")
+    add_subdirectory("poc-wxminimal")
+    set(CMAKE_FOLDER "IDE")
+    add_subdirectory("xenoide-wx3")
+endif()
+
+if (XENOIDE_TESTS)
+    set(CMAKE_FOLDER "IDE/Tests")
+    add_subdirectory("xenoide-test")
+    set(CMAKE_FOLDER "IDE")
+endif()
+
+if (XENOIDE_POCS)
+    set(CMAKE_FOLDER "IDE/Pocs")
+    add_subdirectory("clang-test")
+    add_subdirectory("poc-zeromq-server")
+    add_subdirectory("poc-zeromq-client")
+    add_subdirectory("poc-protobuf-test")
+    add_subdirectory("poc-protobuf-protocol")
+    add_subdirectory("poc-lsp-server")
+    add_subdirectory("poc-lsp-client")
+    set(CMAKE_FOLDER "IDE")
+endif ()

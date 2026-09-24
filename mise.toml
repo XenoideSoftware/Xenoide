@@ -1,0 +1,273 @@
+[tasks."setup:export-recipes"]
+description = "Export all local custom Conan recipes to cache"
+run = "./mise/setup-export-recipes.sh"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-export-recipes.ps1"
+
+[tasks."setup:release"]
+description = "Install Conan dependencies for Release configuration"
+run = "./mise/setup.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Release"
+
+[tasks."setup:debug"]
+description = "Install Conan dependencies for Debug configuration"
+run = "./mise/setup.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Debug"
+
+[tasks.setup]
+description = "Default dependency setup (Release)"
+depends = ["setup:release", "setup:debug"]
+
+[tasks."configure:release"]
+description = "Configure CMake for Release build"
+depends = ["setup:release"]
+run = "./mise/configure.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Configuration Release"
+
+[tasks."configure:debug"]
+description = "Configure CMake for Debug build"
+depends = ["setup:debug"]
+run = "./mise/configure.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Configuration Debug"
+
+[tasks.configure]
+description = "Default CMake configuration (Release)"
+depends = ["configure:release"]
+
+[tasks."build:release"]
+description = "Build Release binaries"
+depends = ["configure:release"]
+run = "./mise/build.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/build.ps1 -Configuration Release"
+
+[tasks."build:debug"]
+description = "Build Debug binaries"
+depends = ["configure:debug"]
+run = "./mise/build.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/build.ps1 -Configuration Debug"
+
+[tasks.build]
+description = "Default build (Release)"
+depends = ["build:release"]
+
+[tasks."test:release"]
+description = "Run tests for Release build"
+depends = ["build:release"]
+run = "./mise/test.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/test.ps1 -Configuration Release"
+
+[tasks."test:debug"]
+description = "Run tests for Debug build"
+depends = ["build:debug"]
+run = "./mise/test.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/test.ps1 -Configuration Debug"
+
+[tasks.test]
+description = "Default test (Release)"
+depends = ["test:release"]
+
+[tasks.format]
+description = "Format C/C++ source files in src/ using clang-format"
+run = "./mise/format.sh"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/format.ps1"
+
+[tasks."setup:tidy:debug"]
+description = "Install Conan dependencies for tidy (Debug)"
+run = "./mise/setup-tidy.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Configuration Debug"
+
+[tasks."setup:tidy:release"]
+description = "Install Conan dependencies for tidy (Release)"
+run = "./mise/setup-tidy.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Configuration Release"
+
+[tasks."configure:tidy:debug"]
+description = "Configure CMake for tidy analysis (Debug)"
+depends = ["setup:tidy:debug"]
+run = "./mise/configure-tidy.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 -Configuration Debug"
+
+[tasks."configure:tidy:release"]
+description = "Configure CMake for tidy analysis (Release)"
+depends = ["setup:tidy:release"]
+run = "./mise/configure-tidy.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 -Configuration Release"
+
+[tasks."tidy:debug"]
+description = "Run clang-tidy against the Debug build"
+depends = ["configure:tidy:debug"]
+usage = '''
+flag "--fix" help="Apply clang-tidy fix-its to source files"
+flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
+flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+flag "--file <file>" help="Run clang-tidy on a single file, regardless of git status"
+'''
+run = "./mise/tidy.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Debug"
+
+[tasks."tidy:release"]
+description = "Run clang-tidy against the Release build"
+depends = ["configure:tidy:release"]
+usage = '''
+flag "--fix" help="Apply clang-tidy fix-its to source files"
+flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
+flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+flag "--file <file>" help="Run clang-tidy on a single file, regardless of git status"
+'''
+run = "./mise/tidy.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release"
+
+[tasks.tidy]
+description = "Run clang-tidy against both Debug and Release builds for full coverage"
+depends = ["configure:tidy:debug", "configure:tidy:release"]
+usage = '''
+flag "--fix" help="Apply clang-tidy fix-its to source files"
+flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
+flag "--format" help="Reformat fixed files with clang-format (requires --fix)"
+flag "--file <file>" help="Run clang-tidy on a single file, regardless of git status"
+'''
+run = """
+./mise/tidy.sh Debug
+./mise/tidy.sh Release
+"""
+run_windows = """
+powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Debug
+powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release
+"""
+
+[tasks.clean]
+description = "Clean build directories"
+run = "./mise/clean.sh"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/clean.ps1"
+
+# ---------------------------------------------------------------------------
+# Code coverage tasks (GCC/gcov and Clang/llvm-cov)
+# ---------------------------------------------------------------------------
+
+[tasks."coverage:gcov:debug"]
+description = "Generate code coverage using GCC and gcov (Debug configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration Debug"
+
+[tasks."coverage:gcov:release"]
+description = "Generate code coverage using GCC and gcov (Release configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration Release"
+
+[tasks."coverage:gcov:all"]
+description = "Generate code coverage using GCC and gcov (Merged Debug + Release configurations)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration all"
+
+[tasks."coverage:gcov"]
+description = "Default GCC code coverage (Merged Debug + Release)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh gcov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool gcov -Configuration all"
+
+[tasks."coverage:llvm-cov:debug"]
+description = "Generate code coverage using Clang and llvm-cov (Debug configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration Debug"
+
+[tasks."coverage:llvm-cov:release"]
+description = "Generate code coverage using Clang and llvm-cov (Release configuration)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration Release"
+
+[tasks."coverage:llvm-cov:all"]
+description = "Generate code coverage using Clang and llvm-cov (Merged Debug + Release configurations)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
+
+[tasks."coverage:llvm-cov"]
+description = "Default LLVM code coverage (Merged Debug + Release)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
+
+[tasks.coverage]
+description = "Default code coverage (llvm-cov all)"
+usage = '''
+flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
+flag "--export <format>" help="Report export format: text, html or csv"
+flag "--check <threshold>" help="Enforce a minimum line coverage percentage (default 90); exits 1 if below"
+flag "--output-dir <dir>" help="Output directory for report files (default coverage/<tool>)"
+flag "--clean" help="Clean existing profile counters before running tests"
+'''
+run = "./mise/coverage.sh llvm-cov --config all"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool llvm-cov -Configuration all"
+
+# ---------------------------------------------------------------------------
+# Mutation testing tasks (Mull)
+# ---------------------------------------------------------------------------
+
+[tasks."mutation:mull"]
+description = "Run Mull mutation testing against the unit test suite"
+usage = '''
+flag "--generate" help="Discover and generate mutants without running tests (dry run)"
+flag "--kill" help="Execute unit tests against each mutant to kill them (default mode)"
+flag "--config <cfg>" help="Build type: Debug (default) or Release"
+flag "--reporters <list>" help="Report formats: IDE,SQLite,Elements,Patches,Sarif (default IDE,SQLite,Elements)"
+flag "--output-dir <dir>" help="Directory for report files (default mutation/mull)"
+flag "--report-name <name>" help="Report database base name (default xenoide)"
+flag "--clean" help="Delete existing build/mutation artifacts before running"
+flag "--target <name>" help="Run against a specific test target (e.g. xe-core-test)"
+flag "--timeout <ms>" help="Maximum test execution timeout per mutant"
+flag "--threshold <score>" help="Minimum required mutation score (0-100); exits 1 if below"
+'''
+run = "./mise/mutation.sh"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/mutation.ps1"

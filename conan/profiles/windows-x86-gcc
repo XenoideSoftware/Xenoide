@@ -1,0 +1,11 @@
+[settings]
+arch=x86
+build_type=Release
+compiler=gcc
+compiler.cppstd=gnu17
+compiler.version=5.1
+compiler.libcxx=libstdc++11
+os=Windows
+
+[buildenv]
+CMAKE_POLICY_VERSION_MINIMUM=3.5

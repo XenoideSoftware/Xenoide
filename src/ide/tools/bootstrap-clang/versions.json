@@ -1,0 +1,13 @@
+{
+  "_comment": "Pinned upstream sources for the legacy i686-only clang bootstrap.",
+
+  "llvm_project": {
+    "tag": "llvmorg-7.0.1",
+    "repo": "https://github.com/llvm/llvm-project.git",
+    "shallow": true
+  },
+
+  "_comment_sysroot": "The i686 sysroot is staged directly from TDM-GCC-5's bundled mingw-w64 runtime - no external download required. Override TDM_GCC_ROOT before calling stage0-tdm.cmd to point at a different install.",
+
+  "patches_dir": "patches"
+}

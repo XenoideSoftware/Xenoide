@@ -1,0 +1,222 @@
+/*
+ * {{ generation_header_formatted }}
+ */
+#include <glaze/{{ api }}.h>
+
+#include <stdlib.h>
+#include <string.h>
+
+/* debug callback storage */
+static GLAZE_CALLBACK glaze_pre_callback = 0;
+static GLAZE_CALLBACK glaze_post_callback = 0;
+
+GLAZE_API void glazeSetPreCallback(GLAZE_CALLBACK callback) {
+    glaze_pre_callback = callback;
+}
+
+GLAZE_API void glazeSetPostCallback(GLAZE_CALLBACK callback) {
+    glaze_post_callback = callback;
+}
+
+{% for feature in features %}
+#if GLAZE_GL_VERSION >= {{ feature.version_int }}
+/* {{ feature.name }} function pointer variables */
+{% for defn in feature.definitions %}
+{{ defn }}
+{% endfor %}
+#endif
+
+{% endfor %}
+
+#if defined(GLAZE_DEBUG)
+/* debug wrapper functions */
+{% for feature in debug_wrapper_features %}
+#if GLAZE_GL_VERSION >= {{ feature.version_int }}
+{% for w in feature.wrappers %}
+GLAZE_API {{ w.return_type }} GLCALLCONV {{ w.debug_name }}({{ w.params_str }}) {
+{% if w.param_count > 0 %}
+    if (glaze_pre_callback) glaze_pre_callback("{{ w.name }}", (void*){{ w.raw_name }}, {{ w.param_count }}, {{ w.args_str }});
+{% else %}
+    if (glaze_pre_callback) glaze_pre_callback("{{ w.name }}", (void*){{ w.raw_name }}, 0);
+{% endif %}
+{% if w.is_void %}
+    {{ w.raw_name }}({{ w.args_str }});
+{% else %}
+    {{ w.return_type }} ret = {{ w.raw_name }}({{ w.args_str }});
+{% endif %}
+{% if w.param_count > 0 %}
+    if (glaze_post_callback) glaze_post_callback("{{ w.name }}", (void*){{ w.raw_name }}, {{ w.param_count }}, {{ w.args_str }});
+{% else %}
+    if (glaze_post_callback) glaze_post_callback("{{ w.name }}", (void*){{ w.raw_name }}, 0);
+{% endif %}
+{% if not w.is_void %}
+    return ret;
+{% endif %}
+}
+
+{% endfor %}
+#endif
+{% endfor %}
+#endif
+
+GLAZE_API void glazeLoadFunctions(GLAZE_GETPROCADDRESS getProcAddress) {
+{% for feature in loader_features %}
+#if GLAZE_GL_VERSION >= {{ feature.version_int }}
+{% for entry in feature.entries %}
+    {{ entry.ptr_var }} = ({{ entry.ptr_type }})getProcAddress("{{ entry.gl_name }}");
+{% endfor %}
+#endif
+{% endfor %}
+}
+
+/* ── Extension storage and runtime ──────────────────────────────────────── */
+#ifndef GLAZE_GL_NO_EXTENSIONS
+
+{% for ext in extensions %}
+#ifndef {{ ext.guard_macro }}
+GLAZE_API int {{ ext.flag_var }} = 0;
+{% for defn in ext.definitions %}
+{{ defn }}
+{% endfor %}
+#endif
+{% endfor %}
+
+/* Cached extension list (filled by glazeLoadExtensions) */
+static int    glaze_extension_count = 0;
+static char **glaze_extension_list  = NULL;
+static int    glaze_version_major   = 0;
+static int    glaze_version_minor   = 0;
+
+static char *glaze_strdup_n(const char *s, size_t n) {
+    char *p = (char *)malloc(n + 1);
+    if (!p) return NULL;
+    memcpy(p, s, n);
+    p[n] = '\0';
+    return p;
+}
+
+static void glaze_free_extension_cache(void) {
+    int i;
+    if (!glaze_extension_list) return;
+    for (i = 0; i < glaze_extension_count; ++i) free(glaze_extension_list[i]);
+    free(glaze_extension_list);
+    glaze_extension_list  = NULL;
+    glaze_extension_count = 0;
+}
+
+static void glaze_split_extensions(const char *all) {
+    int n = 0, i;
+    const char *p;
+    /* First pass: count tokens */
+    for (p = all; *p; ) {
+        while (*p == ' ') ++p;
+        if (!*p) break;
+        ++n;
+        while (*p && *p != ' ') ++p;
+    }
+    glaze_extension_count = n;
+    glaze_extension_list  = (char **)malloc((size_t)n * sizeof(char *));
+    if (!glaze_extension_list) {
+        glaze_extension_count = 0;
+        return;
+    }
+    /* Second pass: copy each token */
+    i = 0;
+    p = all;
+    while (*p && i < n) {
+        const char *start;
+        size_t len;
+        while (*p == ' ') ++p;
+        if (!*p) break;
+        start = p;
+        while (*p && *p != ' ') ++p;
+        len = (size_t)(p - start);
+        glaze_extension_list[i++] = glaze_strdup_n(start, len);
+    }
+}
+
+static void glaze_parse_version(const char *v) {
+    int maj = 0, min = 0;
+    if (!v) return;
+    while (*v && !(*v >= '0' && *v <= '9')) ++v;
+    while (*v >= '0' && *v <= '9') { maj = maj * 10 + (*v - '0'); ++v; }
+    if (*v == '.') ++v;
+    while (*v >= '0' && *v <= '9') { min = min * 10 + (*v - '0'); ++v; }
+    glaze_version_major = maj;
+    glaze_version_minor = min;
+}
+
+GLAZE_API void glazeLoadExtensions(GLAZE_GETPROCADDRESS getProcAddress) {
+    typedef void (GLCALLCONV *GLAZE_PFN_GETINTEGERV)(unsigned int, int *);
+    typedef const unsigned char *(GLCALLCONV *GLAZE_PFN_GETSTRING)(unsigned int);
+    typedef const unsigned char *(GLCALLCONV *GLAZE_PFN_GETSTRINGI)(unsigned int, unsigned int);
+    GLAZE_PFN_GETINTEGERV pGetIntegerv;
+    GLAZE_PFN_GETSTRING   pGetString;
+    GLAZE_PFN_GETSTRINGI  pGetStringi;
+    int i;
+
+    if (!getProcAddress) return;
+
+    pGetIntegerv = (GLAZE_PFN_GETINTEGERV)getProcAddress("glGetIntegerv");
+    pGetString   = (GLAZE_PFN_GETSTRING)getProcAddress("glGetString");
+    pGetStringi  = (GLAZE_PFN_GETSTRINGI)getProcAddress("glGetStringi");
+
+    if (!pGetString) return;
+
+    /* Parse the GL version once so glazeIsVersionSupported can answer later. */
+    glaze_parse_version((const char *)pGetString(0x1F02 /* GL_VERSION */));
+
+    /* Refresh the extension cache (may be called more than once on context loss). */
+    glaze_free_extension_cache();
+    if (pGetStringi && pGetIntegerv) {
+        int n = 0;
+        pGetIntegerv(0x821D /* GL_NUM_EXTENSIONS */, &n);
+        glaze_extension_count = n;
+        glaze_extension_list  = (char **)malloc((size_t)n * sizeof(char *));
+        if (!glaze_extension_list) {
+            glaze_extension_count = 0;
+            return;
+        }
+        for (i = 0; i < n; ++i) {
+            const char *s = (const char *)pGetStringi(0x1F03 /* GL_EXTENSIONS */, (unsigned int)i);
+            glaze_extension_list[i] = glaze_strdup_n(s ? s : "", s ? strlen(s) : 0);
+        }
+    } else {
+        const char *all = (const char *)pGetString(0x1F03 /* GL_EXTENSIONS */);
+        if (all) glaze_split_extensions(all);
+    }
+
+    /* Match each known extension; set its flag and load its function pointers. */
+{% for ext in extensions %}
+#ifndef {{ ext.guard_macro }}
+    {{ ext.flag_var }} = 0;
+    for (i = 0; i < glaze_extension_count; ++i) {
+        if (strcmp(glaze_extension_list[i], "{{ ext.name }}") == 0) {
+            {{ ext.flag_var }} = 1;
+{% for entry in ext.entries %}
+            {{ entry.ptr_var }} = ({{ entry.ptr_type }})getProcAddress("{{ entry.gl_name }}");
+{% endfor %}
+            break;
+        }
+    }
+#endif
+{% endfor %}
+}
+
+GLAZE_API int glazeHasExtension(const char *name) {
+    int i;
+    if (!name) return 0;
+    for (i = 0; i < glaze_extension_count; ++i) {
+        if (strcmp(glaze_extension_list[i], name) == 0) return 1;
+    }
+    return 0;
+}
+
+GLAZE_API int glazeIsVersionSupported(int major, int minor) {
+    if (glaze_version_major == 0) return 0;
+    if (glaze_version_major > major) return 1;
+    if (glaze_version_major < major) return 0;
+    return glaze_version_minor >= minor;
+}
+
+#endif /* GLAZE_GL_NO_EXTENSIONS */

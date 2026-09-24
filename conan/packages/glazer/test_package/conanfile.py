@@ -1,0 +1,13 @@
+from conan import ConanFile
+from conan.tools.build import can_run
+
+
+class GlazerTestConan(ConanFile):
+    settings = "os", "compiler", "build_type", "arch"
+
+    def build_requirements(self):
+        self.tool_requires(self.tested_reference_str)
+
+    def test(self):
+        if can_run(self):
+            self.run("glaze --help")
