@@ -1,17 +1,17 @@
 [tasks."export-recipes"]
 description = "Export all local custom Conan recipes to cache"
-run = "./mise/setup-export-recipes.sh"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup-export-recipes.ps1"
+run = "./mise/export-recipes.sh"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/export-recipes.ps1"
 
 [tasks."install:release"]
 description = "Install Conan dependencies for Release configuration"
-run = "./mise/setup.sh Release"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Release"
+run = "./mise/install.sh Release"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/install.ps1 -Configuration Release"
 
 [tasks."install:debug"]
 description = "Install Conan dependencies for Debug configuration"
-run = "./mise/setup.sh Debug"
-run_windows = "powershell -ExecutionPolicy Bypass -File mise/setup.ps1 -Configuration Debug"
+run = "./mise/install.sh Debug"
+run_windows = "powershell -ExecutionPolicy Bypass -File mise/install.ps1 -Configuration Debug"
 
 [tasks.setup]
 description = "Default dependency setup (Release)"
