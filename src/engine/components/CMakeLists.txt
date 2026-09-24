@@ -19,13 +19,6 @@ endif()
 # DevIL doesn't build in MSVC
 add_subdirectory ("libxe-imageloader")
 
-# add_subdirectory ("xe-gltf-view")
-# add_subdirectory ("xe-gltfc")
-
-if (XE_ENABLE_ENGINE_PLUGIN_KTX)
-    # add_subdirectory ("xe-ktxc")
-endif()
-
 if (XE_ENABLE_ENGINE_PLUGIN_PNG)
     # add_subdirectory("libxe-core-imageloader-lodepng")
 endif ()
