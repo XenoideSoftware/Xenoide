@@ -5,7 +5,6 @@
 
 #include "GltfUtil.h"
 #include "cgltf.h"
-#include "xe/gl/RendererGL.h"
 
 namespace xe::gl {
     class RendererGL;

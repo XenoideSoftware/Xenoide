@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "xe/gl/RendererGL.h"
+#include "xe/graphics/gl/RendererGL.h"
 #include <glaze/gl.h>
 #include <vector>
 

@@ -11,4 +11,4 @@ set (sources src/xe-ktxc-main.cpp)
 
 add_executable(${target} ${sources})
 target_include_directories(${target} PUBLIC include)
-target_link_libraries(${target} PRIVATE xe::interface PUBLIC xe::core PUBLIC DevIL::IL PUBLIC KTX::ktx PUBLIC Vulkan::Vulkan PUBLIC cxxopts::cxxopts PRIVATE Backport::Backport)
+target_link_libraries(${target} PRIVATE xe::interface PUBLIC xe::core PUBLIC DevIL::IL PUBLIC DevIL::ILU PUBLIC KTX::ktx PUBLIC Vulkan::Vulkan PUBLIC cxxopts::cxxopts PRIVATE Backport::Backport)

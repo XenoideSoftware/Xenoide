@@ -2,7 +2,7 @@
 #pragma once
 
 #include "cgltf.h"
-#include "xe/gl/RendererGL.h"
+#include "xe/graphics/gl/RendererGL.h"
 #include <string>
 
 inline std::string to_string(cgltf_result result) {

@@ -2,7 +2,7 @@
 #pragma once
 
 #include "GltfMesh.h"
-#include "xe/gl/RendererGL.h"
+#include "xe/graphics/gl/RendererGL.h"
 
 #include <cgltf.h>
 #include <memory>

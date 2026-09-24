@@ -9,11 +9,10 @@
 
 #include "GltfUtil.h"
 #include "cgltf.h"
-#include "xe/gl/RendererGL.h"
 #include <glaze/gl.h>
 
-#include "bindings/imgui_impl_opengl3.h"
-#include "bindings/imgui_impl_sdl2.h"
+#include "xe/imgui/imgui_impl_opengl3.h"
+#include "xe/imgui/imgui_impl_sdl2.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -214,7 +213,7 @@ void renderValue(cgltf_node *node, std::optional<size_t> i = {}) {
         ImGui::Text("Has translation: %s", (node->has_translation ? "true" : "false"));
         ImGui::Text("Has rotation: %s", (node->has_rotation ? "true" : "false"));
         ImGui::Text("Has scale: %s", (node->has_scale ? "true" : "false"));
-        ImGui::Text("Weights count: %d", node->weights_count);
+        ImGui::Text("Weights count: %d", static_cast<int>(node->weights_count));
 
         /*
         if (node->mesh) {
@@ -244,7 +243,7 @@ void renderValue(cgltf_node *node, std::optional<size_t> i = {}) {
 void renderValue(const cgltf_scene &value, std::optional<size_t> i = {}) {
     if (ImGui::TreeNodeEx(itemLabel("Scene", i).c_str())) {
         ImGui::Text("Name: %s", (stringOr(value.name)));
-        ImGui::Text("Extensions count: %d", value.extensions_count);
+        ImGui::Text("Extensions count: %d", static_cast<int>(value.extensions_count));
 
         bpstd::span<cgltf_node *> nodes{value.nodes, value.nodes_count};
         renderTreeNode(fmt::format("Children nodes ({})", nodes.size()), nodes);
@@ -254,23 +253,27 @@ void renderValue(const cgltf_scene &value, std::optional<size_t> i = {}) {
 }
 
 void renderValue(const cgltf_light &light, std::optional<size_t> i = {}) {
-    ImGui::Text(stringOr(light.name, "<noname>"));
+    (void)i;
+
+    ImGui::TextUnformatted(stringOr(light.name, "<noname>"));
 }
 
 void renderValue(const cgltf_camera &camera, std::optional<size_t> i = {}) {
-    ImGui::Text(stringOr(camera.name, "<noname>"));
+    (void)i;
+    ImGui::TextUnformatted(stringOr(camera.name, "<noname>"));
 }
 
 void renderValue(const cgltf_mesh &mesh, std::optional<size_t> i = {}) {
-    ImGui::Text(stringOr(mesh.name, "<noname>"));
+    (void)i;
+    ImGui::TextUnformatted(stringOr(mesh.name, "<noname>"));
 }
 
 void renderValue(const cgltf_animation &value, std::optional<size_t> i = {}) {
     if (ImGui::TreeNodeEx(itemLabel("Animation", i).c_str())) {
         ImGui::Text("Name: %s", (stringOr(value.name)));
-        ImGui::Text("Samplers count: %d", value.samplers_count);
-        ImGui::Text("Channels count: %d", value.channels_count);
-        ImGui::Text("Extensions count: %d", value.extensions_count);
+        ImGui::Text("Samplers count: %d", static_cast<int>(value.samplers_count));
+        ImGui::Text("Channels count: %d", static_cast<int>(value.channels_count));
+        ImGui::Text("Extensions count: %d", static_cast<int>(value.extensions_count));
 
         ImGui::TreePop();
     }
@@ -280,8 +283,8 @@ void renderValue(const cgltf_skin &value, std::optional<size_t> i = {}) {
     if (ImGui::TreeNodeEx(itemLabel("Skin", i).c_str())) {
         ImGui::Text("Name: %s", (stringOr(value.name)));
         ImGui::Text("Has skeleton?: %s", value.skeleton ? "true" : "false");
-        ImGui::Text("Joint count: %d", value.joints_count);
-        ImGui::Text("Extensions count: %d", value.extensions_count);
+        ImGui::Text("Joint count: %d", static_cast<int>(value.joints_count));
+        ImGui::Text("Extensions count: %d", static_cast<int>(value.extensions_count));
 
         ImGui::TreePop();
     }
@@ -294,7 +297,7 @@ void renderValue(const cgltf_sampler &value, std::optional<size_t> i = {}) {
         ImGui::Text("Sampler min filter: %d", value.min_filter);
         ImGui::Text("Sampler wrap s: %d", value.wrap_s);
         ImGui::Text("Sampler wrap t: %d", value.wrap_t);
-        ImGui::Text("Sampler extensions count: %d", value.extensions_count);
+        ImGui::Text("Sampler extensions count: %d", static_cast<int>(value.extensions_count));
 
         ImGui::TreePop();
     }
@@ -303,7 +306,7 @@ void renderValue(const cgltf_sampler &value, std::optional<size_t> i = {}) {
 void renderValue(const cgltf_texture &value, std::optional<size_t> i = {}) {
     if (ImGui::TreeNodeEx(itemLabel("Texture", i).c_str())) {
         ImGui::Text("Name: %s", stringOr(value.name));
-        ImGui::Text("Extensions count: %d", value.extensions_count);
+        ImGui::Text("Extensions count: %d", static_cast<int>(value.extensions_count));
         ImGui::Text("Has BasisU: %s", value.has_basisu ? "true" : "false");
         ImGui::Text("Sampler: %s", value.sampler ? "true" : "false");
 
@@ -320,7 +323,7 @@ void renderValue(const cgltf_image &value, std::optional<size_t> i = {}) {
         ImGui::Text("Name: %s", stringOr(value.name));
         ImGui::Text("URI: %s", stringOr(value.uri));
         ImGui::Text("MIME type: %s", stringOr(value.mime_type));
-        ImGui::Text("Extensions count: %d", value.extensions_count);
+        ImGui::Text("Extensions count: %d", static_cast<int>(value.extensions_count));
         ImGui::Text("Buffer view: %s", value.buffer_view ? "true" : "false");
         ImGui::TreePop();
     }

@@ -8,7 +8,7 @@
 #include "GltfUtil.h"
 #include "cgltf.h"
 #include "xe/ImageLoader.h"
-#include "xe/gl/RendererGL.h"
+#include "xe/graphics/gl/RendererGL.h"
 #include "xe/graphics/ImageLoader.h"
 
 namespace xe::gl {

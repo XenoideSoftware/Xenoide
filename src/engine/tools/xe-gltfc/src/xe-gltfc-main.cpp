@@ -19,7 +19,7 @@ static void setupAssimpLogger() {
     DefaultLogger::create("", Logger::VERBOSE, aiDefaultLogStream_STDOUT);
 }
 
-int main(int argc, char **argv) {
+int main(int /*argc*/, char ** /*argv*/) {
     std::string inputPath = "/Users/fapablaza/Dropbox/GameDev/Capybaria/raw-assets/models/capybara-02/Capybara.fbx";
     std::string outputPath = "/Users/fapablaza/Dropbox/GameDev/Capybaria/raw-assets/models/capybara-02/Capybara.glb";
 

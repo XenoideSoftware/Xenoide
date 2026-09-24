@@ -144,10 +144,10 @@ class xenoideRecipe(ConanFile):
         if len(imgui_backends) > 0:
             package_folder = self.dependencies["imgui"].package_folder
             bindings_folder_src = os.path.join(package_folder, "res", "bindings")
-            bindings_folder_dest = os.path.join(self.source_folder, "src", "engine", "tools", "libxe-imgui", "src")
+            bindings_folder_dest = os.path.join(self.source_folder, "src", "engine", "tools", "libxe-imgui", "src", "xe", "imgui")
 
             for backend in imgui_backends:
-                copy(self, f"imgui_impl_{backend}.*", bindings_folder_src, bindings_folder_dest)
+                copy(self, f"imgui_impl_{backend}*", bindings_folder_src, bindings_folder_dest)
 
             tc.variables["XE_ENGINE_IMGUI_BACKENDS"] = ";".join(imgui_backends)
 

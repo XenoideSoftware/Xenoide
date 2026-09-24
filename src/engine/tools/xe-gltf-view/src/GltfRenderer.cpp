@@ -8,7 +8,7 @@
 #include <bpstd/span.hpp>
 
 #include "fmt/printf.h"
-#include "xe/gl/RendererGL.h"
+#include "xe/graphics/gl/RendererGL.h"
 #include "xe/Logger.h"
 #include "xe/FileUtil.h"
 
@@ -161,7 +161,7 @@ namespace xe::gltf_view {
         }
 
         if (node.has_scale) {
-            return xe::mat4Scaling(xe::Vector4(xe::Vector3(node.scale), 1.0f));
+            return xe::mat4Scaling(xe::vec(xe::Vector3(node.scale), 1.0f));
         }
 
         if (node.has_translation) {
@@ -214,6 +214,11 @@ namespace xe::gltf_view {
             XE_LOG_ERROR("Orthographic camera is not supported.");
             break;
         }
+
+        case cgltf_camera_type_invalid:
+        case cgltf_camera_type_max_enum:
+            XE_LOG_ERROR("Invalid camera type.");
+            break;
         }
     }
 
