@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-packages_dir="conan/packages"
+packages_dir="conan/recipes"
 for pkg in $(ls -1 "$packages_dir" | sort); do
     pkg_dir="$packages_dir/$pkg"
     conanfile="$pkg_dir/conanfile.py"

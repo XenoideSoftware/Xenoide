@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$packagesDir = "conan/packages"
+$packagesDir = "conan/recipes"
 
 Get-ChildItem -Path $packagesDir -Directory | Sort-Object Name | ForEach-Object {
     $pkg = $_.Name

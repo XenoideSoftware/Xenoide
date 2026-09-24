@@ -8,7 +8,7 @@ namespace glaze::docparser {
 /**
  * @brief Documentation extracted from one OpenGL-Refpages refpage.
  *
- * Mirrors the Python dataclass in `conan/packages/glaze/glaze/doc_parser.py`:
+ * Mirrors the Python dataclass in `conan/recipes/glaze/glaze/doc_parser.py`:
  * a single brief (from `<refpurpose>`) plus a parameter name → description
  * map (from the `<refsect1 xml:id="parameters">` varlistentries).  Shared
  * verbatim across every `<refname>` declared in the refpage.

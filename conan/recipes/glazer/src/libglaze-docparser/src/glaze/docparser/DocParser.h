@@ -10,7 +10,7 @@ namespace glaze::docparser {
 /**
  * @brief Builds a DocIndex from an OpenGL-Refpages tree.
  *
- * Port of `conan/packages/glaze/glaze/doc_parser.py`.  Each API has its own
+ * Port of `conan/recipes/glaze/glaze/doc_parser.py`.  Each API has its own
  * refpages subdirectory (gl→gl4, gles1→es1.1, gles2→es3.0, glsc2→gl4);
  * DocParser walks the appropriate subdir, reads every `gl*.xml` refpage,
  * and collects the brief + parameter docs into a map keyed by GL function

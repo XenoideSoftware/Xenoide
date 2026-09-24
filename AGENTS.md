@@ -41,7 +41,7 @@ For development speed reasons, we will start with **Qt6**.
 When assigned a task in this repository, follow this systematic checklist:
 
 1. **Check Local Custom Recipes**:
-   - If any file in `conan/packages/` (especially `glazer`, `glazed`, or `winlamb`) is created or modified, immediately execute:
+   - If any file in `conan/recipes/` (especially `glazer`, `glazed`, or `winlamb`) is created or modified, immediately execute:
      ```bash
      mise run setup:export-recipes
      ```

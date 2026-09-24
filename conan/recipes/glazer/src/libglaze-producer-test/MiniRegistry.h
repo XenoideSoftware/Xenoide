@@ -7,7 +7,7 @@
 namespace glaze::testfixtures {
 
 // Minimal OpenGL registry XML used by the producer and generator test suites.
-// This is a verbatim port of conan/packages/glaze/tests/conftest.py's
+// This is a verbatim port of conan/recipes/glaze/tests/conftest.py's
 // MINI_XML fixture so the C++ tests cover the same shapes as the Python ones.
 inline constexpr std::string_view kMiniXml = R"XML(<?xml version="1.0" encoding="UTF-8"?>
 <registry>
