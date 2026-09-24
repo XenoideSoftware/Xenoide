@@ -12,4 +12,7 @@ if (XE_ENABLE_IDE)
     add_subdirectory("ide")
 endif()
 
+set(CMAKE_FOLDER "Pocs")
+add_subdirectory("pocs")
+
 unset(CMAKE_FOLDER)

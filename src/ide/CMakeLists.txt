@@ -7,4 +7,4 @@ if (XE_ENABLE_IDE_WINLAMB)
     find_package(winlamb CONFIG REQUIRED)
 endif()
 
-add_subdirectory("src")
+add_subdirectory("core")

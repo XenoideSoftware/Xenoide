@@ -29,6 +29,11 @@ class xenoideRecipe(ConanFile):
         "with_engine_tool_ktxc": [True, False],
         "with_engine_tool_gltfc": [True, False],
         "with_engine_tool_gltfv": [True, False],
+        "with_poc_clang": [True, False],
+        "with_poc_lsp": [True, False],
+        "with_poc_protobuf": [True, False],
+        "with_poc_wxwidgets": [True, False],
+        "with_poc_zeromq": [True, False],
     }
 
     default_options = {
@@ -41,6 +46,11 @@ class xenoideRecipe(ConanFile):
         "with_engine_tool_ktxc": True,
         "with_engine_tool_gltfc": True,
         "with_engine_tool_gltfv": True,
+        "with_poc_clang": True,
+        "with_poc_lsp": True,
+        "with_poc_protobuf": True,
+        "with_poc_wxwidgets": True,
+        "with_poc_zeromq": True,
     }
 
     # Sources are located in the same place as this recipe, copy them to the recipe
@@ -106,6 +116,22 @@ class xenoideRecipe(ConanFile):
             # self.requires("nlohmann_json/3.12.0")
             """
 
+        # POCS dependencies
+        if self.options.get_safe("with_poc_clang"):
+            self.requires("llvm/18.1.8")
+
+        if self.options.get_safe("with_poc_lsp"):
+            self.requires("lsp-framework/1.3.1")
+
+        if self.options.get_safe("with_poc_protobuf"):
+            self.requires("protobuf/3.9.1")
+
+        if self.options.get_safe("with_poc_wxwidgets"):
+            self.requires("wxwidgets/3.2.8")
+
+        if self.options.get_safe("with_poc_zeromq"):
+            self.requires("zmqpp/4.2.0")
+
     def _enumerate_imgui_backends(self):
         # TODO: Check specific package versions to pick correct imgui backend version
 
@@ -130,14 +156,27 @@ class xenoideRecipe(ConanFile):
         deps.generate()
 
         tc = CMakeToolchain(self)
+
+        # Common
         tc.variables["XE_BUILD_VERSION"] = self.version
-        tc.variables["XE_ENABLE_IDE"] = "ON" if self.options.with_ide else "OFF"
-        tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
         tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
+
+        # IDE
+        tc.variables["XE_ENABLE_IDE"] = "ON" if self.options.with_ide else "OFF"
         tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.get_safe("with_ide_winlamb") else "OFF"
+
+        # Engine
+        tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
         tc.variables["XE_ENABLE_ENGINE_TOOL_KTXC"] = "ON" if self.options.get_safe("with_engine_tool_ktxc") else "OFF"
         tc.variables["XE_ENABLE_ENGINE_TOOL_GLTFC"] = "ON" if self.options.get_safe("with_engine_tool_gltfc") else "OFF"
         tc.variables["XE_ENABLE_ENGINE_TOOL_GLTFV"] = "ON" if self.options.get_safe("with_engine_tool_gltfv") else "OFF"
+
+        # POCs
+        tc.variables["XE_ENABLE_POC_CLANG"] = "ON" if self.options.get_safe("with_poc_clang") else "OFF"
+        tc.variables["XE_ENABLE_POC_LSP"] = "ON" if self.options.get_safe("with_poc_lsp") else "OFF"
+        tc.variables["XE_ENABLE_POC_PROTOBUF"] = "ON" if self.options.get_safe("with_poc_protobuf") else "OFF"
+        tc.variables["XE_ENABLE_POC_WXWIDGETS"] = "ON" if self.options.get_safe("with_poc_wxwidgets") else "OFF"
+        tc.variables["XE_ENABLE_POC_ZEROMQ"] = "ON" if self.options.get_safe("with_poc_zeromq") else "OFF"
 
         # populate imgui backends
         imgui_backends = self._enumerate_imgui_backends()
