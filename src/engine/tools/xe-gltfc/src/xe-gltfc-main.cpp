@@ -20,8 +20,8 @@ static void setupAssimpLogger() {
 }
 
 int main(int /*argc*/, char ** /*argv*/) {
-    std::string inputPath = "/Users/fapablaza/Dropbox/GameDev/Capybaria/raw-assets/models/capybara-02/Capybara.fbx";
-    std::string outputPath = "/Users/fapablaza/Dropbox/GameDev/Capybaria/raw-assets/models/capybara-02/Capybara.glb";
+    std::string inputPath = "Capybara.fbx";
+    std::string outputPath = "Capybara.glb";
 
     // std::string inputPath = argv[1];
     // std::string outputPath = (argc >= 3) ? argv[2] : deriveOutputPath(inputPath);
