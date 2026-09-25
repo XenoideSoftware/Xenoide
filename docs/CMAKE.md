@@ -24,8 +24,8 @@ xe-executable-name
     add_executable(${target} ${sources})
 
     # one line per dependency
-    target_link_library(${target} PUBLIC library::component)
-    target_link_library(${target} PUBLIC library::component1)
+    target_link_libraries(${target} PUBLIC library::component)
+    target_link_libraries(${target} PUBLIC library::component1)
 ```
 
 
@@ -42,8 +42,8 @@ xe-executable-name
     target_include_directories(${target} PUBLIC "src")
 
     # one line per dependency
-    target_link_library(${target} PUBLIC library::component)
-    target_link_library(${target} PUBLIC library::component1)
+    target_link_libraries(${target} PUBLIC library::component)
+    target_link_libraries(${target} PUBLIC library::component1)
 ```
 
 ## Catch2 v3 Executable Target Specification
@@ -60,9 +60,9 @@ xe-executable-name
 
     # one line per dependency
     target_link_libraries(${target} PRIVATE Catch2::Catch2WithMain)
-    target_link_library(${target} PUBLIC library::component)
-    target_link_library(${target} PUBLIC library::component1)
-    target_link_library(${target} PUBLIC library-name)
+    target_link_libraries(${target} PUBLIC library::component)
+    target_link_libraries(${target} PUBLIC library::component1)
+    target_link_libraries(${target} PUBLIC library-name)
 
     # Enable autodiscovering    
     include(Catch)
