@@ -1,3 +1,5 @@
+cmake_minimum_required (VERSION 3.16)
+
 project (XEPOCS)
 
 option (XE_ENABLE_POC_CLANG "Enable pocs that require clang" OFF)

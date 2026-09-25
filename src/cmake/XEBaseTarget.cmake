@@ -1,3 +1,19 @@
+
+set (CMAKE_EXPORT_COMPILE_COMMANDS  ON)
+
+# options suited for development
+option (XE_ENABLE_WERROR        "Marks all warnings as errors" ON)
+option (XE_ENABLE_DOCS          "Generate Doxygen documentation for the engine libraries" ON)
+option (XE_ENABLE_PCH           "Enable precompiled headers for internal libraries, to improve build times" OFF)
+option (XE_ENABLE_COVERAGE      "Instrument code for code coverage reporting during unit tests" OFF)
+
+# Which sanitizer to use
+set (XE_SANITIZER "" CACHE STRING "")
+
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
+    add_definitions (-D_DEBUG)
+endif ()
+
 set (target xe-interface)
 
 add_library(${target} INTERFACE)
