@@ -1,0 +1,25 @@
+line_length: 180
+indent: 4
+rules:
+  R1.one_target_per_folder: warn
+  R2a.library_name:         warn
+  R2b.executable_name:      warn
+  R2c.test_name:            warn
+  R3.target_location:       warn
+  R4.link_keywords:         warn
+  R5.include_directories:   warn
+  R6.known_commands:        warn
+  R7.catch2_test_pattern:   warn
+  L1.space_before_paren:    warn
+  L2.whitespace:            warn
+  L3.line_length:           warn
+  L4.quoting:               warn
+  L5.blank_lines:           warn
+  L6.no_commented_out_code: warn
+exclude:
+  - "src/ide/**"
+  - "src/pocs/**"
+  - "src/cmake-checker/**"
+  - "src/libcmake-checker-core/**"
+  - "src/cmake-checker-test/**"
+  - "build*/**"

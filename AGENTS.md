@@ -66,18 +66,24 @@ When assigned a task in this repository, follow this systematic checklist:
     ```bash
      mise run tidy:release --fix
      ```
-6. **Compile & Verify (Zero Warnings)**:
+6. **Run the CMake Style Checker**:
+    - When CMake files under `src/engine` are modified, run the style checker:
+      ```bash
+      mise run cmake-check:release
+      ```
+    - It only reports findings (Phase A runs in `warn` mode); see `docs/plans/CMAKE_STYLE_CHECKER_PLAN.md`.
+7. **Compile & Verify (Zero Warnings)**:
    - Compile using Mise:
      ```bash
      mise run build:release
      ```
    - Resolve any warnings immediately (warnings are treated as errors).
-7. **Run Automated Tests**:
+8. **Run Automated Tests**:
    - Execute the test suite to ensure regressions were not introduced:
      ```bash
      mise run test:release
      ```
-8. **Format Modified Code**:
+9. **Format Modified Code**:
    - Format currently modified source files before building:
      ```bash
      mise run format

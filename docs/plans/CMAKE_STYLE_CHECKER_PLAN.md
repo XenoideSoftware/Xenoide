@@ -36,7 +36,7 @@ Parsing is split across two layers:
 > | Parsing         | Subprocess `cmake` (trace + File API) + own lexer                  |
 > | Packaging       | Monorepo component: `src/cmake-checker`, `src/libcmake-checker-core`, `src/cmake-checker-test` |
 > | Tool location   | Built in-tree; binary at `src/cmake-checker/build-cmake-check/<cfg>/bin/cmake-checker` |
-> | Config format   | YAML → `.cmake-check.yaml` via `rapidyaml` (verified: ConanCenter `rapidyaml/0.7.2`, target `ryml::ryml`) |
+> | Config format   | YAML → `.cmake-check.yaml` via `rapidyaml` (verified: ConanCenter `rapidyaml/0.7.1`, target `ryml::ryml`) |
 > | JSON parsing    | `nlohmann_json/3.12.0` (trace + File API)                          |
 > | CLI parsing     | `cxxopts/3.3.1` (consistent with `src/engine`)                     |
 > | fmt             | `fmt/[>=11 <12]` (aligned with `src/engine/conanfile.py`)          |
@@ -171,7 +171,7 @@ class CmakeCheckerConan(ConanFile):
 
     def requirements(self):
         self.requires("nlohmann_json/3.12.0")
-        self.requires("rapidyaml/0.7.2")   # verified on ConanCenter; CMake target: ryml::ryml
+        self.requires("rapidyaml/0.7.1")   # verified on ConanCenter; CMake target: ryml::ryml
         self.requires("cxxopts/3.3.1")
         self.requires("fmt/[>=11 <12]")    # aligned with src/engine/conanfile.py
 
@@ -446,7 +446,7 @@ conan build . -o with_tests=True -s build_type=Release
 
 | # | Item                                                                                   | Disposition                                   |
 | - | -------------------------------------------------------------------------------------- | --------------------------------------------- |
-| 1 | `rapidyaml` exact Conan package name/version and CMake target.                         | **Resolved** — ConanCenter `rapidyaml/0.7.2`; target `ryml::ryml`. |
+| 1 | `rapidyaml` exact Conan package name/version and CMake target.                         | **Resolved** — ConanCenter `rapidyaml/0.7.1` (0.7.2 is not published); target `ryml::ryml`. |
 | 2 | Trace only covers commands that **execute** (skips `if(FALSE)`/disabled branches).      | Acceptable; lexical pass covers all listfiles.|
 | 3 | BOM/multi-config generator paths for the binary (MSVC `bin/Debug/`).                    | Handle in `setup-cmake-check.ps1` (flatten runtime output to `bin/`). |
 | 4 | Semantic layer requires an install+configured build tree.                               | `cmake-check` depends on `configure:cmake-check` (as `tidy` depends on configure). |

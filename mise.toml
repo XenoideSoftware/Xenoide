@@ -234,6 +234,55 @@ powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Debug -Pro
 powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configuration Release -Project {{ usage.project }}
 """
 
+[tasks."install:cmake-check:debug"]
+description = "Build the cmake-checker tool and install engine dependencies (Debug)"
+run = './mise/setup-cmake-check.sh Debug'
+run_windows = 'powershell -ExecutionPolicy Bypass -File mise/setup-cmake-check.ps1 -Configuration Debug'
+
+[tasks."install:cmake-check:release"]
+description = "Build the cmake-checker tool and install engine dependencies (Release)"
+run = './mise/setup-cmake-check.sh Release'
+run_windows = 'powershell -ExecutionPolicy Bypass -File mise/setup-cmake-check.ps1 -Configuration Release'
+
+[tasks."configure:cmake-check:debug"]
+description = "Configure src/engine with CMake trace and a File API query (Debug)"
+depends = [{ task = "install:cmake-check:debug" }]
+run = './mise/configure-cmake-check.sh Debug'
+run_windows = 'powershell -ExecutionPolicy Bypass -File mise/configure-cmake-check.ps1 -Configuration Debug'
+
+[tasks."configure:cmake-check:release"]
+description = "Configure src/engine with CMake trace and a File API query (Release)"
+depends = [{ task = "install:cmake-check:release" }]
+run = './mise/configure-cmake-check.sh Release'
+run_windows = 'powershell -ExecutionPolicy Bypass -File mise/configure-cmake-check.ps1 -Configuration Release'
+
+[tasks."cmake-check:debug"]
+description = "Run cmake-checker against the Debug trace tree"
+depends = [{ task = "configure:cmake-check:debug" }]
+run = './mise/cmake-check.sh Debug'
+run_windows = 'powershell -ExecutionPolicy Bypass -File mise/cmake-check.ps1 -Configuration Debug'
+
+[tasks."cmake-check:release"]
+description = "Run cmake-checker against the Release trace tree"
+depends = [{ task = "configure:cmake-check:release" }]
+run = './mise/cmake-check.sh Release'
+run_windows = 'powershell -ExecutionPolicy Bypass -File mise/cmake-check.ps1 -Configuration Release'
+
+[tasks."cmake-check"]
+description = "Run cmake-checker against both Debug and Release trace trees"
+depends = [
+  { task = "configure:cmake-check:debug" },
+  { task = "configure:cmake-check:release" },
+]
+run = """
+./mise/cmake-check.sh Debug
+./mise/cmake-check.sh Release
+"""
+run_windows = """
+powershell -ExecutionPolicy Bypass -File mise/cmake-check.ps1 -Configuration Debug
+powershell -ExecutionPolicy Bypass -File mise/cmake-check.ps1 -Configuration Release
+"""
+
 [tasks.clean]
 description = "Clean build directories of the selected subproject"
 usage = '''
