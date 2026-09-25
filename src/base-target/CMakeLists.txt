@@ -1,4 +1,3 @@
-
 set (target xe-interface)
 
 add_library(${target} INTERFACE)

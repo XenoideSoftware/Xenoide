@@ -40,8 +40,8 @@ jobs:
         run: |
           conan profile detect --force
           
-          conan export conan/packages/scintilla3
-          conan export conan/packages/winlamb
+          conan export conan/recipes/scintilla3
+          conan export conan/recipes/winlamb
 
           conan install . `
             -pr:h conan/profiles/windows `
