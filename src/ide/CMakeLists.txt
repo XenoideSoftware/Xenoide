@@ -1,4 +1,6 @@
 
+project (Xenoide)
+
 option(XE_ENABLE_IDE_WINLAMB_UNICODE "Builds an UNICODE version. ANSI if OFF" ON)
 option(XE_ENABLE_IDE_WINLAMB "Enable WinLamb UI" OFF)
 
