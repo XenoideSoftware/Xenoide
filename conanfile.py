@@ -43,7 +43,7 @@ class xenoideRecipe(ConanFile):
         "with_ide": True,
         "with_ide_winlamb": True,
         "with_ide_qt6": True,
-        "with_ide_wx3": True,
+        "with_ide_wx3": False,
         "with_ide_gtk4": False,
         "with_tests": True,
         "with_engine": True,
@@ -55,7 +55,7 @@ class xenoideRecipe(ConanFile):
         "with_poc_clang": True,
         "with_poc_lsp": True,
         "with_poc_protobuf": True,
-        "with_poc_wxwidgets": True,
+        "with_poc_wxwidgets": False,
         "with_poc_zeromq": True,
     }
 
@@ -66,6 +66,11 @@ class xenoideRecipe(ConanFile):
         cmake_layout(self)
 
     def config_options(self):
+        """
+        if self._require_gtk4() and self._require_wx3():
+            print("Can't build with gtk4 and wxWidgets3 at the same time")
+        """
+
         if self.options.with_ide_winlamb:
             if self.settings.os != "Windows":
                 print("with_ide_winlamb is enabled but target OS is not windows. Changing to False")
@@ -75,7 +80,13 @@ class xenoideRecipe(ConanFile):
         # Add here additional options that might build a custom CLI tool
         return self.options.get_safe("with_engine_tool_ktxc") or self.options.get_safe("with_engine_tool_gltfc")
 
-    def requirements(self):        
+    def _require_wx3(self):
+        return (self.options.get_safe("with_ide") and self.options.get_safe("with_ide_wx3")) or self.options.get_safe("with_poc_wxwidgets")
+
+    def _require_gtk4(self):
+        return self.options.get_safe("with_ide") and self.options.get_safe("with_ide_gtk4")
+
+    def requirements(self):
         # required by all
         if self.options.with_tests and (self.options.get_safe("with_ide") or self.options.get_safe("with_engine")):
             self.requires("catch2/3.14.0")
@@ -86,6 +97,17 @@ class xenoideRecipe(ConanFile):
             if self.options.get_safe("with_ide_winlamb"):
                 self.requires("winlamb/2026.06.24@xenoide/xenoide")
                 self.requires("scintilla3/3.7.6@xenoide/xenoide")
+
+            if self.options.get_safe("with_ide_qt6"):
+                self.requires("qt/6.8.3")
+                self.requires("scintilla/5.5.7")
+                self.requires("lexilla/5.4.6")
+
+        if self._require_gtk4():
+            self.requires("gtk/system", options={"version" : 4})
+
+        if self._require_wx3():
+            self.requires("wxwidgets/3.3.3")
 
         if self._require_cli():
             self.requires("cxxopts/3.3.1")
@@ -132,9 +154,6 @@ class xenoideRecipe(ConanFile):
         if self.options.get_safe("with_poc_protobuf"):
             self.requires("protobuf/3.9.1@xenoide/xenoide")
 
-        if self.options.get_safe("with_poc_wxwidgets"):
-            self.requires("wxwidgets/3.2.8")
-
         if self.options.get_safe("with_poc_zeromq"):
             self.requires("zeromq/4.3.5@xenoide/xenoide")
 
@@ -157,6 +176,11 @@ class xenoideRecipe(ConanFile):
 
         return backends
 
+    def configure(self):
+        if self.options.get_safe("with_ide_wx3"):
+            self.options["wxwidgets"].stc = True
+            self.options["wxwidgets"].gtk = "3"
+
     def generate(self):
         deps = CMakeDeps(self)
         deps.generate()
@@ -168,14 +192,20 @@ class xenoideRecipe(ConanFile):
         tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
 
         # IDE
-        tc.variables["XE_ENABLE_IDE"] = "ON" if self.options.with_ide else "OFF"
-        tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.get_safe("with_ide_winlamb") else "OFF"
+        tc.variables["XE_ENABLE_IDE"] = "ON" if self.options.get_safe("with_ide") else "OFF"
+        if self.options.get_safe("with_ide"):
+            tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.get_safe("with_ide_winlamb") else "OFF"
+            tc.variables["XE_ENABLE_IDE_QT6"] = "ON" if self.options.get_safe("with_ide_qt6") else "OFF"
+            tc.variables["XE_ENABLE_IDE_WX3"] = "ON" if self.options.get_safe("with_ide_wx3") else "OFF"
+            tc.variables["XE_ENABLE_IDE_GTK4"] = "ON" if self.options.get_safe("with_ide_gtk4") else "OFF"
 
         # Engine
-        tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.with_engine else "OFF"
-        tc.variables["XE_ENABLE_ENGINE_TOOL_KTXC"] = "ON" if self.options.get_safe("with_engine_tool_ktxc") else "OFF"
-        tc.variables["XE_ENABLE_ENGINE_TOOL_GLTFC"] = "ON" if self.options.get_safe("with_engine_tool_gltfc") else "OFF"
-        tc.variables["XE_ENABLE_ENGINE_TOOL_GLTFV"] = "ON" if self.options.get_safe("with_engine_tool_gltfv") else "OFF"
+        tc.variables["XE_ENABLE_ENGINE"] = "ON" if self.options.get_safe("with_engine") else "OFF"
+
+        if self.options.get_safe("with_engine"):
+            tc.variables["XE_ENABLE_ENGINE_TOOL_KTXC"] = "ON" if self.options.get_safe("with_engine_tool_ktxc") else "OFF"
+            tc.variables["XE_ENABLE_ENGINE_TOOL_GLTFC"] = "ON" if self.options.get_safe("with_engine_tool_gltfc") else "OFF"
+            tc.variables["XE_ENABLE_ENGINE_TOOL_GLTFV"] = "ON" if self.options.get_safe("with_engine_tool_gltfv") else "OFF"
 
         # POCs
         tc.variables["XE_ENABLE_POC_CLANG"] = "ON" if self.options.get_safe("with_poc_clang") else "OFF"
