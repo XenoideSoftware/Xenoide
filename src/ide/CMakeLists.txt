@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 3.16)
 
-project (Xenoide)
+list(APPEND CMAKE_MODULE_PATH "../cmake")
+
+include(XEVersion)
+project (Xenoide VERSION ${XE_BUILD_VERSION})
+include(XETesting)
+include(XEBaseTarget)
 
 option(XE_ENABLE_IDE_WINLAMB_UNICODE "Builds an UNICODE version. ANSI if OFF" ON)
 option(XE_ENABLE_IDE_WINLAMB "Enable WinLamb UI" OFF)

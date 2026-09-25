@@ -7,8 +7,6 @@ project (XE VERSION ${XE_BUILD_VERSION})
 include(XETesting)
 include(XEBaseTarget)
 
-message(STATUS "Xenoide: Build version: ${XE_BUILD_VERSION} (${XE_BUILD_COMMIT})")
-
 option (XE_ENABLE_ENGINE_PLUGIN_PNG           "Include PNG image support via LodePNG" ON)
 option (XE_ENABLE_ENGINE_PLUGIN_GL            "Include OpenGL 3+ support" ON)
 option (XE_ENABLE_ENGINE_PLUGIN_GL_GLFW       "Include GLFW-based Window and Context creation support (requires 'XE_ENABLE_ENGINE_PLUGIN_GL')" ON)
