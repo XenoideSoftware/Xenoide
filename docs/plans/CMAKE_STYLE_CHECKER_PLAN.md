@@ -85,7 +85,7 @@ flowchart TB
         LX["Lexer<br/>(listfile tokens)"]
         RE["RuleEngine"]
         CFG["Config (rapidyaml)"]
-        REP["Report (text / json)"]
+        REP["Report (locatable text -> stdout)"]
     end
 
     IC --> BIN["src/cmake-checker/build-cmake-check/&lt;cfg&gt;/bin/cmake-checker"]
@@ -120,8 +120,8 @@ flowchart TB
    - File API `cmakeFiles` — authoritative list of every listfile CMake read,
      used to enumerate raw files for the lexical pass (L1–L6).
 4. The lexer parses each enumerated raw file; the rule engine evaluates all
-   enabled rules; the reporter prints findings (human-readable by default,
-   `--json` for machines).
+   enabled rules; the reporter prints findings to **stdout** as locatable text
+   (see "CLI reference" below).
 
 > [!NOTE]
 > A dedicated `build-cmake-check/<cfg>/` directory (analogous to `build-tidy/`)
@@ -208,13 +208,38 @@ Standard C++17 project header (see `src/engine/CMakeLists.txt`), with:
 | `src/libcmake-checker-core/src/parsers/`  | `nlohmann_json` readers for `trace.json` (json-v1) and File API `codemodel`/`cmakeFiles` replies. |
 | `src/libcmake-checker-core/src/rules/`    | Rule registry keyed by stable IDs; semantic + lexical rule implementations; severity handling. |
 | `src/libcmake-checker-core/src/config/`   | `rapidyaml` loader for `.cmake-check.yaml`; defaults; discovery by walking up from the target. |
-| `src/libcmake-checker-core/src/report/`   | Findings model; human-readable and `--json` renderers; exit-code policy.                     |
-| `src/cmake-checker/src/`                  | `cxxopts`-based CLI (`--project`, `--build-dir`, `--config`, `--rules`, `--report`, `--werror`); wires the core library together in `main.cpp`. |
+| `src/libcmake-checker-core/src/report/`   | Findings model; locatable text renderer (`<file>:<line>:<col>: ...`) printing to stdout; exit-code policy. |
+| `src/cmake-checker/src/`                  | `cxxopts`-based CLI (`--project`, `--project-build-dir`, `--config`, `--werror`); wires the core library together in `main.cpp`. |
 | `src/cmake-checker-test/src/`             | Catch2 v3 unit tests for `cmake-checker-core`.                                               |
 
 **Exit-code policy:** `0` if no `error`-level findings; `1` if any `error`-level
 finding; `2` on tool/usage failure. `warn` findings are printed but do not fail
 (unless `--werror`).
+
+#### CLI reference
+
+The CLI surface is deliberately minimal for v1:
+
+| Flag                     | Description                                                                                                                            |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `--project <path>`       | Path to a specific CMake project to check. The root `CMakeLists.txt` there must contain a `project()` declaration.                     |
+| `--project-build-dir <path>` | Path to the project's build tree (holds `trace.json` + File API replies). If omitted, auto-located from the project's `CMakePresets.json` / `CMakeUserPresets.json`. |
+| `--config <path>`        | Override `.cmake-check.yaml` discovery (walks up from the project).                                                                    |
+| `--werror`               | Promote `warn` findings to failures (exit code `1`).                                                                                   |
+| `--help`                 | Print usage and exit.                                                                                                                  |
+
+No `--report`/`--json` output-format flags and no `--rules` selection flag are
+implemented at this stage. Findings are always written to stdout in a single
+**locatable, parseable** text format:
+
+```
+<full-file-path>:<line>:<column>: <severity> <rule-id> <message>
+```
+
+`<full-file-path>` is absolute, and `<line>`/`<column>` are 1-based, so editors
+and CI can open each finding's exact location automatically (e.g. Vim's
+`errorformat` / VS Code's problem matchers). All findings for a file are grouped
+consecutively.
 
 ---
 
@@ -315,7 +340,9 @@ For `src/engine`: create the File API query, then configure with
 ##### Check — `cmake-check:{release,debug}` / `cmake-check`
 
 Invoke
-`src/cmake-checker/build-cmake-check/<cfg>/bin/cmake-checker --build-dir src/engine/build-cmake-check/<cfg>`.
+`src/cmake-checker/build-cmake-check/<cfg>/bin/cmake-checker --project src/engine`
+(the build dir is auto-located from the engine's presets, or can be pinned with
+`--project-build-dir src/engine/build-cmake-check/<cfg>`).
 
 ##### New files
 
