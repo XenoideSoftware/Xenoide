@@ -22,6 +22,9 @@ class xenoideRecipe(ConanFile):
     options = {
         "with_ide": [True, False],
         "with_ide_winlamb": [True, False],
+        "with_ide_qt6": [True, False],
+        "with_ide_wx3": [True, False],
+        "with_ide_gtk4": [True, False],
         "with_tests": [True, False],
         "with_engine": [True, False],
         "with_engine_renderer_gl": [True, False],
@@ -39,6 +42,9 @@ class xenoideRecipe(ConanFile):
     default_options = {
         "with_ide": True,
         "with_ide_winlamb": True,
+        "with_ide_qt6": True,
+        "with_ide_wx3": True,
+        "with_ide_gtk4": False,
         "with_tests": True,
         "with_engine": True,
         "with_engine_renderer_gl": True,

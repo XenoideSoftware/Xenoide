@@ -1,7 +1,7 @@
 
 find_package(gsl-lite CONFIG REQUIRED)
 
-set (target "xenoide-core")
+set (target "libxenoide-core")
 
 set (sources
     "src/xenoide/core/Predef.h"
