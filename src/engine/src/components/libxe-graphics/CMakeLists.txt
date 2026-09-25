@@ -71,7 +71,6 @@ endif()
 target_include_directories (${target} PUBLIC "src")
 target_link_libraries (${target}
 	PUBLIC xe::core
-	PUBLIC xe::imageloader
 	PUBLIC glaze::gl
 	PRIVATE xe::interface
 	PUBLIC fmt::fmt

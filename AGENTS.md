@@ -25,11 +25,11 @@ For development speed reasons, we will start with **Qt6**.
 - **Code Formatting**: clang-format.
 - **Static Analysis**: clang-tidy.
 
-
 ## Agent Instructions & Verification Checklist
 
 ### General instruction guidelines
-- Ignore any file or folder referenced in `.gitignore` file: Usually 
+- Ignore any file or folder referenced in `.gitignore` file.
+- When running in PLAN mode, always store / update a local copy of that PLAN in Markdown format, at the @docs/plans folder.
 
 ### Specific language changes
 - **C/C++**: Refer to @docs/CPP.md

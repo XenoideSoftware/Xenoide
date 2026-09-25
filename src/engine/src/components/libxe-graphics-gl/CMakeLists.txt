@@ -44,7 +44,6 @@ target_include_directories (${target} PUBLIC "src")
 target_link_libraries (${target}
 	PUBLIC xe::core
 	PUBLIC xe::graphics
-	PUBLIC xe::imageloader
 	PUBLIC glaze::gl
 	PRIVATE xe::interface
 	PUBLIC fmt::fmt
@@ -53,9 +52,3 @@ target_link_libraries (${target}
 	PUBLIC Microsoft.GSL::GSL
 	PUBLIC tl::expected
 )
-
-if (XE_ENABLE_TESTING)
-    set(CMAKE_FOLDER "Engine/Tests")
-    add_subdirectory("unit-test")
-    set(CMAKE_FOLDER "Engine")
-endif()

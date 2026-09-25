@@ -3,8 +3,8 @@ find_package(lodepng CONFIG REQUIRED)
 
 set (target "xe-graphics-png")
 set (sources 
-    "src/xe/graphics/png/ImageLoaderPNG.h"
-    "src/xe/graphics/png/ImageLoaderPNG.cpp"
+    "src/xe/graphics/ImageLoaderPNG.h"
+    "src/xe/graphics/ImageLoaderPNG.cpp"
 )
 
 add_library(${target} ${sources})

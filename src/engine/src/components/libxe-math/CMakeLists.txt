@@ -44,9 +44,3 @@ endif()
 
 target_include_directories(${target} PUBLIC "src")
 target_link_libraries(${target} PRIVATE xe::interface)
-
-if (XE_ENABLE_TESTING)
-    set(CMAKE_FOLDER "Engine/Tests")
-    add_subdirectory("test")
-    set(CMAKE_FOLDER "Engine")
-endif()

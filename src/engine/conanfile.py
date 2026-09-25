@@ -80,8 +80,10 @@ class xeRecipe(ConanFile):
             self.requires("imgui/1.92.2b")
             self.requires("sdl/2.32.10")
 
+        self.requires("lodepng/cci.20230410")
+        
         """
-        # self.requires("lodepng/cci.20230410")
+        # 
         # self.requires("nlohmann_json/3.12.0")
         """
 
