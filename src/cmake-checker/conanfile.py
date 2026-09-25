@@ -33,5 +33,4 @@ class CmakeCheckerConan(ConanFile):
         tc = CMakeToolchain(self)
         tc.variables["XE_BUILD_VERSION"] = self.version
         tc.variables["XE_ENABLE_TESTING"] = "ON" if self.options.with_tests else "OFF"
-        tc.variables["XE_CMAKE_CHECKER_WITH_TESTS"] = "ON" if self.options.with_tests else "OFF"
         tc.generate()

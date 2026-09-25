@@ -16,16 +16,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 find_package(cxxopts CONFIG REQUIRED)
 
-add_subdirectory("../libcmake-checker-core" libcmake-checker-core)
-
-set (target cmake-checker)
-set (sources
-    "src/main.cpp"
-)
-
-add_executable(${target} ${sources})
-target_link_libraries(${target} PRIVATE cmake-checker-core xe::interface cxxopts::cxxopts)
-
-if (XE_CMAKE_CHECKER_WITH_TESTS)
-    add_subdirectory("../cmake-checker-test" cmake-checker-test)
-endif()
+add_subdirectory("src")
