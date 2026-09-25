@@ -1,18 +1,25 @@
 param(
     [Parameter(Mandatory)]
     [ValidateSet('Debug', 'Release')]
-    [string]$Configuration
+    [string]$Configuration,
+
+    [string]$Project = "all"
 )
 
 $ErrorActionPreference = "Stop"
 
-$isUnix = $PSVersionTable.OS -match 'Linux' -or $PSVersionTable.OS -match 'Darwin'
-$isMSystem = $env:MSYSTEM
+. "$PSScriptRoot\lib\common.ps1"
 
 $preset = "conan-$($Configuration.ToLower())"
 
-if ($isMSystem -or $isUnix) {
-    cmake --preset $preset
-} else {
-    cmake --preset $preset
+foreach ($folder in @(Resolve-Projects $Project)) {
+    Write-Host ""
+    Write-Host "=== [$folder] Configuring CMake ($Configuration) ==="
+    Push-Location (Join-Path $RepoRoot $folder)
+    try {
+        cmake --preset $preset
+        if ($LASTEXITCODE -ne 0) { exit 1 }
+    } finally {
+        Pop-Location
+    }
 }
