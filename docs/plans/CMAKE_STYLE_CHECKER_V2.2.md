@@ -29,15 +29,17 @@ Before writing or modifying any implementation code, the developer/agent must ve
      ```
    - **Crucial Rule on Formatting Scope**: We do **not** run an unconstrained whole-repository format (`mise run format` with default `all`), as that would modify unrelated files across `src/engine` and `src/ide`. Formatting must always explicitly target only the active project directory (`./mise/format.sh src/cmake-checker` or `mise run format --project engine`).
 2. **Static Code Analysis Tooling (`clang-tidy`)**:
-   - Verify `clang-tidy` binary availability and compilation database generation:
+   - Verify `clang-tidy` binary availability and compilation database generation, scoped to the `cmake-checker` subproject:
      ```bash
-     mise run configure:tidy:release
-     mise run configure:tidy:debug
+     mise run configure:tidy:release --project cmake-checker
+     mise run configure:tidy:debug --project cmake-checker
      ```
    - Perform a pre-flight execution to verify `compile_commands.json` is generated correctly:
      ```bash
-     mise run tidy:release
+     mise run tidy:release --project cmake-checker
      ```
+   > [!IMPORTANT]
+   > **Mise subproject-scoping prerequisite.** The shared tasks in `mise.toml` restrict `--project` to `engine|ide|pocs|all`, and `resolve_projects()` in `mise/lib/common.sh` only maps those canonical names. The `cmake-checker` subproject is a self-contained Conan/CMake project living outside `src/engine` and `src/ide`, so every quality gate in this plan MUST be explicitly scoped to it. **Before implementation begins, add `cmake-checker` to the `--project` choices of the `tidy:*`, `coverage:*`, and `mutation:*` tasks in `mise.toml` and to `resolve_projects()` in `mise/lib/common.sh` (mapping `cmake-checker -> src/cmake-checker`).** Until that prerequisite is merged, invoke the underlying scripts directly with the explicit path, e.g. `./mise/tidy.sh Release "src/cmake-checker" --fix`.
 3. **Code Coverage Tooling (`llvm-cov` / `gcov`)**:
    - Verify compiler profile instrumentation and report extraction via Mise:
      ```bash
@@ -81,10 +83,10 @@ flowchart LR
   ```bash
   ./mise/format.sh src/cmake-checker
   ```
-- **Static Analysis**: Run `clang-tidy` with automated fixit application:
+- **Static Analysis**: Run `clang-tidy` with automated fixit application, scoped to the `cmake-checker` subproject (see the Mise subproject-scoping prerequisite above):
   ```bash
-  mise run tidy:release --fix
-  mise run tidy:debug
+  mise run tidy:release --fix --project cmake-checker
+  mise run tidy:debug --project cmake-checker
   ```
   All warnings are treated as errors (`-Werror`). Apply conservative manual C++17 fixes for any remaining findings.
 - **Unit Test Execution**: Run the sibling unit test suites:
@@ -95,24 +97,29 @@ flowchart LR
   src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-dsl-test
   src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-script-test
   src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-rule-engine-test
+  src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-test
   ```
 - **Loop Invariant**: Continue fixing format and tidy issues while re-running unit tests until **all unit tests pass with zero warnings, zero tidy diagnostics, and zero unformatted files**.
 
 #### Phase 2: Code Coverage Validation Gate (> 95% Threshold)
-- Once all unit tests pass, validate comprehensive line coverage across all new libraries:
+- Once all unit tests pass, validate comprehensive line coverage across all new libraries, scoped to the `cmake-checker` subproject:
   ```bash
-  mise run coverage:llvm-cov --check 95
+  mise run coverage:llvm-cov:release --check 95 --project cmake-checker
   ```
+  > [!NOTE]
+  > The coverage gate requires the new test CMake targets to honor `-DXE_ENABLE_COVERAGE=ON` (`coverage.sh` configures every selected subproject with this flag and then builds the Catch2 test targets). Confirm `src/cmake-checker`'s top-level `CMakeLists.txt` propagates the flag to all `libxe-cmake-checker-*-test` targets.
 - **Line coverage must strictly exceed 95%**. Any uncovered branches or edge cases must be addressed with dedicated property or unit tests before advancing.
 
 #### Phase 3: Mutation Testing Validation Gate (Mull Pass)
-- Once coverage is validated, run Mull mutation testing using the performance profile in Release mode:
+- Once coverage is validated, run Mull mutation testing using the performance profile in Release mode, scoped to the `cmake-checker` subproject:
   ```bash
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-core-test
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-dsl-test
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-script-test
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-rule-engine-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-core-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-dsl-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-script-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-rule-engine-test
   ```
+  > [!NOTE]
+  > `mutation.sh` creates an isolated Mull-instrumented build tree at `src/cmake-checker/build-mutation-mull/Release` (`conan install` + CMake configure with the `fpass-plugin`), so it needs no shared build tree. Test targets are auto-discovered via `catch_discover_tests()`; the CMake test-target templates in this plan already call `catch_discover_tests(${target})` and link `Catch2::Catch2WithMain`, satisfying discovery. If the gate is ever run before the Mise scoping prerequisite is merged, invoke `./mise/mutation.sh --project "src/cmake-checker" ...` directly.
 - Mutation tests must pass with all generated mutants killed. No surviving mutations in critical AST parsing, span slicing, graph traversal, or fix conflict resolution are permitted.
 
 #### Phase 4: End-to-End Tests Final Check Gate (`xe-cmake-checker-e2e-test`)
@@ -143,7 +150,7 @@ flowchart LR
 | **C++ Standards** | **Strict `docs/CPP.md` Compliance** | C++17, zero warnings (`-Werror`), explicit types (no `auto` for primitives), `std::string_view` for views, namespace `xe::cmake::*`, constructor DI for orchestrators. |
 | **Testing Strategy** | **Strict `docs/TESTING.md` Compliance** | Catch2 v3, property-based synthetic builders, Catch2 seed determinism (`Catch::rngSeed()`), reusable entity-prefixed assertions (`requireCstProperty`, `requireCstValidSpans`, `requireWorkspaceEditNonOverlapping`, `requireGraphAcyclic`), in-memory filesystem tests, shared `libxe-cmake-checker-testing` library. |
 | **End-to-End Test Target** | **`xe-cmake-checker-e2e-test`** | Dedicated test executable running wide in-memory full-stack integration tests for ChaiScript and DSL checking + fixits, evaluating synthetic multi-target CMake projects on `InMemoryFileSystem`. |
-| **Code Coverage Gate** | **Strict > 95% Threshold** | Line coverage must strictly exceed 95% enforced by `mise run coverage:llvm-cov --check 95`. |
+| **Code Coverage Gate** | **Strict > 95% Threshold** | Line coverage must strictly exceed 95% enforced by `mise run coverage:llvm-cov:release --check 95 --project cmake-checker`. |
 | **Mutation Testing Gate** | **Mull Mutation Testing Pass (`--config Release`)** | Mutation testing via Mull must pass (`mise run mutation:mull --kill --config Release`), executing with optimized Release dependencies and `-DNDEBUG` while compiling target code with `-O0 -g`. |
 | **Dependencies** | **Conan 2.x packages** | `chaiscript/6.1.0`, `rapidyaml/0.7.1`, `nlohmann_json/3.12.0`, `cxxopts/3.3.1`, `fmt/[>=11 <12]`, `catch2/3.14.0`. |
 | **Migration** | **Big-Bang Rewrite** | Replace v1 internal architecture; verify against frozen v1 golden diagnostics. Existing tree outside `src/cmake-checker` remains untouched. |
@@ -1704,25 +1711,41 @@ All verification steps adhere strictly to the zero-warning policy (`-Werror`), m
 
 ```bash
 # 0. Pre-Implementation Quality Tooling Verification
+# (All gates below MUST be scoped to the cmake-checker subproject. Prerequisite:
+#  add "cmake-checker" to the --project choices of the shared mise tasks and to
+#  resolve_projects() in mise/lib/common.sh; see the Mise subproject-scoping note.)
 ./mise/format.sh src/cmake-checker
-mise run configure:tidy:release
-mise run configure:tidy:debug
-mise run tidy:release
+mise run configure:tidy:release --project cmake-checker
+mise run configure:tidy:debug --project cmake-checker
+mise run tidy:release --project cmake-checker
 mise run coverage:llvm-cov:release --help
 mise run mutation:mull --help
 
+# 0b. Freeze the v1 Golden Diagnostics Baseline (REQUIRED before implementation)
+# The v2.2 big-bang rewrite replaces the v1 internal architecture and MUST be
+# verified against frozen v1 diagnostics (see the "Migration" locked decision).
+# Freeze the current v1 output against src/engine for both configurations:
+mkdir -p src/cmake-checker/golden
+mise run install:cmake-check:release    # builds the current v1 cmake-checker
+mise run configure:cmake-check:release
+./mise/cmake-check.sh Release > src/cmake-checker/golden/v1-release-diagnostics.txt
+mise run configure:cmake-check:debug
+./mise/cmake-check.sh Debug > src/cmake-checker/golden/v1-debug-diagnostics.txt
+# The rewritten v2.2 xe-cmake-checker must reproduce these diagnostics (modulo the
+# intended rule-ID/severity renames) before Capability 1 is accepted.
+
 # 1. Update Conan Dependencies & Build Toolsuite
+# NOTE: install:cmake-check:<cfg> already runs `conan install` + `cmake --build`;
+# there are NO separate build:cmake-check:* mise tasks (verified against mise.toml).
 mise run export-recipes
 mise run install:cmake-check:release
-mise run build:cmake-check:release
 mise run install:cmake-check:debug
-mise run build:cmake-check:debug
 
 # 2. Phase 1: Iterative Unit Testing & Quality Fix Loop
 # (Targeted project formatting, clang-tidy with fixes, run unit tests until all pass cleanly)
 ./mise/format.sh src/cmake-checker
-mise run tidy:release --fix
-mise run tidy:debug
+mise run tidy:release --fix --project cmake-checker
+mise run tidy:debug --project cmake-checker
 
 # Execute sibling library unit tests
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-core-test
@@ -1735,14 +1758,14 @@ src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-test
 
 # 3. Phase 2: Code Coverage Validation Gate (Strictly > 95% Threshold)
 # (Only executed once all unit tests pass with zero warnings/tidy errors)
-mise run coverage:llvm-cov --check 95
+mise run coverage:llvm-cov:release --check 95 --project cmake-checker
 
 # 4. Phase 3: Mutation Testing Validation Gate (Mull Focused Performance Profile in Release)
 # (Only executed once coverage is validated > 95%; uses Release configuration, target scoping, and timeout)
-mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-core-test
-mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-dsl-test
-mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-script-test
-mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-rule-engine-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-core-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-dsl-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-script-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --project cmake-checker --target libxe-cmake-checker-rule-engine-test
 
 # 5. Phase 4: End-to-End Tests Final Check Gate
 # (Final systemic check executed once mutation testing is validated)
@@ -1754,6 +1777,7 @@ src/cmake-checker/build-cmake-check/Debug/bin/xe-cmake-checker-e2e-test
 # Generates src/cmake-checker/rules/cmake_guidelines.chai
 
 # 7. Safe Engine Verification (src/engine - Check-Only, NO fixits applied)
+# Compare v2.2 output against the frozen v1 golden baseline (step 0b).
 mise run configure:cmake-check:release
 mise run cmake-check:release
 
@@ -1772,4 +1796,6 @@ mise run cmake-check:release
 | **Complex rules in DSL vs Script** | Keep YAML DSL focused on single-node declarative predicates. Multi-command aggregations and graph traversals are authored in `*.chai` script rules. |
 | **Overlapping fix mutations** | Sort text edits in reverse offset order; reject overlapping edits within the same pass and report remaining unapplied findings as requiring manual intervention. |
 | **Test flake & reproducibility** | Seed all synthetic property-based random generators with `Catch::rngSeed()`; test exclusively against `InMemoryFileSystem` to eliminate OS filesystem timing/locking issues. |
+| **Mise subproject-scoping gaps** | The shared `tidy:*`, `coverage:*`, `mutation:*` tasks only accept `engine\|ide\|pocs\|all` as `--project` choices. Add a `cmake-checker` choice to those tasks and to `resolve_projects()` in `mise/lib/common.sh` before execution; until then invoke the underlying scripts directly with the explicit path (e.g. `./mise/mutation.sh --project "src/cmake-checker" ...`). |
+| **Missing v1 golden diagnostics baseline** | Freeze current v1 diagnostics against `src/engine` for both Release and Debug into `src/cmake-checker/golden/` (step 0b) before the rewrite; gate v2.2 acceptance on reproducing the frozen output modulo the intended rule-ID/severity renames. |
 | **Refactoring complexity** | Keep refactoring primitives in C++ inside `libxe-cmake-checker-core` with unit-tested AST transformations; ChaiScript is strictly the orchestration layer. |
