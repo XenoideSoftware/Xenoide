@@ -16,18 +16,18 @@ An accompanying **Structurizr Architecture Model** is maintained alongside this 
 
 ## Quality Assurance Tooling Verification & Strict Quality Gates
 
-To guarantee enterprise-grade software robustness, eliminate regressions, and enforce repository standards (`docs/CPP.md`, `docs/TESTING.md`, `AGENTS.md`), the implementation workflow mandates **pre-implementation tooling verification** followed by **mandatory post-implementation quality gates**.
+To guarantee enterprise-grade software robustness, eliminate regressions, and enforce repository standards (`docs/CPP.md`, `docs/TESTING.md`, `AGENTS.md`), the implementation workflow mandates **pre-implementation tooling verification** followed by a strict **four-phase post-implementation quality sequence**.
 
 ### 1. Pre-Implementation Quality Tooling Verification
 
 Before writing or modifying any implementation code, the developer/agent must verify that dev tasks orchestration (`mise`) and underlying analysis, formatting, coverage, and mutation tools are operational:
 
-1. **Code Formatting Tooling (`clang-format`)**:
-   - Verify `clang-format` is installed and reachable via Mise:
+1. **Targeted Code Formatting Tooling (`clang-format`)**:
+   - Verify `clang-format` is installed and can target a specific subproject rather than formatting the whole codebase:
      ```bash
-     mise run format --project engine
+     ./mise/format.sh src/cmake-checker
      ```
-   - Validate that `.clang-format` formatting rules are cleanly processed without configuration syntax errors.
+   - **Crucial Rule on Formatting Scope**: We do **not** run an unconstrained whole-repository format (`mise run format` with default `all`), as that would modify unrelated files across `src/engine` and `src/ide`. Formatting must always explicitly target only the active project directory (`./mise/format.sh src/cmake-checker` or `mise run format --project engine`).
 2. **Static Code Analysis Tooling (`clang-tidy`)**:
    - Verify `clang-tidy` binary availability and compilation database generation:
      ```bash
@@ -45,43 +45,82 @@ Before writing or modifying any implementation code, the developer/agent must ve
      mise run coverage:gcov:release --help
      ```
    - Confirm threshold verification flag (`--check <threshold>`) is supported and functions correctly to halt execution if minimum line coverage is not met.
-4. **Mutation Testing Tooling (`Mull`)**:
+4. **Performance-Optimized Mutation Testing Tooling (`Mull`)**:
    - Verify Mull mutation testing runner integration via Mise:
      ```bash
      mise run mutation:mull --help
      ```
-   - Verify mutant generation (`--generate`), test execution (`--kill`), timeout handling (`--timeout <ms>`), and mutation score threshold gating (`--threshold <score>`).
+   - **Mutation Testing Performance Profile**: Mutation testing across a full codebase can lead to combinatorial runtime explosion. To maintain rapid execution while providing rigorous mutant killing, Mull is configured with a **focused performance profile**:
+     - **Target Scoping (`--target <test-target>`)**: Test targets are mutated individually (e.g. `--target libxe-cmake-checker-core-test`, `--target libxe-cmake-checker-dsl-test`), eliminating redundant mutation of unrelated libraries.
+     - **Execution Timeout per Mutant (`--timeout <ms>`)**: Constrain per-mutant execution to `500ms` (`--timeout 500`) to swiftly abort runaway loops without stalling the test runner.
+     - **Fast Debug Compilation (`--config Debug`)**: Build in Debug configuration with `-O0 -g` for optimal Mull bitcode instrumentation speed.
+     - **Curated Mutator Set**: Focus Mull mutations on high-value semantic transformations (arithmetic `cxx_add_to_sub`, relational comparisons `cxx_comparison`, and boolean logic `cxx_logical_invert`), excluding noisy/redundant mutator classes.
+     - **Third-Party Code Exclusion**: Third-party headers and packages (`Catch2`, `rapidyaml`, `chaiscript`, `fmt`, `nlohmann_json`) are strictly excluded from mutation instrumentation.
 
-### 2. Mandatory Post-Implementation Quality Gates
+---
 
-Once code and tests are authored, the following sequence of quality gates is **strictly mandatory**. Under no circumstances will implementation be marked complete or merged without satisfying every gate:
+### 2. Mandatory Post-Implementation Quality Sequence (The 4 Phases)
 
-1. **Code Formatting Gate**:
-   - Execute formatting across all newly created and modified files before building:
-     ```bash
-     mise run format
-     ```
-   - Ensure git reports zero unformatted C++ lines.
-2. **Static Analysis Gate (Zero Warnings / Zero Tidy Errors)**:
-   - Run clang-tidy with automated fixes:
-     ```bash
-     mise run tidy:release --fix
-     mise run tidy:debug
-     ```
-   - All warnings are treated as errors (`-Werror`). Zero warnings and zero tidy errors permitted.
-   - For any warnings or lints that clang-tidy cannot fix automatically, apply conservative manual fixes strictly adhering to `docs/CPP.md`.
-3. **Code Coverage Gate (Strict Minimum > 95% Line Coverage)**:
-   - Execute the test suite with coverage enforcement enabled:
-     ```bash
-     mise run coverage:llvm-cov --check 95
-     ```
-   - **Line coverage must strictly exceed 95%** across all newly authored libraries (`libxe-cmake-checker-core`, `libxe-cmake-checker-io`, `libxe-cmake-checker-analysis`, `libxe-cmake-checker-dsl`, `libxe-cmake-checker-script`, `libxe-cmake-checker-rule-engine`, `libxe-cmake-checker-testing`). Any uncovered branches or edge conditions must be covered with targeted property tests or unit tests.
-4. **Mutation Testing Gate (Mull Pass)**:
-   - Execute Mull mutation testing against all test suites:
-     ```bash
-     mise run mutation:mull --kill --threshold 85
-     ```
-   - The mutation test suite must pass. All generated mutants in AST parsing, graph traversal, predicate evaluation, and text splicing must be killed by the test suite, verifying test resistance against subtle logic errors.
+Once code is written, execution proceeds through a strict, linear gate pipeline. You must **not** skip ahead to coverage, mutation, or e2e testing until earlier gates are completely satisfied:
+
+```mermaid
+flowchart LR
+    P1["Phase 1: Unit Testing & Quality Loop<br/>(Targeted Format + Tidy + Unit Tests)"]
+    P2["Phase 2: Coverage Validation<br/>(Strictly > 95% Line Coverage)"]
+    P3["Phase 3: Mutation Testing<br/>(Mull Focused Profile Pass)"]
+    P4["Phase 4: End-to-End Tests Final Check<br/>(xe-cmake-checker-e2e-test)"]
+
+    P1 -->|All Unit Tests Pass,<br/>Zero Warnings/Tidy Errors| P2
+    P2 -->|Coverage > 95%| P3
+    P3 -->|Mutants Killed| P4
+    P4 -->|Zero Errors, Clean Re-Check| DONE["Ready for Review"]
+```
+
+#### Phase 1: Iterative Unit Testing & Quality Fix Loop
+- **Targeted Formatting**: Reformat only the modified project:
+  ```bash
+  ./mise/format.sh src/cmake-checker
+  ```
+- **Static Analysis**: Run `clang-tidy` with automated fixit application:
+  ```bash
+  mise run tidy:release --fix
+  mise run tidy:debug
+  ```
+  All warnings are treated as errors (`-Werror`). Apply conservative manual C++17 fixes for any remaining findings.
+- **Unit Test Execution**: Run the sibling unit test suites:
+  ```bash
+  src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-core-test
+  src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-io-test
+  src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-analysis-test
+  src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-dsl-test
+  src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-script-test
+  src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-rule-engine-test
+  ```
+- **Loop Invariant**: Continue fixing format and tidy issues while re-running unit tests until **all unit tests pass with zero warnings, zero tidy diagnostics, and zero unformatted files**.
+
+#### Phase 2: Code Coverage Validation Gate (> 95% Threshold)
+- Once all unit tests pass, validate comprehensive line coverage across all new libraries:
+  ```bash
+  mise run coverage:llvm-cov --check 95
+  ```
+- **Line coverage must strictly exceed 95%**. Any uncovered branches or edge cases must be addressed with dedicated property or unit tests before advancing.
+
+#### Phase 3: Mutation Testing Validation Gate (Mull Pass)
+- Once coverage is validated, run Mull mutation testing using the performance profile:
+  ```bash
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-core-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-dsl-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-script-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-rule-engine-test
+  ```
+- Mutation tests must pass with all generated mutants killed. No surviving mutations in critical AST parsing, span slicing, graph traversal, or fix conflict resolution are permitted.
+
+#### Phase 4: End-to-End Tests Final Check Gate (`xe-cmake-checker-e2e-test`)
+- Once mutation testing has passed, execute the comprehensive in-memory integration test target:
+  ```bash
+  src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-e2e-test
+  ```
+- Serves as the ultimate systemic verification of the entire programmatic stack (parsing, graph building, ChaiScript and DSL execution, surgical fixit application, reparsing with zero errors, and clean second pass).
 
 ---
 
@@ -755,7 +794,18 @@ In strict accordance with `docs/TESTING.md`:
      - `requireGraphAcyclic(directed_graph)`: Verifies dependency graph contains no circular references.
      - `requireFindingMatches(finding, expected_rule_id, expected_severity)`: Verifies diagnostic reporter output properties.
      - `requireFixApplicable(fix, cst)`: Verifies automated fixits cleanly apply to the target syntax tree.
-4. **Precondition & Postcondition Checks**: Every test checks preconditions on generated test data before invoking the SUT.
+4. **Precondition & Postcondition Invariant Enforcements**:
+   In strict compliance with `docs/TESTING.md`, tests assert explicit preconditions on generated test data before invoking the SUT, and postconditions on transformed data:
+   - **Precondition Invariants (Before Invoking SUT / Mutating)**:
+     - `requireCstValidSpans(cst)`: Pre-execution check verifying initial token and node spans are strictly monotonic and within buffer bounds.
+     - `requireGraphAcyclic(graph)`: Pre-execution check confirming synthetic dependency graph contains zero illegal cycles prior to analysis.
+     - `requireViolationPresent(findings, expected_rule_id)`: Anti-false-positive check verifying that the violation being tested is genuinely present in the initial fixture prior to applying fixes.
+     - `requireWorkspaceEditNonOverlapping(workspace_edit)`: Pre-mutation check verifying all generated `TextEdit` intervals are disjoint before splicing into the virtual filesystem.
+   - **Postcondition Invariants (After Invoking SUT / Mutating)**:
+     - `requireCstLosslessRoundTrip(cst, original_bytes)`: Confirms AST re-serialization preserves original text.
+     - `requireCstValidSpans(reparsed_cst)`: Post-mutation check confirming re-parsed CST retains monotonic, valid bounds without inversions.
+     - `requireWorkspaceEditSplicingValid(workspace_edit, source_text)`: Confirms edits spliced cleanly without corrupting node boundaries.
+     - `requireCleanSecondPass(recheck_findings, repaired_rule_ids)`: Confirms a subsequent check pass yields zero violations for all repaired rules.
 5. **Sibling Test Targets**:
    - `libxe-cmake-checker-core-test`: Lossless CST round-trips, span validity, mutation splicer reversibility.
    - `libxe-cmake-checker-io-test`: `InMemoryFileSystem` operations, trace and File-API parser correctness.
@@ -841,14 +891,24 @@ flowchart TD
 4. **Analysis & Finding Collection**:
    - `CheckRunner` evaluates rule criteria against CST nodes and graph edges.
    - Any violation produces a `Finding`. If the rule provides a remedy, a `Fix` containing atomic `TextEdit`s is attached.
-5. **Conflict Resolution & In-Memory Splicing**:
+5. **Precondition Invariant Enforcement (Before Applying Fixes)**:
+   Prior to mutating in-memory project files, the test harness verifies strict structural preconditions:
+   - **Precondition 1: Syntactic Validity & Spans**: The generated synthetic project listfiles must be successfully parsed into lossless CSTs with zero syntax errors, and all token spans must be valid and monotonic (`requireCstValidSpans(initial_cst)`).
+   - **Precondition 2: Target Graph DAG Invariant**: The initial dependency graph must be an acyclic multigraph without circular dependencies or unresolvable targets (`requireGraphAcyclic(graph)`).
+   - **Precondition 3: Violation Presence / Anti-False-Positive Invariant**: The test harness verifies that the targeted violation is affirmatively detected (`REQUIRE(!initial_findings.empty())`). This guarantees that fixes are only tested against genuinely non-compliant fixtures, eliminating false-positive test passes.
+   - **Precondition 4: Non-Overlapping Edit Intervals**: All edits in the proposed `WorkspaceEdit` must have disjoint spans without inverting coordinates (`requireWorkspaceEditNonOverlapping(workspace_edit)`).
+6. **Conflict Resolution & In-Memory Splicing**:
    - `FixConflictResolver` validates edit intervals, verifies non-overlapping spans, and sorts edits in descending reverse-offset order to preserve line/column coordinates.
    - `SyncWriter` splices the text replacements directly into `InMemoryFileSystem`.
-6. **Mandatory Post-Fix Invariants (Validation)**:
-   - **Invariant 1: Parsability by CMake Parser without Errors**:
-     The mutated listfiles in `InMemoryFileSystem` MUST be completely re-parsed by `ConcreteSyntaxTree` and `ProjectLoader` with **zero syntax errors**. All tokens, command blocks, and trivia must form a valid CST, and all `SourceSpan`s must be monotonic and within buffer boundaries (`requireCstValidSpans`).
-   - **Invariant 2: Clean Second Checking Pass**:
+7. **Postcondition Invariant Enforcement (Validation After Mutations)**:
+   - **Postcondition 1: Reparsing with Zero Errors**:
+     The mutated listfiles in `InMemoryFileSystem` MUST be completely re-parsed by `ConcreteSyntaxTree` and `ProjectLoader` with **zero syntax errors**. All tokens, command blocks, and trivia must form a valid CST, and all `SourceSpan`s must be monotonic and within buffer boundaries (`requireCstValidSpans(reparsed_cst)`).
+   - **Postcondition 2: Clean Second Checking Pass**:
      A subsequent full analysis pass (traversal, graph construction, rule execution) executed against the repaired in-memory project MUST pass **cleanly with zero diagnostic findings** for all repaired rules.
+   - **Postcondition 3: Multi-File Graph Consistency**:
+     The re-parsed graph must reflect all applied renames, aliases, and updated target links without dangling target nodes or orphan dependencies.
+   - **Postcondition 4: Trivia & Untouched Content Preservation**:
+     Byte-exact equality is asserted for all listfile spans outside the mutated regions, ensuring zero loss of comments, indentation, or surrounding statements.
 
 ---
 
@@ -990,9 +1050,15 @@ sequenceDiagram
      target_link_libraries(${target} PUBLIC lib_gamma)
      ```
    - `SyncWriter` splices the replacement into `InMemoryFileSystem`.
-3. **Verification of Invariants**:
-   - **Invariant 1**: Re-parsing listfile yields valid CST statement nodes with monotonic source spans.
-   - **Invariant 2**: Second checking pass reports 0 violations of `formatting.target-link-single-dependency`.
+3. **Precondition & Postcondition Invariant Enforcements**:
+   - **Precondition Invariants**:
+     - *Precondition 1 (Syntactic Validity)*: Initial listfile is parsable with strictly monotonic spans (`requireCstValidSpans(initial_cst)`).
+     - *Precondition 2 (Violation Presence)*: Initial check pass confirms violation presence (`REQUIRE(initial_findings.size() == 1)` with rule `formatting.target-link-single-dependency`).
+     - *Precondition 3 (Disjoint Edits)*: Generated fix edits contain zero overlapping spans (`requireWorkspaceEditNonOverlapping(workspace_edit)`).
+   - **Postcondition Invariants**:
+     - *Postcondition 1 (Parsability Without Errors)*: Re-parsing modified listfile yields valid CST nodes with monotonic spans (`requireCstValidSpans(reparsed_cst)`).
+     - *Postcondition 2 (Clean Second Pass)*: Second check pass reports 0 violations of `formatting.target-link-single-dependency`.
+     - *Postcondition 3 (Trivia Preservation)*: Comments and surrounding target declarations stay byte-identical.
 
 #### Scenario B: Unquoted Source Paths (`quote_argument`)
 1. **Initial Synthetic State**:
@@ -1004,9 +1070,15 @@ sequenceDiagram
    - `DslPredicateEvaluator` detects `arg.index > 0 && !arg.is_quoted` within `set(sources ...)`.
    - Instantiates `quote_argument` template, creating `TextEdit.replace` wrapping the span in `"..."`.
    - Spliced atomically into `InMemoryFileSystem`.
-3. **Verification of Invariants**:
-   - **Invariant 1**: Re-parsed CST verifies every source token has `quote_kind == QuoteKind::Quoted`.
-   - **Invariant 2**: Second checking pass yields 0 unquoted path findings.
+3. **Precondition & Postcondition Invariant Enforcements**:
+   - **Precondition Invariants**:
+     - *Precondition 1 (Syntactic Validity)*: Initial listfile parses into valid CST without lexer errors.
+     - *Precondition 2 (Violation Presence)*: Initial check confirms all unquoted arguments are flagged (`REQUIRE(initial_findings.size() == 2)` with rule `formatting.quote-source-paths`).
+     - *Precondition 3 (Disjoint Edits)*: Replacement edits for distinct argument spans are verified non-overlapping.
+   - **Postcondition Invariants**:
+     - *Postcondition 1 (Parsability Without Errors)*: Re-parsed CST verifies every source token has `quote_kind == QuoteKind::Quoted`.
+     - *Postcondition 2 (Clean Second Pass)*: Second checking pass yields 0 unquoted path findings.
+     - *Postcondition 3 (Trivia Preservation)*: Spaces, indentation, and variable identifiers outside quotes are completely preserved.
 
 #### Scenario C: Direct Target Declaration Variable Substitution
 1. **Initial Synthetic State**:
@@ -1018,9 +1090,14 @@ sequenceDiagram
    - Rule `target.declaration-uses-variable` matches first argument `!= '${target}'`.
    - Generates `TextEdit.replace(cmd.argument(0).span, "${target}")`.
    - Spliced into `InMemoryFileSystem`.
-3. **Verification of Invariants**:
-   - **Invariant 1**: Re-parsed CST shows argument 0 text is exactly `"${target}"`.
-   - **Invariant 2**: Clean second pass with 0 target declaration findings.
+3. **Precondition & Postcondition Invariant Enforcements**:
+   - **Precondition Invariants**:
+     - *Precondition 1 (Syntactic Validity)*: Listfile parses cleanly into valid CST before transformation.
+     - *Precondition 2 (Violation Presence)*: Initial check confirms violation `target.declaration-uses-variable` is flagged.
+     - *Precondition 3 (Disjoint Edits)*: Target name edit span matches argument 0 bounds.
+   - **Postcondition Invariants**:
+     - *Postcondition 1 (Parsability Without Errors)*: Re-parsed CST shows argument 0 text is exactly `"${target}"`.
+     - *Postcondition 2 (Clean Second Pass)*: Clean second pass with 0 target declaration findings.
 
 ---
 
@@ -1080,9 +1157,15 @@ sequenceDiagram
    - Script queries graph: `graph.incoming_edges("alpha_legacy_internal")` discovers `xe-app`.
      Adds edits to update link calls in `xe-app/CMakeLists.txt`.
    - `SyncWriter` applies multi-file `WorkspaceEdit` to `InMemoryFileSystem`.
-3. **Verification of Invariants**:
-   - **Invariant 1**: All modified files in `InMemoryFileSystem` re-parse without errors.
-   - **Invariant 2**: Re-running `check_file` and `check_project` confirms target name equals folder name project-wide, producing 0 diagnostics.
+3. **Precondition & Postcondition Invariant Enforcements**:
+   - **Precondition Invariants**:
+     - *Precondition 1 (Graph Acyclic)*: Initial dependency graph is a valid DAG linking `xe-app` to `alpha_legacy_internal` (`requireGraphAcyclic(initial_graph)`).
+     - *Precondition 2 (Violation Presence)*: Initial check flags target naming mismatch (`REQUIRE(initial_findings.size() == 1)` with rule `naming.target-matches-folder`).
+     - *Precondition 3 (Disjoint Multi-File Edits)*: Multi-file edits across both `libxe-alpha` and `xe-app` listfiles are verified non-overlapping (`requireWorkspaceEditNonOverlapping(workspace_edit)`).
+   - **Postcondition Invariants**:
+     - *Postcondition 1 (Parsability Without Errors)*: All modified files in `InMemoryFileSystem` re-parse without errors (`requireCstValidSpans(reparsed_cst)`).
+     - *Postcondition 2 (Clean Second Pass)*: Re-running `check_file` and `check_project` confirms target name equals folder name project-wide, producing 0 diagnostics.
+     - *Postcondition 3 (Graph Consistency)*: Re-indexed dependency graph shows `xe-app` now links to `libxe-alpha`, with zero dangling edges to obsolete `alpha_legacy_internal`.
 
 #### Scenario B: Static Library Specification (`library.alias-specification` & `include-directories-src`)
 1. **Initial Synthetic State**:
@@ -1102,9 +1185,15 @@ sequenceDiagram
      target_include_directories(${target} PUBLIC "src")
      ```
    - Spliced cleanly after `add_library` statement.
-3. **Verification of Invariants**:
-   - **Invariant 1**: Re-parsed CST contains new `add_library` (ALIAS) and `target_include_directories` nodes with monotonic spans.
-   - **Invariant 2**: Second checking pass reports 0 missing alias or include directory warnings.
+3. **Precondition & Postcondition Invariant Enforcements**:
+   - **Precondition Invariants**:
+     - *Precondition 1 (Syntactic Validity)*: Static library listfile parses into valid CST without syntax errors.
+     - *Precondition 2 (Violation Presence)*: Initial check pass flags missing alias and include directories (`REQUIRE(initial_findings.size() == 2)`).
+     - *Precondition 3 (Disjoint Insertion Spans)*: Insertion offsets are confirmed at valid command statement boundaries.
+   - **Postcondition Invariants**:
+     - *Postcondition 1 (Parsability Without Errors)*: Re-parsed CST contains new `add_library` (ALIAS) and `target_include_directories` nodes with monotonic spans.
+     - *Postcondition 2 (Clean Second Pass)*: Second checking pass reports 0 missing alias or include directory warnings.
+     - *Postcondition 3 (Trivia Preservation)*: Preceding target declaration, source assignments, and comments stay byte-identical.
 
 #### Scenario C: Catch2 Test Specification (`testing.catch2-structure`)
 1. **Initial Synthetic State**:
@@ -1113,9 +1202,14 @@ sequenceDiagram
    - ChaiScript rule flags missing Catch2 initialization and discovery.
    - Generates procedural text edits inserting `find_package(Catch2 REQUIRED)` at top and `include(Catch)` / `catch_discover_tests(${target})` at bottom.
    - Spliced into `InMemoryFileSystem`.
-3. **Verification of Invariants**:
-   - **Invariant 1**: Modified test listfile re-parses with zero errors.
-   - **Invariant 2**: Second checking pass confirms complete compliance with `docs/CMAKE.md`.
+3. **Precondition & Postcondition Invariant Enforcements**:
+   - **Precondition Invariants**:
+     - *Precondition 1 (Syntactic Validity)*: Test target listfile parses into valid CST prior to fix application.
+     - *Precondition 2 (Violation Presence)*: Check pass detects missing Catch2 declarations (`REQUIRE(initial_findings.size() == 2)` with rule `testing.catch2-specification`).
+     - *Precondition 3 (Disjoint Edits)*: Top and bottom insertions are confirmed non-overlapping.
+   - **Postcondition Invariants**:
+     - *Postcondition 1 (Parsability Without Errors)*: Modified test listfile re-parses with zero errors and valid monotonic spans.
+     - *Postcondition 2 (Clean Second Pass)*: Second checking pass confirms complete compliance with `docs/CMAKE.md`, producing 0 diagnostics.
 
 ---
 
@@ -1610,21 +1704,27 @@ All verification steps adhere strictly to the zero-warning policy (`-Werror`), m
 
 ```bash
 # 0. Pre-Implementation Quality Tooling Verification
-mise run format --project engine
+./mise/format.sh src/cmake-checker
 mise run configure:tidy:release
 mise run configure:tidy:debug
 mise run tidy:release
 mise run coverage:llvm-cov:release --help
 mise run mutation:mull --help
 
-# 1. Update Conan dependencies
+# 1. Update Conan Dependencies & Build Toolsuite
 mise run export-recipes
 mise run install:cmake-check:release
-
-# 2. Build the toolsuite, unit test suites, and e2e integration test target (Release)
 mise run build:cmake-check:release
+mise run install:cmake-check:debug
+mise run build:cmake-check:debug
 
-# 3. Run per-library unit tests (verifying entity-prefixed Catch2 assertions)
+# 2. Phase 1: Iterative Unit Testing & Quality Fix Loop
+# (Targeted project formatting, clang-tidy with fixes, run unit tests until all pass cleanly)
+./mise/format.sh src/cmake-checker
+mise run tidy:release --fix
+mise run tidy:debug
+
+# Execute sibling library unit tests
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-core-test
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-io-test
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-analysis-test
@@ -1633,38 +1733,31 @@ src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-script-test
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-rule-engine-test
 src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-test
 
-# 4. Run wide End-to-End In-Memory Integration Tests (DSL & ChaiScript checking + fixits)
-src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-e2e-test
-
-# 5. Verify Debug build and tests
-mise run install:cmake-check:debug
-mise run build:cmake-check:debug
-src/cmake-checker/build-cmake-check/Debug/bin/libxe-cmake-checker-core-test
-src/cmake-checker/build-cmake-check/Debug/bin/xe-cmake-checker-e2e-test
-
-# 6. Post-Implementation Quality Gates (MANDATORY)
-# Gate A: Format all modified files
-mise run format
-
-# Gate B: Static Analysis (zero warnings treated as errors)
-mise run tidy:release --fix
-mise run tidy:debug
-
-# Gate C: Enforce Code Coverage (Strictly > 95% threshold)
+# 3. Phase 2: Code Coverage Validation Gate (Strictly > 95% Threshold)
+# (Only executed once all unit tests pass with zero warnings/tidy errors)
 mise run coverage:llvm-cov --check 95
 
-# Gate D: Mutation Testing (Mull Pass - all mutants killed)
-mise run mutation:mull --kill --threshold 85
+# 4. Phase 3: Mutation Testing Validation Gate (Mull Focused Performance Profile)
+# (Only executed once coverage is validated > 95%; uses target scoping and timeout to maintain high performance)
+mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-core-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-dsl-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-script-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-rule-engine-test
 
-# 7. Materialize Output Artifacts from docs/CMAKE.md
+# 5. Phase 4: End-to-End Tests Final Check Gate
+# (Final systemic check executed once mutation testing is validated)
+src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-e2e-test
+src/cmake-checker/build-cmake-check/Debug/bin/xe-cmake-checker-e2e-test
+
+# 6. Materialize Output Artifacts from docs/CMAKE.md
 # Generates src/cmake-checker/rules/cmake_guidelines.yaml
 # Generates src/cmake-checker/rules/cmake_guidelines.chai
 
-# 8. Safe Engine Verification (Check-Only, NO fixits applied)
+# 7. Safe Engine Verification (src/engine - Check-Only, NO fixits applied)
 mise run configure:cmake-check:release
 mise run cmake-check:release
 
-# 9. Create Plan Artifact: docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md
+# 8. Create Plan Artifact: docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md
 # Prepares the isolated sandbox project (tests/fixtures/cmake-fixit-sandbox/)
 # and specifies full DSL & ChaiScript fixit verification before any live fixits.
 ```
