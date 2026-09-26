@@ -279,6 +279,10 @@ The table below establishes the **1:1 synchronization key** between the architec
    - `BuildTreeReader` (CMake trace `json-v1` and File API `codemodel-v2` readers using `nlohmann_json`).
    - `SyncWriter` (surgical write-back of `WorkspaceEdit` to disk or in-memory filesystem).
    - Uses constructor dependency injection for testability.
+   - **CMake parser/loader abstraction**: `ProjectLoader` and `BuildTreeReader` are expressed behind a narrow parser interface (`ICMakeParser` — see the note below) so the concrete parsing strategy can be swapped without touching downstream consumers.
+
+> [!NOTE]
+> **Future full-CMake-parser integration point.** The in-house lexer/CST in `libxe-cmake-checker-core` is intentionally minimal (lossless tokens + trivia + spans) and may not cover the entire CMake language surface (e.g. generator expressions, `foreach`/`while` control flow, `function`/`macro` bodies, bracket-argument edge cases). To keep the door open for a future integration of the **official CMake parser** (vendored/adapted from upstream CMake source), `libxe-cmake-checker-io` defines an `ICMakeParser` abstraction that `ProjectLoader` and `BuildTreeReader` depend on. A future `OfficialCmakeParser` implementation can then produce the same CST / semantic-model outputs, while the rule engine, DSL, and ChaiScript layers remain parser-agnostic. This mirrors the `IFileSystem` / `NativeFileSystem` / `InMemoryFileSystem` seam already used for the filesystem.
 3. **`libxe-cmake-checker-analysis`**:
    - `SemanticModel`: maps CMake File-API / trace facts to files and targets.
    - `DirectedGraph`: generic directed graph storing targets, files, and dependencies with incoming and outgoing edges.
@@ -355,6 +359,7 @@ src/cmake-checker/src/
 ├── libxe-cmake-checker-io/                   # FileSystem, ProjectLoader, BuildTreeReader, SyncWriter
 │   ├── src/xe/cmake/io/
 │   │   ├── FileSystem.h/.cpp
+│   │   ├── ICMakeParser.h                      # Parser/loader abstraction (future official-CMake parser seam)
 │   │   ├── ProjectLoader.h/.cpp
 │   │   ├── BuildTreeReader.h/.cpp
 │   │   └── SyncWriter.h/.cpp
