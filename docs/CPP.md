@@ -23,3 +23,4 @@
   2. Subsystem internal headers.
   3. Third-party library headers (e.g., `<fmt/format.h>`, `<tl/expected.hpp>`).
   4. Standard library headers (e.g., `<vector>`, `<string>`, `<memory>`).
+- **Dependency Injection**: When a class is an orchestrator (and ultra-high-performance is not a hard requirement), which uses other classes to implement its functionality, evaluate abstracting those dependent classes, and inject them via constructor and/or setter methods, specially with those classes that manipulate external resources, like files or sockets. We want testable code.
