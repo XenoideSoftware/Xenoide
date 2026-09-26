@@ -50,10 +50,10 @@ Before writing or modifying any implementation code, the developer/agent must ve
      ```bash
      mise run mutation:mull --help
      ```
-   - **Mutation Testing Performance Profile**: Mutation testing across a full codebase can lead to combinatorial runtime explosion. To maintain rapid execution while providing rigorous mutant killing, Mull is configured with a **focused performance profile**:
+    - **Mutation Testing Performance Profile**: Mutation testing across a full codebase can lead to combinatorial runtime explosion. To maintain rapid execution while providing rigorous mutant killing, Mull is configured with a **focused performance profile**:
      - **Target Scoping (`--target <test-target>`)**: Test targets are mutated individually (e.g. `--target libxe-cmake-checker-core-test`, `--target libxe-cmake-checker-dsl-test`), eliminating redundant mutation of unrelated libraries.
      - **Execution Timeout per Mutant (`--timeout <ms>`)**: Constrain per-mutant execution to `500ms` (`--timeout 500`) to swiftly abort runaway loops without stalling the test runner.
-     - **Fast Debug Compilation (`--config Debug`)**: Build in Debug configuration with `-O0 -g` for optimal Mull bitcode instrumentation speed.
+     - **Optimized Execution with Controlled Instrumentation (`--config Release`)**: Run Mull in Release configuration (`--config Release`). As defined in `mise/mutation.sh`, Release builds automatically set `-O0 -g -DNDEBUG` for the target code, preserving accurate AST-level mutants and preventing inlining bloat while linking against fully optimized Release third-party packages (Catch2, fmt, rapidyaml, chaiscript) and eliminating runtime assertion overhead for maximum test execution speed across hundreds of mutant runs.
      - **Curated Mutator Set**: Focus Mull mutations on high-value semantic transformations (arithmetic `cxx_add_to_sub`, relational comparisons `cxx_comparison`, and boolean logic `cxx_logical_invert`), excluding noisy/redundant mutator classes.
      - **Third-Party Code Exclusion**: Third-party headers and packages (`Catch2`, `rapidyaml`, `chaiscript`, `fmt`, `nlohmann_json`) are strictly excluded from mutation instrumentation.
 
@@ -106,12 +106,12 @@ flowchart LR
 - **Line coverage must strictly exceed 95%**. Any uncovered branches or edge cases must be addressed with dedicated property or unit tests before advancing.
 
 #### Phase 3: Mutation Testing Validation Gate (Mull Pass)
-- Once coverage is validated, run Mull mutation testing using the performance profile:
+- Once coverage is validated, run Mull mutation testing using the performance profile in Release mode:
   ```bash
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-core-test
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-dsl-test
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-script-test
-  mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-rule-engine-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-core-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-dsl-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-script-test
+  mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-rule-engine-test
   ```
 - Mutation tests must pass with all generated mutants killed. No surviving mutations in critical AST parsing, span slicing, graph traversal, or fix conflict resolution are permitted.
 
@@ -144,7 +144,7 @@ flowchart LR
 | **Testing Strategy** | **Strict `docs/TESTING.md` Compliance** | Catch2 v3, property-based synthetic builders, Catch2 seed determinism (`Catch::rngSeed()`), reusable entity-prefixed assertions (`requireCstProperty`, `requireCstValidSpans`, `requireWorkspaceEditNonOverlapping`, `requireGraphAcyclic`), in-memory filesystem tests, shared `libxe-cmake-checker-testing` library. |
 | **End-to-End Test Target** | **`xe-cmake-checker-e2e-test`** | Dedicated test executable running wide in-memory full-stack integration tests for ChaiScript and DSL checking + fixits, evaluating synthetic multi-target CMake projects on `InMemoryFileSystem`. |
 | **Code Coverage Gate** | **Strict > 95% Threshold** | Line coverage must strictly exceed 95% enforced by `mise run coverage:llvm-cov --check 95`. |
-| **Mutation Testing Gate** | **Mull Mutation Testing Pass** | Mutation testing via Mull must pass (`mise run mutation:mull --kill`), killing all generated mutants. |
+| **Mutation Testing Gate** | **Mull Mutation Testing Pass (`--config Release`)** | Mutation testing via Mull must pass (`mise run mutation:mull --kill --config Release`), executing with optimized Release dependencies and `-DNDEBUG` while compiling target code with `-O0 -g`. |
 | **Dependencies** | **Conan 2.x packages** | `chaiscript/6.1.0`, `rapidyaml/0.7.1`, `nlohmann_json/3.12.0`, `cxxopts/3.3.1`, `fmt/[>=11 <12]`, `catch2/3.14.0`. |
 | **Migration** | **Big-Bang Rewrite** | Replace v1 internal architecture; verify against frozen v1 golden diagnostics. Existing tree outside `src/cmake-checker` remains untouched. |
 
@@ -1737,12 +1737,12 @@ src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-test
 # (Only executed once all unit tests pass with zero warnings/tidy errors)
 mise run coverage:llvm-cov --check 95
 
-# 4. Phase 3: Mutation Testing Validation Gate (Mull Focused Performance Profile)
-# (Only executed once coverage is validated > 95%; uses target scoping and timeout to maintain high performance)
-mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-core-test
-mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-dsl-test
-mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-script-test
-mise run mutation:mull --kill --threshold 85 --timeout 500 --target libxe-cmake-checker-rule-engine-test
+# 4. Phase 3: Mutation Testing Validation Gate (Mull Focused Performance Profile in Release)
+# (Only executed once coverage is validated > 95%; uses Release configuration, target scoping, and timeout)
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-core-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-dsl-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-script-test
+mise run mutation:mull --kill --threshold 85 --timeout 500 --config Release --target libxe-cmake-checker-rule-engine-test
 
 # 5. Phase 4: End-to-End Tests Final Check Gate
 # (Final systemic check executed once mutation testing is validated)
