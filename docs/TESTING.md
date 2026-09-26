@@ -30,7 +30,7 @@ We need to make tests resistant against changes to the input data:
 
 ### 4. Determinism, Independence & Zero Regressions
 
-- **Determinism**: Synthetic random data generator must use Catch'2 current execution seed, in order to have reproducible tests.
+- **Determinism**: Synthetic random data generator must use Catch2's current execution seed, in order to have reproducible tests.
 - **Zero Test Coupling:** Every test must run independently in any execution order and concurrently without shared mutable state.
 - **Zero Resource Leaks:** Any temporary file, buffer, or OS handle created during a test must be freed immediately upon test completion.
 - **Non-Regression:** When adding or refactoring tests, verify that all existing tests in the suite continue to pass.

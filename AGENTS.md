@@ -29,7 +29,7 @@ For development speed reasons, we will start with **Qt6**.
 
 ### General instruction guidelines
 - Ignore any file or folder referenced in `.gitignore` file.
-- When running in PLAN mode, always store / update a local copy of that PLAN in Markdown format, at the @docs/plans folder.
+- When running in PLAN mode, always store / update a local copy of that PLAN in Markdown format, at the `docs/plans/` folder.
 
 ### Specific language changes
 - **C/C++**: Refer to @docs/CPP.md
@@ -62,32 +62,34 @@ When assigned a task in this repository, follow this systematic checklist:
    - Adhere strictly to **C++17**.
    - Respect target grouping and module boundaries (e.g., do not introduce circular dependencies between `engine` and `ide`).
 5. **Run Static Code Analysis**:
-    - Run tidy to currently modified, with auto-fixes.
-    - For those changes that tidy can't fix, use a conservative approach to fix them.
-    ```bash
+   - Run tidy to currently modified, with auto-fixes.
+   - For those changes that tidy can't fix, use a conservative approach to fix them.
+     ```bash
      mise run tidy:release --fix
      ```
 6. **Run the CMake Style Checker**:
-    - When CMake files under `src/engine` are modified, run the style checker:
-      ```bash
-      mise run cmake-check:release
-      ```
-    - It only reports findings (Phase A runs in `warn` mode); see `docs/plans/CMAKE_STYLE_CHECKER_PLAN.md`.
-7. **Compile & Verify (Zero Warnings)**:
+   - When CMake files under `src/engine` are modified, run the style checker:
+     ```bash
+     mise run cmake-check:release
+     ```
+   - It only reports findings (Phase A runs in `warn` mode); see `docs/plans/CMAKE_STYLE_CHECKER_V2.2.md`.
+7. **Format Modified Code**:
+   - Format currently modified source files before building:
+     ```bash
+     mise run format
+     ```
+8. **Compile & Verify (Zero Warnings)**:
    - Compile using Mise:
      ```bash
      mise run build:release
      ```
    - Resolve any warnings immediately (warnings are treated as errors).
-8. **Run Automated Tests**:
+   - Also verify the debug configuration:
+     ```bash
+     mise run build:debug
+     ```
+9. **Run Automated Tests**:
    - Execute the test suite to ensure regressions were not introduced:
      ```bash
      mise run test:release
      ```
-9. **Format Modified Code**:
-   - Format currently modified source files before building:
-     ```bash
-     mise run format
-     ```
-   - Build in both debug and release (mise run build)
-   - Run the unit tests to discard any regressions (mise run test)

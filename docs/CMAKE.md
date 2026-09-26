@@ -34,10 +34,11 @@ xe-executable-name
 ```cmake
     find_package(Dependency REQUIRED)
 
-    set (target "library-name")
+    set (target "libprefix-name")
     set (sources "src/source.cpp" "src/source2.cpp" ...)
 
     add_library(${target} ${sources})
+    add_library(prefix::library-name ALIAS ${target})
 
     target_include_directories(${target} PUBLIC "src")
 
@@ -51,10 +52,10 @@ xe-executable-name
     find_package(Catch2 REQUIRED)
     find_package(Dependency REQUIRED)
 
-    set (target "library-name-test")
+    set (target "prefix-library-name-test")
     set (sources "src/source.cpp" "src/source2.cpp" ...)
 
-    add_library(${target} ${sources})
+    add_executable(${target} ${sources})
 
     target_include_directories(${target} PUBLIC "src")
 
@@ -69,5 +70,6 @@ xe-executable-name
     catch_discover_tests(${target})
 ```
 
-## TODOs
-- Formalize this guidelines in a kind of CMake checker / formatter
+## Style Checker
+CMake files under `src/engine` are validated by the in-tree `cmake-checker`; see `docs/plans/CMAKE_STYLE_CHECKER_V2.2.md` ->    WE ARE REFINING AND IMPLEMENTING THIS PLAN!
+
