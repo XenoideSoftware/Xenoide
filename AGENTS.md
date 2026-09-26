@@ -6,7 +6,7 @@
 
 1. **A Custom Engine (`src/engine/`)**.
 2. **A Native Integrated IDE (`src/ide/`)**.
-3. **Shared Build Options Infrastructure (`src/base-target/`)**.
+3. **Shared Build Options Infrastructure (`src/cmake`)**.
 
 Eventually, Xenoide will provide native UIs implemented, initially for 
 
@@ -35,6 +35,7 @@ For development speed reasons, we will start with **Qt6**.
 - **C/C++**: Refer to @docs/CPP.md
 - **CMake**: Refer to @docs/CMAKE.md
 - **Conan**: Refer to @docs/CONAN.md
+- **Catch2 Unit Tests**: Refer to @docs/TESTING.md
 
 ### Implementing new features 
 
