@@ -1,12 +1,26 @@
-# Implementation Plan: `cmake-checker` v2.2 — Graph-Based Analysis, Declarative DSL & Extensible Scripting
+# Implementation Plan: `xe-cmake-checker` v2.2 — Graph-Based Analysis, Declarative DSL & Extensible Scripting
 
 ## Goal Description
 
-Evolve `cmake-checker` (v1, see [CMAKE_STYLE_CHECKER_PLAN.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_PLAN.md)) from a **checker-only** tool with hardcoded rules into an **extensible, rule-driven, and scriptable** platform. The architecture is centered on an **in-memory Concrete Syntax Tree (CST) and Directed Semantic Graph** of the CMake project structure.
+Evolve the in-house CMake validation tooling (v1, see [CMAKE_STYLE_CHECKER_PLAN.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_PLAN.md)) from a hardcoded checker into an **extensible, rule-driven, and scriptable** platform for the Xenoide repository. The architecture is centered on an **in-memory Concrete Syntax Tree (CST) and Directed Semantic Graph** of the CMake project structure.
+
+All components, libraries, and executables are prefixed with `libxe-cmake-*` and `xe-cmake*` to make explicit that this is an **in-house custom tool** tailored for the Xenoide codebase, rather than an upstream or official CMake component.
 
 The platform is designed around two main capabilities:
-1. **Capability 1: Check & Local Fix (`cmake-checker`)** — The core scope of this v2.2 plan. Validates style conventions, target relationships, and syntax rules via declarative YAML rules (`cmake-checker-dsl`) and embedded [ChaiScript](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/src/cmake-checker/conanfile.py) scripts (`cmake-checker-script`). Produces diagnostics with **strictly optional** surgical fixits.
-2. **Capability 2: Semantic Refactoring (`cmake-refactor`)** — A planned extension (separate CLI / future plan). Provides safe, structural transformations across the project (e.g. target renaming, extracting functions from blocks, inlining functions) implemented as C++ primitives and orchestrated through ChaiScript. The graph model, analyzer, and mutation engine in v2.2 are explicitly architected to support this future capability.
+1. **Capability 1: Check & Local Fix (`xe-cmake-checker`)** — The core scope of this v2.2 plan. Validates style conventions, target relationships, and syntax rules via declarative YAML rules (`libxe-cmake-checker-dsl`) and embedded ChaiScript scripts (`libxe-cmake-checker-script`). Produces diagnostics with **strictly optional** surgical fixits.
+2. **Capability 2: Semantic Refactoring (`xe-cmake-refactor`)** — A planned extension (separate CLI / future plan). Provides safe, structural transformations across the project (e.g. target renaming, extracting functions from blocks, inlining functions) implemented as C++ primitives and orchestrated through ChaiScript. The graph model, analyzer, and mutation engine in v2.2 are explicitly architected to support this future capability.
+
+An accompanying **Structurizr Architecture Model** is maintained alongside this plan at [docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl). The component names in the model serve as keys between the architecture specification and the implementation.
+
+---
+
+## Guidelines Alignment Review
+
+This plan has been reviewed and brought into full compliance with the repository guidelines:
+- [AGENTS.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/AGENTS.md): Strict C++17, Zero-Warning tolerance (`-Werror`), Mise task orchestration, Catch2 v3, clang-format, and clang-tidy verification.
+- [docs/CMAKE.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/CMAKE.md): Single target per directory; folder name strictly matches target name; `target_link_libraries` formatted strictly **one line per dependency**; library alias targets (`xe::...`); Catch2 test discovery via `catch_discover_tests`.
+- [docs/CPP.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/CPP.md): Strict C++17 without compiler extensions; restricted `auto` usage (reserved exclusively for complex template deduction, not for primitive/standard types like `std::string` or `int`); no magic numbers or strings (constants declared `constexpr`/`const`); RAII and memory safety (`std::unique_ptr` for exclusive ownership); value semantics and `std::string_view` for read-only views; monadic/optional error handling (`std::optional`, `tl::expected`) in core; namespace `xe::cmake::*`; constructor dependency injection for testability.
+- [docs/TESTING.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/TESTING.md): Sibling test folders (`libxe-cmake-checker-*-test`); translation unit test file naming (`TranslationUnitTest.cpp`); high-performance in-memory testing (`InMemoryFileSystem`); property-based testing using custom synthetic data generators with Builder pattern (`generate(CstBuilder()...build())`); deterministic execution using Catch2 seed (`Catch::rngSeed()`); reusable property assertions (`requireEntityProperty`); dedicated shared test support library (`libxe-cmake-checker-testing`).
 
 ---
 
@@ -17,15 +31,19 @@ The platform is designed around two main capabilities:
 
 | Decision | Choice | Details |
 | :--- | :--- | :--- |
-| **Separation of Concerns** | **Dedicated DSL & Script Libraries** | `cmake-checker-dsl` owns all YAML DSL parsing and evaluation; `cmake-checker-script` owns ChaiScript embedding and script rule execution. |
+| **Component Naming Scheme** | **`xe-cmake*` & `libxe-cmake-*`** | All CLI tools (`xe-cmake-checker`, `xe-cmake-refactor`), libraries (`libxe-cmake-checker-*`), and tests (`*-test`) use the `xe-` / `libxe-` prefix to explicitly denote custom in-tree Xenoide tooling. |
+| **Architecture Specification** | **Structurizr Model (`CMAKE_STYLE_CHECKER_V2.2.dsl`)** | Authoritative C4 model at [CMAKE_STYLE_CHECKER_V2.2.dsl](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl). Component names in the diagram act as keys synchronized with CMake targets and folders. |
+| **Separation of Concerns** | **Dedicated DSL & Script Libraries** | `libxe-cmake-checker-dsl` owns all YAML DSL parsing and evaluation; `libxe-cmake-checker-script` owns ChaiScript embedding and script rule execution. |
 | **Low-Level C++ Primitives** | **Lean C++ Core, Computed in Scripts/DSL** | C++ exposes low-level, orthogonal primitives (CST nodes, quotes, string/regex ops, generic directed graph edges). High-level checks are computed within DSL / ChaiScript. |
-| **Scripting Engine** | **ChaiScript 6.1.0** | Available via ConanCenter (`chaiscript/6.1.0`, header-only, C++17 compatible). Isolated within `cmake-checker-script`. |
+| **Scripting Engine** | **ChaiScript 6.1.0** | Available via ConanCenter (`chaiscript/6.1.0`, header-only, C++17 compatible). Isolated strictly within `libxe-cmake-checker-script` behind an opaque Pimpl facade. |
 | **Fixit Philosophy** | **Strictly Optional Fixits** | Rules catch errors; providing an automated fix (`Fix`) is optional. Findings without fixes report as diagnostics requiring manual intervention. |
 | **Graph Model** | **Concrete Syntax Tree (CST) + Directed Graph** | Lossless trivia preservation (comments, whitespace, exact spans) with parent/sibling pointers and generic directed dependency edges (incoming/outgoing). |
 | **Write-back** | **Surgical Minimal-Diff** | Untouched bytes stay identical; only mutated spans are spliced. Supports multi-file transactional edits (`WorkspaceEdit`). |
-| **Two-Phase Tooling** | **Check (now) vs Refactor (future)** | `cmake-checker` handles style and local fixes. Refactoring primitives (rename, extract/inline function) reside in C++ building blocks, ready for future orchestration. |
+| **CMake Target Standards** | **Strict `docs/CMAKE.md` Compliance** | One target per folder, target name matches folder name (`libxe-cmake-checker-*`), one line per dependency in `target_link_libraries`, alias targets `xe::cmake-checker-*`. |
+| **C++ Standards** | **Strict `docs/CPP.md` Compliance** | C++17, zero warnings (`-Werror`), explicit types (no `auto` for primitives), `std::string_view` for views, namespace `xe::cmake::*`, constructor DI for orchestrators. |
+| **Testing Strategy** | **Strict `docs/TESTING.md` Compliance** | Catch2 v3, property-based synthetic builders, Catch2 seed determinism (`Catch::rngSeed()`), reusable assertions, in-memory filesystem tests, shared `libxe-cmake-checker-testing` library. |
 | **Dependencies** | **Conan 2.x packages** | `chaiscript/6.1.0`, `rapidyaml/0.7.1`, `nlohmann_json/3.12.0`, `cxxopts/3.3.1`, `fmt/[>=11 <12]`, `catch2/3.14.0`. |
-| **Migration** | **Big-Bang Rewrite** | Replace v1 internal architecture; verify against frozen v1 golden diagnostics. |
+| **Migration** | **Big-Bang Rewrite** | Replace v1 internal architecture; verify against frozen v1 golden diagnostics. Existing tree outside `src/cmake-checker` remains untouched. |
 
 ---
 
@@ -34,33 +52,34 @@ The platform is designed around two main capabilities:
 ```mermaid
 flowchart TB
     subgraph tools ["Tool Frontends"]
-        CK_CLI["cmake-checker (CLI)<br/>Check, Lint & Local Fixits"]
-        RF_CLI["cmake-refactor (Future CLI)<br/>Structural Transformations"]
+        CK_CLI["xe-cmake-checker (CLI)<br/>Check, Lint & Local Fixits"]
+        RF_CLI["xe-cmake-refactor (Future CLI)<br/>Structural Transformations"]
     end
 
-    subgraph orchestration ["libcmake-checker-rule-engine"]
+    subgraph orchestration ["libxe-cmake-checker-rule-engine"]
         RULE_REG["Unified Rule Registry"]
         RUNNER["Check & Fix Runner"]
+        RESOLVER["Fix Conflict Resolver"]
     end
 
-    subgraph dsl_lib ["libcmake-checker-dsl"]
+    subgraph dsl_lib ["libxe-cmake-checker-dsl"]
         YAML_LOADER["YAML Rule Loader (rapidyaml)"]
         DSL_EVAL["DSL Predicate Evaluator"]
         DSL_TEMPLATES["Declarative Fix Templates"]
     end
 
-    subgraph script_lib ["libcmake-checker-script"]
+    subgraph script_lib ["libxe-cmake-checker-script"]
         CHAI_VM["ChaiScript 6.1.0 Engine (Pimpl Facade)"]
         CHAI_BINDINGS["C++ Low-Level Primitive Bindings"]
         CHAI_LOADER["Script Rule Loader (*.chai)"]
     end
 
-    subgraph analysis ["libcmake-checker-analysis"]
+    subgraph analysis ["libxe-cmake-checker-analysis"]
         SEM["SemanticModel (File API + Trace)"]
         GRAPH["Directed Dependency Graph<br/>(Nodes, Incoming & Outgoing Edges)"]
     end
 
-    subgraph core ["libcmake-checker-core"]
+    subgraph core ["libxe-cmake-checker-core"]
         LX["Lexer (lossless tokens)"]
         CST["Concrete Syntax Tree (CST)<br/>(Listfile, Command, Block, Argument, Trivia)"]
         PRIMS["Low-Level Query & Regex Primitives"]
@@ -68,61 +87,101 @@ flowchart TB
         REFACTOR_PRIMS["Refactoring Building Blocks (C++)"]
     end
 
-    subgraph io ["libcmake-checker-io"]
-        FS["FileSystem Abstraction (Native & In-Memory)"]
+    subgraph io ["libxe-cmake-checker-io"]
+        FS["FileSystem Abstraction (Native & InMemory)"]
         LOADER["ProjectLoader"]
         READER["BuildTreeReader (Trace & File API)"]
         WRITER["SyncWriter (Minimal-Diff Applier)"]
+    end
+
+    subgraph testing ["libxe-cmake-checker-testing"]
+        GEN["Synthetic Data Generators (Builder Pattern)"]
+        SEED["Catch2 Seed Determinism"]
+        ASSERT["Reusable Property Assertions"]
     end
 
     CK_CLI --> orchestration
     RF_CLI -.-> orchestration
     orchestration --> dsl_lib
     orchestration --> script_lib
+    orchestration --> analysis
+    orchestration --> core
+    orchestration --> io
     dsl_lib --> core
     dsl_lib --> analysis
     script_lib --> core
     script_lib --> analysis
     analysis --> core
     io --> core
-    orchestration --> io
+
+    testing -.-> core
+    testing -.-> analysis
+    testing -.-> io
 ```
+
+### Structurizr Architecture Model Reference
+
+The complete architectural specification is formalized in [docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl). 
+
+The table below establishes the **1:1 synchronization key** between the architecture model, CMake targets, directories, and C++ namespaces:
+
+| Structurizr Component Key | CMake Target Name | Target Alias | Source Directory | C++ Namespace |
+| :--- | :--- | :--- | :--- | :--- |
+| `xe-cmake-checker` | `xe-cmake-checker` | N/A (Executable) | `src/cmake-checker/src/xe-cmake-checker` | `xe::cmake` |
+| `xe-cmake-refactor` | `xe-cmake-refactor` | N/A (Executable) | `src/cmake-checker/src/xe-cmake-refactor` | `xe::cmake` |
+| `libxe-cmake-checker-rule-engine` | `libxe-cmake-checker-rule-engine` | `xe::cmake-checker-rule-engine` | `src/cmake-checker/src/libxe-cmake-checker-rule-engine` | `xe::cmake::rules` |
+| `libxe-cmake-checker-dsl` | `libxe-cmake-checker-dsl` | `xe::cmake-checker-dsl` | `src/cmake-checker/src/libxe-cmake-checker-dsl` | `xe::cmake::dsl` |
+| `libxe-cmake-checker-script` | `libxe-cmake-checker-script` | `xe::cmake-checker-script` | `src/cmake-checker/src/libxe-cmake-checker-script` | `xe::cmake::script` |
+| `libxe-cmake-checker-analysis` | `libxe-cmake-checker-analysis` | `xe::cmake-checker-analysis` | `src/cmake-checker/src/libxe-cmake-checker-analysis` | `xe::cmake::analysis` |
+| `libxe-cmake-checker-io` | `libxe-cmake-checker-io` | `xe::cmake-checker-io` | `src/cmake-checker/src/libxe-cmake-checker-io` | `xe::cmake::io` |
+| `libxe-cmake-checker-core` | `libxe-cmake-checker-core` | `xe::cmake-checker-core` | `src/cmake-checker/src/libxe-cmake-checker-core` | `xe::cmake::core` |
+| `libxe-cmake-checker-testing` | `libxe-cmake-checker-testing` | `xe::cmake-checker-testing` | `src/cmake-checker/src/libxe-cmake-checker-testing` | `xe::cmake::testing` |
+
+---
 
 ### Component Hierarchy & Responsibilities
 
-1. **`libcmake-checker-core` (`cmake-checker-core`)**:
+1. **`libxe-cmake-checker-core`**:
    - CST data structures (`ListfileNode`, `CommandNode`, `ArgumentNode`, `BlockNode`, `TriviaNode`).
-   - Token stream, source spans (`SourceSpan`), trivia attachment.
-   - Low-level primitives: node navigation (parent, children, siblings), string/regex helpers.
+   - Token stream, source coordinates, byte-exact source spans (`SourceSpan`), trivia attachment.
+   - Low-level primitives: node navigation (parent, children, siblings), string/regex helpers taking `std::string_view`.
    - Mutation primitives: `TextEdit`, `WorkspaceEdit`, pure text splicer.
    - C++ refactoring building blocks (AST node replacement, subtree splicing).
    - Zero external library dependencies beyond standard C++17.
-2. **`libcmake-checker-io` (`cmake-checker-io`)**:
-   - `FileSystem` abstraction (`NativeFileSystem`, `InMemoryFileSystem`).
+2. **`libxe-cmake-checker-io`**:
+   - `FileSystem` abstraction (`IFileSystem` interface with `NativeFileSystem` and `InMemoryFileSystem`).
    - `ProjectLoader` (file discovery, listfile reading).
-   - `BuildTreeReader` (CMake trace `json-v1` and File API `codemodel-v2` readers).
-   - `SyncWriter` (surgical write-back of `WorkspaceEdit` to disk).
-3. **`libcmake-checker-analysis` (`cmake-checker-analysis`)**:
+   - `BuildTreeReader` (CMake trace `json-v1` and File API `codemodel-v2` readers using `nlohmann_json`).
+   - `SyncWriter` (surgical write-back of `WorkspaceEdit` to disk or in-memory filesystem).
+   - Uses constructor dependency injection for testability.
+3. **`libxe-cmake-checker-analysis`**:
    - `SemanticModel`: maps CMake File-API / trace facts to files and targets.
    - `DirectedGraph`: generic directed graph storing targets, files, and dependencies with incoming and outgoing edges.
-4. **`libcmake-checker-dsl` (`cmake-checker-dsl`)**:
+4. **`libxe-cmake-checker-dsl`**:
    - Contains all **YAML DSL code**.
    - YAML schema validation and parsing via `rapidyaml`.
    - Expression evaluator evaluating DSL predicates against the low-level C++ primitives.
    - Declarative fix template appliers.
-5. **`libcmake-checker-script` (`cmake-checker-script`)**:
+5. **`libxe-cmake-checker-script`**:
    - Contains all **ChaiScript scripting code**.
    - Embeds ChaiScript 6.1.0 behind an opaque `ScriptEngine` facade (isolating template instantiation and header overhead).
    - Binds low-level C++ primitives (CST nodes, Graph edges, `TextEdit`, `Finding`, `Fix`).
    - Discovers and loads custom `*.chai` rule files.
-6. **`libcmake-checker-rule-engine` (`cmake-checker-rule-engine`)**:
-   - Coordinates rules from both `cmake-checker-dsl` and `cmake-checker-script`.
+6. **`libxe-cmake-checker-rule-engine`**:
+   - Coordinates rules from both `libxe-cmake-checker-dsl` and `libxe-cmake-checker-script`.
    - Manages unified rule table, rule filtering, severity overrides (`error`, `warn`, `info`, `off`).
    - Executes rules across the CST/Graph and collects `Finding`s.
-   - Dispatches optional `Fix`es, performing overlap detection and conflict resolution.
-7. **`cmake-checker` (CLI application)**:
-   - Thin command-line interface using `cxxopts`.
+   - Dispatches optional `Fix`es, performing overlap detection and reverse-offset conflict resolution.
+7. **`libxe-cmake-checker-testing`**:
+   - Shared test infrastructure complying with `docs/TESTING.md`.
+   - Parametric synthetic data generators (Builder pattern) for CST nodes, dependency graphs, and mock CMake projects.
+   - Deterministic execution using Catch2's active execution seed (`Catch::rngSeed()`).
+   - Reusable Catch2 property assertions (`requireLosslessRoundTrip`, `requireValidSpans`, `requireNonOverlappingEdits`).
+8. **`xe-cmake-checker` (CLI application)**:
+   - Thin command-line interface using `cxxopts` and `fmt`.
    - Orchestrates loading, checking, `--diff` preview, `--fix` application, and diagnostics reporting.
+9. **`xe-cmake-refactor` (Future CLI application)**:
+   - Command-line interface for multi-file semantic refactoring recipes.
 
 ---
 
@@ -138,32 +197,216 @@ def requirements(self):
     self.requires("cxxopts/3.3.1")
     self.requires("fmt/[>=11 <12]")
     self.requires("chaiscript/6.1.0")
+
+def build_requirements(self):
+    if self.options.with_tests:
+        self.test_requires("catch2/3.14.0")
 ```
 
 #### Directory Layout
+
+The directory layout adheres strictly to `docs/CMAKE.md` and `docs/TESTING.md`:
+- Each target lives in its own directory matching the target name.
+- Each library has a sibling test directory named `[target-name]-test`.
+- Unit test files follow the `TranslationUnitTest.cpp` naming convention.
+
 ```
 src/cmake-checker/src/
-├── libcmake-checker-core/            # CST, Lexer, Parser, Spans, Mutations, WorkspaceEdit, Splicer
-├── libcmake-checker-core-test/
-├── libcmake-checker-io/              # FileSystem (native + in-mem), ProjectLoader, BuildTreeReader, SyncWriter
-├── libcmake-checker-io-test/
-├── libcmake-checker-analysis/        # SemanticModel, Generic Directed Graph (incoming/outgoing edges)
-├── libcmake-checker-analysis-test/
-├── libcmake-checker-dsl/             # YAML DSL loader (rapidyaml), DSL predicate evaluator
-├── libcmake-checker-dsl-test/
-├── libcmake-checker-script/          # ChaiScript 6.1.0 runtime, C++ primitive bindings, *.chai loader
-├── libcmake-checker-script-test/
-├── libcmake-checker-rule-engine/     # Unified rule registry & coordinator, fixit dispatcher
-├── libcmake-checker-rule-engine-test/
-├── cmake-checker/                    # Thin CLI application (check, diff, fix)
-└── cmake-checker-test/               # Golden end-to-end regression tests
+├── libxe-cmake-checker-core/                 # Core CST, Lexer, Parser, Spans, Mutations
+│   ├── src/xe/cmake/core/
+│   │   ├── ConcreteSyntaxTree.h/.cpp
+│   │   ├── Lexer.h/.cpp
+│   │   ├── QueryPrimitives.h/.cpp
+│   │   ├── MutationEngine.h/.cpp
+│   │   └── RefactoringPrimitives.h/.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-core-test/            # Sibling unit test suite
+│   ├── src/
+│   │   ├── ConcreteSyntaxTreeTest.cpp
+│   │   ├── LexerTest.cpp
+│   │   ├── QueryPrimitivesTest.cpp
+│   │   └── MutationEngineTest.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-io/                   # FileSystem, ProjectLoader, BuildTreeReader, SyncWriter
+│   ├── src/xe/cmake/io/
+│   │   ├── FileSystem.h/.cpp
+│   │   ├── ProjectLoader.h/.cpp
+│   │   ├── BuildTreeReader.h/.cpp
+│   │   └── SyncWriter.h/.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-io-test/              # Sibling unit test suite
+│   ├── src/
+│   │   ├── FileSystemTest.cpp
+│   │   ├── ProjectLoaderTest.cpp
+│   │   ├── BuildTreeReaderTest.cpp
+│   │   └── SyncWriterTest.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-analysis/             # SemanticModel, Generic Directed Graph
+│   ├── src/xe/cmake/analysis/
+│   │   ├── SemanticModel.h/.cpp
+│   │   └── DirectedDependencyGraph.h/.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-analysis-test/         # Sibling unit test suite
+│   ├── src/
+│   │   ├── SemanticModelTest.cpp
+│   │   └── DirectedDependencyGraphTest.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-dsl/                  # YAML DSL loader (rapidyaml), evaluator
+│   ├── src/xe/cmake/dsl/
+│   │   ├── YamlRuleLoader.h/.cpp
+│   │   ├── DslPredicateEvaluator.h/.cpp
+│   │   └── FixTemplateEngine.h/.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-dsl-test/             # Sibling unit test suite
+│   ├── src/
+│   │   ├── YamlRuleLoaderTest.cpp
+│   │   └── DslPredicateEvaluatorTest.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-script/               # ChaiScript runtime facade, primitive bindings
+│   ├── src/xe/cmake/script/
+│   │   ├── ScriptEngineFacade.h/.cpp
+│   │   ├── ScriptBindings.h/.cpp
+│   │   └── ScriptRuleLoader.h/.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-script-test/          # Sibling unit test suite
+│   ├── src/
+│   │   ├── ScriptEngineFacadeTest.cpp
+│   │   └── ScriptBindingsTest.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-rule-engine/          # Unified rule registry & coordinator, fix conflict resolver
+│   ├── src/xe/cmake/rules/
+│   │   ├── RuleRegistry.h/.cpp
+│   │   ├── CheckRunner.h/.cpp
+│   │   └── FixConflictResolver.h/.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-rule-engine-test/     # Sibling unit test suite
+│   ├── src/
+│   │   ├── RuleRegistryTest.cpp
+│   │   ├── CheckRunnerTest.cpp
+│   │   └── FixConflictResolverTest.cpp
+│   └── CMakeLists.txt
+├── libxe-cmake-checker-testing/              # Shared test generators & assertions
+│   ├── src/xe/cmake/testing/
+│   │   ├── CstSyntheticGenerator.h/.cpp
+│   │   ├── GraphSyntheticGenerator.h/.cpp
+│   │   └── PropertyAssertions.h/.cpp
+│   └── CMakeLists.txt
+├── xe-cmake-checker/                         # Thin CLI application (check, diff, fix)
+│   ├── src/
+│   │   ├── CliOptionsParser.h/.cpp
+│   │   ├── DiagnosticsReporter.h/.cpp
+│   │   ├── CheckerDriver.h/.cpp
+│   │   └── main.cpp
+│   └── CMakeLists.txt
+└── xe-cmake-checker-test/                    # Golden end-to-end regression tests
+    ├── src/
+    │   ├── GoldenRegressionTest.cpp
+    │   └── CliIntegrationTest.cpp
+    └── CMakeLists.txt
+```
+
+#### CMake Target Specification Conforming to `docs/CMAKE.md`
+
+All targets follow the specification:
+1. Target name strictly matches directory name (`set (target "...")`).
+2. Public headers located under `src/xe/cmake/...`.
+3. Alias targets defined (`xe::cmake-checker-*`).
+4. `target_link_libraries` formatted strictly **one line per dependency**.
+
+**Static Library Template (`libxe-cmake-checker-core/CMakeLists.txt`)**:
+```cmake
+set (target "libxe-cmake-checker-core")
+
+set (headers
+    "src/xe/cmake/core/SourceSpan.h"
+    "src/xe/cmake/core/Trivia.h"
+    "src/xe/cmake/core/ConcreteSyntaxTree.h"
+    "src/xe/cmake/core/Lexer.h"
+    "src/xe/cmake/core/QueryPrimitives.h"
+    "src/xe/cmake/core/MutationEngine.h"
+    "src/xe/cmake/core/RefactoringPrimitives.h"
+)
+
+set (sources
+    ${headers}
+    "src/xe/cmake/core/ConcreteSyntaxTree.cpp"
+    "src/xe/cmake/core/Lexer.cpp"
+    "src/xe/cmake/core/QueryPrimitives.cpp"
+    "src/xe/cmake/core/MutationEngine.cpp"
+    "src/xe/cmake/core/RefactoringPrimitives.cpp"
+)
+
+add_library(${target} ${sources})
+add_library(xe::cmake-checker-core ALIAS ${target})
+
+target_include_directories(${target} PUBLIC "src")
+
+# one line per dependency
+target_link_libraries(${target} PUBLIC xe::interface)
+```
+
+**Catch2 v3 Test Executable Template (`libxe-cmake-checker-core-test/CMakeLists.txt`)**:
+```cmake
+find_package(Catch2 REQUIRED)
+
+set (target "libxe-cmake-checker-core-test")
+
+set (sources
+    "src/ConcreteSyntaxTreeTest.cpp"
+    "src/LexerTest.cpp"
+    "src/QueryPrimitivesTest.cpp"
+    "src/MutationEngineTest.cpp"
+)
+
+add_executable(${target} ${sources})
+
+target_include_directories(${target} PUBLIC "src")
+
+# one line per dependency
+target_link_libraries(${target} PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-core)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-testing)
+
+# Enable autodiscovering
+include(Catch)
+catch_discover_tests(${target})
+```
+
+**Executable Target Specification (`xe-cmake-checker/CMakeLists.txt`)**:
+```cmake
+find_package(cxxopts REQUIRED)
+find_package(fmt REQUIRED)
+
+set (target "xe-cmake-checker")
+
+set (sources
+    "src/CliOptionsParser.cpp"
+    "src/DiagnosticsReporter.cpp"
+    "src/CheckerDriver.cpp"
+    "src/main.cpp"
+)
+
+add_executable(${target} ${sources})
+
+target_include_directories(${target} PUBLIC "src")
+
+# one line per dependency
+target_link_libraries(${target} PRIVATE xe::cmake-checker-rule-engine)
+target_link_libraries(${target} PRIVATE xe::cmake-checker-io)
+target_link_libraries(${target} PRIVATE xe::cmake-checker-core)
+target_link_libraries(${target} PRIVATE cxxopts::cxxopts)
+target_link_libraries(${target} PRIVATE fmt::fmt)
 ```
 
 ---
 
 ### Component 2: Low-Level C++ Primitives vs. Computed Checks
 
-Rather than hardcoding high-level, opinionated domain checks in C++, the C++ core and analysis layers provide lean, orthogonal **primitives**. The DSL and ChaiScript compose these primitives into high-level rules.
+Adhering strictly to `docs/CPP.md`:
+- All read-only string parameters accept `std::string_view`.
+- Types are explicit: no `auto` for primitive types (`int`, `size_t`, `std::string`, `std::string_view`).
+- No magic numbers or strings (constants defined `constexpr`).
+- Code resides in `namespace xe::cmake::core`.
 
 #### 1. Low-Level C++ Primitives Exposed
 
@@ -177,66 +420,68 @@ classDiagram
     }
 
     class ArgumentNode {
-        +string text()
+        +std::string_view text()
         +QuoteKind quote_kind()
         +SourceSpan span()
     }
 
     class CommandNode {
-        +string name()
-        +vector~ArgumentNode~ arguments()
+        +std::string_view name()
+        +const std::vector~ArgumentNode~& arguments()
         +size_t argument_count()
-        +ArgumentNode argument(size_t index)
+        +const ArgumentNode& argument(size_t index)
         +SourceSpan span()
-        +string file_path()
-        +Node* parent()
+        +std::string_view file_path()
+        +const SyntaxNode* parent()
     }
 
     class ListfileNode {
-        +string path()
-        +vector~StatementNode~ statements()
-        +vector~CommandNode~ commands()
+        +std::string_view path()
+        +const std::vector~StatementNode~& statements()
+        +std::vector~const CommandNode*~ commands()
     }
 
-    class DirectedGraph {
-        +vector~string~ node_ids()
-        +vector~GraphEdge~ outgoing_edges(string node_id)
-        +vector~GraphEdge~ incoming_edges(string node_id)
+    class DirectedDependencyGraph {
+        +std::vector~std::string~ node_ids()
+        +std::vector~GraphEdge~ outgoing_edges(std::string_view node_id)
+        +std::vector~GraphEdge~ incoming_edges(std::string_view node_id)
     }
 
     class GraphEdge {
-        +string source()
-        +string target()
-        +string attribute(string key)
+        +std::string_view source()
+        +std::string_view target()
+        +std::string_view attribute(std::string_view key)
     }
 
     class StringPrimitives {
-        +bool regex_match(string text, string pattern)
-        +bool regex_search(string text, string pattern)
-        +bool str_contains(string text, string substr)
-        +bool str_starts_with(string text, string prefix)
-        +bool str_ends_with(string text, string suffix)
-        +vector~string~ str_split(string text, string delim)
+        +bool regex_match(std::string_view text, std::string_view pattern)
+        +bool regex_search(std::string_view text, std::string_view pattern)
+        +bool str_contains(std::string_view text, std::string_view substr)
+        +bool str_starts_with(std::string_view text, std::string_view prefix)
+        +bool str_ends_with(std::string_view text, std::string_view suffix)
+        +std::vector~std::string~ str_split(std::string_view text, std::string_view delim)
     }
 
     class MutationPrimitives {
-        +TextEdit replace(SourceSpan span, string new_text)
-        +TextEdit insert_before(size_t offset, string text)
-        +TextEdit insert_after(size_t offset, string text)
+        +TextEdit replace(SourceSpan span, std::string_view new_text)
+        +TextEdit insert_before(size_t offset, std::string_view text)
+        +TextEdit insert_after(size_t offset, std::string_view text)
         +TextEdit remove(SourceSpan span)
     }
 ```
 
 #### 2. How the 6 Required Checks are Computed in DSL & ChaiScript
 
+The checks are updated to validate the project conventions codified in `docs/CMAKE.md`:
+
 | # | Required Check | Low-Level C++ Primitives Used | How Computed in DSL / ChaiScript |
 | :--- | :--- | :--- | :--- |
-| **1** | **Identifier format check** | `cmd.name()`, `arg.text()`, `regex_match(text, pattern)` | Script/DSL runs regex or prefix/suffix checks on the identifier string. |
-| **2** | **One or more targets in CMakeLists.txt** | `file.commands()`, `cmd.name()`, list `size()` | Filter commands where `name in ["add_library", "add_executable", "add_custom_target"]`, then evaluate count (`count > 1` or `count == 0`). |
-| **3** | **Target declared via raw strings vs. variables** | `cmd.arguments()`, `arg.text()`, `str_contains(text, "${")` | Inspect target declaration command: check whether target name argument or source arguments contain variable markers (`"${"`). |
-| **4** | **Library dependency counts (`target_link_libraries`)** | `cmd.arguments()`, `arg.text()`, `file.commands()` | **Single statement**: iterate `cmd.arguments()` (skipping target at index 0 and scope keywords `PUBLIC`/`PRIVATE`/`INTERFACE`), counting arguments.<br/>**Across statements**: filter all `target_link_libraries` commands in the file/project matching the target, summing dependency counts. |
+| **1** | **Identifier format check** | `cmd.name()`, `arg.text()`, `regex_match(text, pattern)` | Script/DSL verifies target/variable names adhere to project naming rules (`libxe-*`, `xe-*`, snake_case/kebab-case). |
+| **2** | **Single target per folder (`docs/CMAKE.md`)** | `file.commands()`, `cmd.name()`, list `size()` | Filter commands where `name in ["add_library", "add_executable"]`. Report warning if `count > 1` or error if target declaration is absent. |
+| **3** | **Target declared via variable matching folder (`docs/CMAKE.md`)** | `file.commands()`, `cmd.name()`, `arg.text()` | Verify `set (target "...")` defines target name equal to folder name, and `add_library(${target} ...)` / `add_executable(${target} ...)` uses `${target}`. |
+| **4** | **One dependency per line in `target_link_libraries` (`docs/CMAKE.md`)** | `cmd.arguments()`, `arg.span()`, `file.commands()` | Verify each `target_link_libraries` statement links exactly one dependency argument (excluding the target and scope keyword). Multitarget link calls produce diagnostics with optional split fixits. |
 | **5** | **List all targets referencing a given target** | `graph.incoming_edges(target_name)`, `edge.source()`, `edge.attribute("kind")` | Query incoming edges in the directed graph where edge kind is `"target_link"`. Each `edge.source()` is a consumer/referencing target. |
-| **6** | **Names / files specified as raw strings or quoted** | `arg.quote_kind()`, `QuoteKind::Raw`, `QuoteKind::Quoted` | Check `arg.quote_kind() == QuoteKind.Quoted` (or `QuoteKind.Raw`) for specific argument indices (e.g. source files in `add_library` or `set`). |
+| **6** | **Names / files specified as raw strings or quoted** | `arg.quote_kind()`, `QuoteKind::Raw`, `QuoteKind::Quoted` | Check `arg.quote_kind() == QuoteKind.Quoted` (or `QuoteKind.Raw`) for specific argument indices (e.g. source files in `set (sources ...)` must be quoted). |
 
 ---
 
@@ -245,50 +490,59 @@ classDiagram
 Every rule catches a violation and generates a `Finding`. Attaching an automated fix (`Fix`) is **strictly optional**:
 
 ```cpp
-// libcmake-checker-core
+namespace xe::cmake::core {
+
+enum class Severity : uint8_t {
+    Info,
+    Warn,
+    Error
+};
+
 struct Finding {
     std::string rule_id;
-    Severity severity; // Info, Warn, Error
+    Severity severity = Severity::Warn;
     std::string message;
     std::string file_path;
     SourceSpan span;
-    std::optional<Fix> fix; // Optional!
+    std::optional<Fix> fix; // Strictly optional!
 };
 
 struct Fix {
     std::string description;
     std::vector<TextEdit> edits;
 };
+
+} // namespace xe::cmake::core
 ```
 
 #### How the DSL and Script Layers Handle Optional Fixits
 
-1. **In `cmake-checker-dsl` (YAML)**:
+1. **In `libxe-cmake-checker-dsl` (YAML)**:
    - **Check-Only Rule**: Omit the `fix:` block entirely. The rule produces diagnostics without a fixit.
    - **Check with Fixit**: Include the `fix:` block referencing a fix template.
-   - **Conditional Fixit**: Fix template specifies applicability conditions (e.g., only fixable if the argument is a raw string, not a complex macro expansion). If inapplicable, `fix` remains `nullopt`.
+   - **Conditional Fixit**: Fix template specifies applicability conditions. If inapplicable, `fix` remains empty.
 
    ```yaml
    rules:
-     # 1. Check-Only: Multiple targets declared in single file (cannot be safely auto-split)
-     - id: structure.one-target-per-file
-       severity: warn
+     # 1. Check-Only: Single target per folder convention (cannot be auto-split safely)
+     - id: structure.single-target-per-folder
+       severity: error
        match: { node: file }
        when: "count(file.commands, c -> c.name in ['add_library', 'add_executable']) > 1"
-       message: "CMakeLists.txt declares more than one target; split into separate folders"
-       # 'fix:' is omitted -> Diagnostic only
+       message: "A single CMake target should be stored in a given folder (docs/CMAKE.md)"
+       # 'fix:' omitted -> Diagnostic only
 
-     # 2. Check with Fixit: Space before parenthesis
-     - id: style.space-before-paren
+     # 2. Check with Fixit: One line per dependency in target_link_libraries
+     - id: formatting.target-link-single-dependency
        severity: warn
        match: { node: command }
-       when: "str_contains(cmd.trivia_before_paren, ' ')"
-       message: "Unexpected space before opening parenthesis"
+       when: "cmd.name == 'target_link_libraries' && count_dependencies(cmd) > 1"
+       message: "target_link_libraries should have one line per dependency (docs/CMAKE.md)"
        fix:
-         template: remove_space_before_paren
+         template: split_target_link_libraries_per_line
    ```
 
-2. **In `cmake-checker-script` (ChaiScript)**:
+2. **In `libxe-cmake-checker-script` (ChaiScript)**:
    - To report a **diagnostic only**:
      ```chai
      ctx.report(Finding(
@@ -305,115 +559,129 @@ struct Fix {
      fix.add_edit(TextEdit.replace(arg.span(), "\"" + arg.text() + "\""));
 
      ctx.report(Finding(
-         "custom.quote-sources",
+         "formatting.quote-source-path",
          Severity.Warn,
-         "Source file should be quoted",
+         "Source file should be quoted in set(sources ...)",
          arg.span(),
          fix // Fix attached!
      ));
      ```
 
-3. **In the CLI Runner (`cmake-checker`)**:
+3. **In the CLI Runner (`xe-cmake-checker`)**:
    - In `--check` mode: All findings are formatted and reported.
+   - In `--diff` mode: Computes and displays unified diff of all fixable findings without writing to disk.
    - In `--fix` mode:
-     - Findings with an attached `Fix` are checked for non-overlapping spans and applied via `WorkspaceEdit`.
+     - Findings with an attached `Fix` are checked for non-overlapping spans and applied atomically via `WorkspaceEdit`.
      - Findings without an attached `Fix` are displayed with `[manual intervention required]`.
      - Non-zero exit code is returned if unfixable errors remain.
 
 ---
 
-### Component 4: Future Refactoring Foundations (`cmake-checker` vs `cmake-refactor`)
+### Component 4: Future Refactoring Foundations (`xe-cmake-checker` vs `xe-cmake-refactor`)
 
 The system separates **Capability 1 (Check & Local Fix)** from **Capability 2 (Semantic Refactoring)**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                       Shared Core Engine                        │
+│                    Shared xe-cmake Core Engine                  │
 │   (CST with Trivia, Directed Dependency Graph, WorkspaceEdit)   │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
                ┌────────────────┴────────────────┐
                ▼                                 ▼
      ┌───────────────────┐             ┌───────────────────┐
-     │   cmake-checker   │             │   cmake-refactor  │
+     │  xe-cmake-checker │             │  xe-cmake-refactor│
      │   (Capability 1:  │             │   (Capability 2:  │
      │  Style, Lint, Fix)│             │ Refactoring CLI)  │
      └───────────────────┘             └───────────────────┘
 ```
 
 #### Architectural Readiness in v2.2
-To prepare for future refactoring without having to redesign the core later:
 1. **Concrete Syntax Tree (CST)**: Full trivia (comments, blank lines, indentation) is preserved on every node. Nodes maintain parent and sibling pointers.
-2. **Directed Graph & Cross-References**: The generic directed graph tracks definitions and references (target declarations, link edges, consumers). Reverse edges (`incoming_edges`) allow instantaneous consumer lookups for renames.
-3. **Transactional WorkspaceEdit**: Multi-file edits are collected into an atomic transaction (`FilePath -> vector<TextEdit>`), sorted in reverse-offset order to maintain coordinate validity.
-4. **C++ Refactoring Primitives**: High-complexity AST surgeries are implemented in C++ in `libcmake-checker-core`:
+2. **Directed Graph & Cross-References**: Generic directed graph tracks target declarations, link edges, and consumers. Reverse edges (`incoming_edges`) allow instantaneous consumer lookups for renames.
+3. **Transactional WorkspaceEdit**: Multi-file edits are collected into an atomic transaction (`FilePath -> std::vector<TextEdit>`), sorted in reverse-offset order to maintain coordinate validity.
+4. **C++ Refactoring Primitives**: Implemented in C++ in `libxe-cmake-checker-core`:
    - `RenameSymbolRefactoring`: Renames target definitions, `target_link_libraries`, alias targets, and export sets across all project listfiles.
    - `ExtractFunctionRefactoring`: Takes a contiguous statement range, identifies variable inputs/outputs, generates a `function(...)` block, and replaces the call site.
    - `InlineFunctionRefactoring`: Inlines a function body into call sites with parameter substitution.
 5. **ChaiScript Orchestration (Future)**:
-   In the future `cmake-refactor` tool, ChaiScript scripts can orchestrate these C++ primitives dynamically:
+   In the future `xe-cmake-refactor` tool, ChaiScript recipes can orchestrate these C++ primitives dynamically:
    ```chai
-   // Future recipe: refactor_targets.chai
+   // Future recipe: rename_prefix.chai
    for (target in project.find_targets("^legacy_(.*)")) {
-       refactor.rename_target(target, "xe_" + target.match_group(1));
+       refactor.rename_target(target, "libxe_" + target.match_group(1));
    }
    refactor.commit();
    ```
 
 ---
 
-### Component 5: Tests & Verification Strategy
+### Component 5: Tests & Verification Strategy (Aligned with `docs/TESTING.md`)
 
-1. **`core-test`**:
-   - Lossless CST round-trip (unmutated parsing produces 100% byte-identical text).
-   - Low-level primitives: quote kinds, spans, string/regex helper accuracy.
-   - Splicer: verified against single-span and multi-span mutations.
-2. **`io-test`**:
-   - In-memory filesystem reads, writes, and directory walking.
-   - Trace (`json-v1`) and File API (`codemodel-v2`) parsing into semantic records.
-3. **`analysis-test`**:
-   - Directed graph construction: verifying nodes, outgoing edges, and incoming reverse edges.
-4. **`dsl-test` (`libcmake-checker-dsl-test`)**:
-   - YAML rule parsing via `rapidyaml`.
-   - DSL predicate evaluations over low-level primitives.
-   - Diagnostic generation for rules without fixits.
-5. **`script-test` (`libcmake-checker-script-test`)**:
-   - ChaiScript engine isolation and C++ primitive bindings.
-   - ChaiScript computing the 6 required checks (identifier formats, target counts, variable usages, link dependency counts, consumer lookups, quoting styles).
-   - Reporting findings with and without fixes.
-6. **`rule-engine-test`**:
-   - Unified registry loading rules from both DSL and ChaiScript.
-   - Overlap detection and optional fix execution.
-7. **`cmake-checker-test` (End-to-End)**:
-   - Golden regression tests against the current baseline of `src/engine` findings.
-   - Golden `--diff` and `--fix` tests on mock CMake project fixtures.
+In strict accordance with `docs/TESTING.md`:
+1. **Translation Unit Naming**: All test translation units are named `TranslationUnitTest.cpp` matching the SUT (e.g., `LexerTest.cpp`, `ConcreteSyntaxTreeTest.cpp`, `DirectedDependencyGraphTest.cpp`).
+2. **High-Performance In-Memory Testing**: All tests generate input data in memory and execute against `InMemoryFileSystem` without disk I/O.
+3. **Property-Based Testing with Shared Test Library (`libxe-cmake-checker-testing`)**:
+   - **Dynamic Data Generators**: Input CSTs, graphs, and project files are generated using custom parametric builders:
+     ```cpp
+     const ConcreteSyntaxTree cst = generate(CstBuilder()
+         .withCommand("add_library", {"libxe-core", "STATIC", "src/Core.cpp"})
+         .withTrivia("# Comment header\n")
+         .build());
+     ```
+   - **Determinism**: Synthetic random generators use Catch2's active execution seed via `Catch::rngSeed()` for reproducible test failures.
+   - **Reusable Property Assertions**: Custom assertions verify domain properties across all tests:
+     - `requireLosslessRoundTrip(cst, original_bytes)`
+     - `requireValidSpans(cst)`
+     - `requireNonOverlappingEdits(workspace_edit)`
+     - `requireAcyclicGraph(directed_graph)`
+4. **Precondition & Postcondition Checks**: Every test checks preconditions on generated test data before invoking the SUT.
+5. **Sibling Test Targets**:
+   - `libxe-cmake-checker-core-test`: Lossless CST round-trips, span validity, mutation splicer reversibility.
+   - `libxe-cmake-checker-io-test`: `InMemoryFileSystem` operations, trace and File-API parser correctness.
+   - `libxe-cmake-checker-analysis-test`: Dependency graph edge indexing and cycle detection.
+   - `libxe-cmake-checker-dsl-test`: RapidYAML rule schema parsing and predicate evaluations.
+   - `libxe-cmake-checker-script-test`: ChaiScript engine facade isolation and primitive bindings.
+   - `libxe-cmake-checker-rule-engine-test`: Multi-rule coordination and reverse-offset conflict resolution.
+   - `xe-cmake-checker-test`: End-to-end golden CLI regression tests on mock fixtures.
 
 ---
 
 ## Adoption & Verification Plan
+
+All steps utilize Mise and adhere to the zero-warning policy (`-Werror`):
 
 ```bash
 # 1. Update Conan dependencies
 mise run export-recipes
 mise run install:cmake-check:release
 
-# 2. Build the tool and test suite
+# 2. Build the toolsuite and unit test suites (Release)
 mise run build:cmake-check:release
 
 # 3. Run per-library unit tests
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-core-test
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-io-test
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-analysis-test
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-dsl-test
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-script-test
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-rule-engine-test
-src/cmake-checker/build-cmake-check/Release/bin/cmake-checker-test
+src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-core-test
+src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-io-test
+src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-analysis-test
+src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-dsl-test
+src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-script-test
+src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-rule-engine-test
+src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-test
 
-# 4. Run style check on engine (verification against v1 baseline)
+# 4. Verify Debug build and tests
+mise run install:cmake-check:debug
+mise run build:cmake-check:debug
+src/cmake-checker/build-cmake-check/Debug/bin/libxe-cmake-checker-core-test
+
+# 5. Static Analysis & Formatting
+mise run tidy:release --fix
+mise run format
+
+# 6. Run style check on engine (verification against v1 baseline)
 mise run configure:cmake-check:release
 mise run cmake-check:release
 
-# 5. Verify optional fixits preview and apply
+# 7. Verify optional fixits preview and apply
 mise run cmake-check:release -- --fix --diff
 ```
 
@@ -423,7 +691,8 @@ mise run cmake-check:release -- --fix --diff
 
 | Risk | Mitigation |
 | :--- | :--- |
-| **ChaiScript compile times & template overhead** | ChaiScript 6.1.0 is header-only and template-heavy. Isolate ChaiScript strictly within `libcmake-checker-script` behind a Pimpl facade (`ScriptEngine`), ensuring no ChaiScript headers leak into other targets. |
-| **Complex rules in DSL vs Script** | Keep the YAML DSL focused on declarative patterns. Complex multi-step checks (like aggregating dependencies across multiple commands or graph traversals) are delegated to `.chai` scripts. |
-| **Overlapping fix mutations** | Sort text edits in reverse offset order; reject overlapping edits within the same pass and report remaining unapplied findings. |
-| **Refactoring complexity** | Keep refactoring primitives in C++ with unit-tested AST transformations; ChaiScript is strictly the orchestration layer. |
+| **ChaiScript compile times & template overhead** | ChaiScript 6.1.0 is header-only and template-heavy. Isolate ChaiScript strictly within `libxe-cmake-checker-script` behind a Pimpl facade (`ScriptEngineFacade`), ensuring zero ChaiScript headers leak into any other library or executable. |
+| **Complex rules in DSL vs Script** | Keep YAML DSL focused on single-node declarative predicates. Multi-command aggregations and graph traversals are authored in `*.chai` script rules. |
+| **Overlapping fix mutations** | Sort text edits in reverse offset order; reject overlapping edits within the same pass and report remaining unapplied findings as requiring manual intervention. |
+| **Test flake & reproducibility** | Seed all synthetic property-based random generators with `Catch::rngSeed()`; test exclusively against `InMemoryFileSystem` to eliminate OS filesystem timing/locking issues. |
+| **Refactoring complexity** | Keep refactoring primitives in C++ inside `libxe-cmake-checker-core` with unit-tested AST transformations; ChaiScript is strictly the orchestration layer. |
