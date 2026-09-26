@@ -2,7 +2,7 @@
 
 ## Goal Description
 
-Evolve the in-house CMake validation tooling (v1, see [CMAKE_STYLE_CHECKER_PLAN.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_PLAN.md)) from a hardcoded checker into an **extensible, rule-driven, and scriptable** platform for the Xenoide repository. The architecture is centered on an **in-memory Concrete Syntax Tree (CST) and Directed Semantic Graph** of the CMake project structure.
+Evolve the in-house CMake validation tooling from a hardcoded checker into an **extensible, rule-driven, and scriptable** platform for the Xenoide repository. The architecture is centered on an **in-memory Concrete Syntax Tree (CST) and Directed Semantic Graph** of the CMake project structure.
 
 All components, libraries, and executables are prefixed with `libxe-cmake-*` and `xe-cmake*` to make explicit that this is an **in-house custom tool** tailored for the Xenoide codebase, rather than an upstream or official CMake component.
 
@@ -11,16 +11,6 @@ The platform is designed around two main capabilities:
 2. **Capability 2: Semantic Refactoring (`xe-cmake-refactor`)** — A planned extension (separate CLI / future plan). Provides safe, structural transformations across the project (e.g. target renaming, extracting functions from blocks, inlining functions) implemented as C++ primitives and orchestrated through ChaiScript. The graph model, analyzer, and mutation engine in v2.2 are explicitly architected to support this future capability.
 
 An accompanying **Structurizr Architecture Model** is maintained alongside this plan at [docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/plans/CMAKE_STYLE_CHECKER_V2.2.dsl). The component names in the model serve as keys between the architecture specification and the implementation.
-
----
-
-## Guidelines Alignment Review
-
-This plan has been reviewed and brought into full compliance with the repository guidelines:
-- [AGENTS.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/AGENTS.md): Strict C++17, Zero-Warning tolerance (`-Werror`), Mise task orchestration, Catch2 v3, clang-format, and clang-tidy verification.
-- [docs/CMAKE.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/CMAKE.md): Single target per directory; folder name strictly matches target name; `target_link_libraries` formatted strictly **one line per dependency**; library alias targets (`xe::...`); Catch2 test discovery via `catch_discover_tests`.
-- [docs/CPP.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/CPP.md): Strict C++17 without compiler extensions; restricted `auto` usage (reserved exclusively for complex template deduction, not for primitive/standard types like `std::string` or `int`); no magic numbers or strings (constants declared `constexpr`/`const`); RAII and memory safety (`std::unique_ptr` for exclusive ownership); value semantics and `std::string_view` for read-only views; monadic/optional error handling (`std::optional`, `tl::expected`) in core; namespace `xe::cmake::*`; constructor dependency injection for testability.
-- [docs/TESTING.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/TESTING.md): Sibling test folders (`libxe-cmake-checker-*-test`); translation unit test file naming (`TranslationUnitTest.cpp`); high-performance in-memory testing (`InMemoryFileSystem`); property-based testing using custom synthetic data generators with Builder pattern (`generate(CstBuilder()...build())`); deterministic execution using Catch2 seed (`Catch::rngSeed()`); reusable property assertions (`requireEntityProperty`); dedicated shared test support library (`libxe-cmake-checker-testing`).
 
 ---
 
