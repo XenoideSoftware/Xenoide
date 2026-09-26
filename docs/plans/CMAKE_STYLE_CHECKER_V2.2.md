@@ -1799,3 +1799,85 @@ mise run cmake-check:release
 | **Mise subproject-scoping gaps** | The shared `tidy:*`, `coverage:*`, `mutation:*` tasks only accept `engine\|ide\|pocs\|all` as `--project` choices. Add a `cmake-checker` choice to those tasks and to `resolve_projects()` in `mise/lib/common.sh` before execution; until then invoke the underlying scripts directly with the explicit path (e.g. `./mise/mutation.sh --project "src/cmake-checker" ...`). |
 | **Missing v1 golden diagnostics baseline** | Freeze current v1 diagnostics against `src/engine` for both Release and Debug into `src/cmake-checker/golden/` (step 0b) before the rewrite; gate v2.2 acceptance on reproducing the frozen output modulo the intended rule-ID/severity renames. |
 | **Refactoring complexity** | Keep refactoring primitives in C++ inside `libxe-cmake-checker-core` with unit-tested AST transformations; ChaiScript is strictly the orchestration layer. |
+
+---
+
+## Post-Implementation Postmortem & Guideline Improvement
+
+> [!IMPORTANT]
+> **This section is a mandatory closing deliverable of the v2.2 plan, not a piece of implementation work.** It is executed **only after** the entire implementation and quality-gate pipeline completes successfully:
+> Phase 4 (e2e), the frozen-v1 golden-baseline comparison (step 0b), and the check-only `src/engine` verification (step 7) must all pass first.
+
+After the `xe-cmake-checker` v2.2 implementation is complete and every quality gate has passed, the executing developer/agent **must** produce a **postmortem markdown file** capturing what worked, what did not, and how to improve the shared agent/developer guidelines. This turns each large plan into a learning artifact instead of a one-off execution.
+
+### 1. Postmortem Deliverable
+
+Create the file at:
+
+```
+docs/plans/postmortems/CMAKE_STYLE_CHECKER_V2.2_POSTMORTEM.md
+```
+
+Use the template below; keep it factual, dated, and traceable to specific plan steps (reference step numbers such as *Phase 2*, *step 0b*, or the *Mise subproject-scoping prerequisite* wherever possible).
+
+```markdown
+# Postmortem: `xe-cmake-checker` v2.2
+
+- **Date**: <ISO date>
+- **Author / Executor**: <name or agent>
+- **Plan**: docs/plans/CMAKE_STYLE_CHECKER_V2.2.md
+- **Outcome**: <Succeeded / Succeeded-with-rework / Aborted>
+
+## 1. What Went Well (Good Things)
+- List practices, decisions, or steps from the plan that paid off.
+- For each, reference the plan step that produced it.
+
+## 2. What Went Poorly (Bad Things)
+- List deviations, rework, dead-ends, tooling friction, or plan errors.
+- Include the concrete consequence (time, correctness, confusion).
+- Reference the specific plan step or command that was wrong or missing.
+
+## 3. Agent / Developer Guideline Improvements
+- Concrete, actionable changes to AGENTS.md, docs/CPP.md, docs/CMAKE.md,
+  docs/TESTING.md, docs/CONAN.md, or the mise/*.sh scripts.
+- Where possible, propose the exact wording or rule to add.
+
+## 4. Reusable Good Practices (Promotion Candidates)
+- Practices from this plan that should be extracted and applied to other
+  components (src/engine, src/ide, future tools). See Section 3 below.
+
+## 5. Lessons Carried Forward
+- 3–5 one-line lessons for the next large plan.
+```
+
+### 2. Required Postmortem Content
+
+The postmortem must explicitly evaluate the following items, because they are the novel or risk-bearing aspects of this plan:
+
+| Area to evaluate | Guiding questions |
+| :--- | :--- |
+| **Pre-implementation tooling verification** | Was verifying `clang-format`/`clang-tidy`/coverage/Mull *before* writing code worth it? Did any tool fail to exist or need workarounds? |
+| **Mise subproject-scoping** | How painful was the `--project cmake-checker` gap? Was the prerequisite change to `mise.toml` + `resolve_projects()` done cleanly, or did it cascade? |
+| **Golden-baseline freeze** | Did freezing v1 diagnostics (step 0b) actually catch regressions? Was the comparison mechanism (plain `diff` vs. structural compare) adequate? |
+| **Four-phase quality gates** | Were the >95% coverage and Mull gates achievable, or did they force artificial tests? Did the strict linear ordering block progress or prevent bugs? |
+| **CST + trivia losslessness** | Did byte-exact spans and trivia preservation hold under real fixits, or did edge cases surface only in e2e tests? |
+| **DSL vs. ChaiScript split** | Was the boundary between declarative YAML rules and procedural scripts the right one? Did rules get "stuck" in the wrong layer? |
+| **Optional-fixit philosophy** | Did keeping fixits strictly optional and sandbox-isolated actually protect `src/engine`/`src/ide`? |
+
+### 3. Reusable Good Practices (Extraction for Other Components)
+
+The following practices are defined in this plan and are **not** `cmake-checker`-specific — they are candidates for promotion into the shared guidelines (`AGENTS.md`, `docs/*.md`) so future components benefit automatically:
+
+1. **Pre-implementation tooling verification.** Verify formatting, static analysis, coverage, and mutation tooling *before* writing code, and confirm the dev-task commands actually resolve to the correct subproject. *Generalizes to:* every new component that must pass the quality gates.
+2. **Subproject-scoping discipline.** Never run an unscoped `format`/`tidy`/`coverage`/`mutation` invocation; always target the active project, and ensure the `--project` choices in `mise.toml` and `resolve_projects()` in `mise/lib/common.sh` include every self-contained subproject. *Generalizes to:* any future self-contained Conan/CMake subproject outside `src/engine`/`src/ide`.
+3. **Golden-baseline freeze before a rewrite.** Freeze current tool output (diagnostics, snapshots) into `golden/` before a big-bang rewrite and gate acceptance on reproducing it modulo intended changes. *Generalizes to:* any migration/rewrite of an existing tool or parser.
+4. **Four-phase quality gate pipeline.** Format+tidy+unit tests → strict coverage threshold → focused mutation testing → dedicated wide e2e target. *Generalizes to:* all `src/engine` and `src/ide` libraries (already partially encoded in `docs/TESTING.md`, but the explicit linear ordering and threshold values are reusable).
+5. **Shared test-infrastructure library.** A `*-testing` library exposing parametric synthetic builders, deterministic seeding (`Catch::rngSeed()`), and reusable entity-prefixed assertions. *Generalizes to:* any subsystem needing property-based tests — promote the `*-testing` pattern to `docs/TESTING.md`.
+6. **Precondition/postcondition invariant enforcement.** Assert "violation actually present" *before* mutating and "clean second pass" *after*, preventing false-positive test passes. *Generalizes to:* any fixer/linter/refactor test suite.
+7. **In-memory filesystem for wide tests.** Run integration tests against a virtual FS to eliminate disk I/O, OS locking, and repo pollution. *Generalizes to:* any tool that reads/writes files during tests.
+8. **Opaque facade for heavyweight third-party engines.** Isolate template-heavy/header-heavy dependencies (e.g. ChaiScript) behind a Pimpl facade so their headers never leak across library boundaries. *Generalizes to:* any future embedding of a scripting/parser engine.
+9. **`xe-`/`libxe-` naming for in-tree tooling.** Explicitly mark custom in-house tools and libraries so they cannot be mistaken for upstream components. *Generalizes to:* future internal CLI tools and their libraries.
+10. **Surgical minimal-diff write-back.** Collect edits transactionally (`WorkspaceEdit`), sort in reverse-offset order, reject overlaps, and keep untouched bytes identical. *Generalizes to:* any future code-formatter, fixer, or refactor tool in the repo.
+
+> [!NOTE]
+> Any of the items above that are judged successful in the postmortem should be **promoted** into `AGENTS.md` and the relevant `docs/*.md` as permanent, enforceable rules; items judged unsuccessful should be reported as guideline gaps in Section 3 of the postmortem.
