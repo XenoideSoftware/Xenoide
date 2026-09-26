@@ -14,6 +14,77 @@ An accompanying **Structurizr Architecture Model** is maintained alongside this 
 
 ---
 
+## Quality Assurance Tooling Verification & Strict Quality Gates
+
+To guarantee enterprise-grade software robustness, eliminate regressions, and enforce repository standards (`docs/CPP.md`, `docs/TESTING.md`, `AGENTS.md`), the implementation workflow mandates **pre-implementation tooling verification** followed by **mandatory post-implementation quality gates**.
+
+### 1. Pre-Implementation Quality Tooling Verification
+
+Before writing or modifying any implementation code, the developer/agent must verify that dev tasks orchestration (`mise`) and underlying analysis, formatting, coverage, and mutation tools are operational:
+
+1. **Code Formatting Tooling (`clang-format`)**:
+   - Verify `clang-format` is installed and reachable via Mise:
+     ```bash
+     mise run format --project engine
+     ```
+   - Validate that `.clang-format` formatting rules are cleanly processed without configuration syntax errors.
+2. **Static Code Analysis Tooling (`clang-tidy`)**:
+   - Verify `clang-tidy` binary availability and compilation database generation:
+     ```bash
+     mise run configure:tidy:release
+     mise run configure:tidy:debug
+     ```
+   - Perform a pre-flight execution to verify `compile_commands.json` is generated correctly:
+     ```bash
+     mise run tidy:release
+     ```
+3. **Code Coverage Tooling (`llvm-cov` / `gcov`)**:
+   - Verify compiler profile instrumentation and report extraction via Mise:
+     ```bash
+     mise run coverage:llvm-cov:release --help
+     mise run coverage:gcov:release --help
+     ```
+   - Confirm threshold verification flag (`--check <threshold>`) is supported and functions correctly to halt execution if minimum line coverage is not met.
+4. **Mutation Testing Tooling (`Mull`)**:
+   - Verify Mull mutation testing runner integration via Mise:
+     ```bash
+     mise run mutation:mull --help
+     ```
+   - Verify mutant generation (`--generate`), test execution (`--kill`), timeout handling (`--timeout <ms>`), and mutation score threshold gating (`--threshold <score>`).
+
+### 2. Mandatory Post-Implementation Quality Gates
+
+Once code and tests are authored, the following sequence of quality gates is **strictly mandatory**. Under no circumstances will implementation be marked complete or merged without satisfying every gate:
+
+1. **Code Formatting Gate**:
+   - Execute formatting across all newly created and modified files before building:
+     ```bash
+     mise run format
+     ```
+   - Ensure git reports zero unformatted C++ lines.
+2. **Static Analysis Gate (Zero Warnings / Zero Tidy Errors)**:
+   - Run clang-tidy with automated fixes:
+     ```bash
+     mise run tidy:release --fix
+     mise run tidy:debug
+     ```
+   - All warnings are treated as errors (`-Werror`). Zero warnings and zero tidy errors permitted.
+   - For any warnings or lints that clang-tidy cannot fix automatically, apply conservative manual fixes strictly adhering to `docs/CPP.md`.
+3. **Code Coverage Gate (Strict Minimum > 95% Line Coverage)**:
+   - Execute the test suite with coverage enforcement enabled:
+     ```bash
+     mise run coverage:llvm-cov --check 95
+     ```
+   - **Line coverage must strictly exceed 95%** across all newly authored libraries (`libxe-cmake-checker-core`, `libxe-cmake-checker-io`, `libxe-cmake-checker-analysis`, `libxe-cmake-checker-dsl`, `libxe-cmake-checker-script`, `libxe-cmake-checker-rule-engine`, `libxe-cmake-checker-testing`). Any uncovered branches or edge conditions must be covered with targeted property tests or unit tests.
+4. **Mutation Testing Gate (Mull Pass)**:
+   - Execute Mull mutation testing against all test suites:
+     ```bash
+     mise run mutation:mull --kill --threshold 85
+     ```
+   - The mutation test suite must pass. All generated mutants in AST parsing, graph traversal, predicate evaluation, and text splicing must be killed by the test suite, verifying test resistance against subtle logic errors.
+
+---
+
 ## User Review Required (Locked Decisions)
 
 > [!IMPORTANT]
@@ -32,6 +103,9 @@ An accompanying **Structurizr Architecture Model** is maintained alongside this 
 | **CMake Target Standards** | **Strict `docs/CMAKE.md` Compliance** | One target per folder, target name matches folder name (`libxe-cmake-checker-*`), one line per dependency in `target_link_libraries`, alias targets `xe::cmake-checker-*`. |
 | **C++ Standards** | **Strict `docs/CPP.md` Compliance** | C++17, zero warnings (`-Werror`), explicit types (no `auto` for primitives), `std::string_view` for views, namespace `xe::cmake::*`, constructor DI for orchestrators. |
 | **Testing Strategy** | **Strict `docs/TESTING.md` Compliance** | Catch2 v3, property-based synthetic builders, Catch2 seed determinism (`Catch::rngSeed()`), reusable entity-prefixed assertions (`requireCstProperty`, `requireCstValidSpans`, `requireWorkspaceEditNonOverlapping`, `requireGraphAcyclic`), in-memory filesystem tests, shared `libxe-cmake-checker-testing` library. |
+| **End-to-End Test Target** | **`xe-cmake-checker-e2e-test`** | Dedicated test executable running wide in-memory full-stack integration tests for ChaiScript and DSL checking + fixits, evaluating synthetic multi-target CMake projects on `InMemoryFileSystem`. |
+| **Code Coverage Gate** | **Strict > 95% Threshold** | Line coverage must strictly exceed 95% enforced by `mise run coverage:llvm-cov --check 95`. |
+| **Mutation Testing Gate** | **Mull Mutation Testing Pass** | Mutation testing via Mull must pass (`mise run mutation:mull --kill`), killing all generated mutants. |
 | **Dependencies** | **Conan 2.x packages** | `chaiscript/6.1.0`, `rapidyaml/0.7.1`, `nlohmann_json/3.12.0`, `cxxopts/3.3.1`, `fmt/[>=11 <12]`, `catch2/3.14.0`. |
 | **Migration** | **Big-Bang Rewrite** | Replace v1 internal architecture; verify against frozen v1 golden diagnostics. Existing tree outside `src/cmake-checker` remains untouched. |
 
@@ -90,6 +164,12 @@ flowchart TB
         ASSERT["Reusable Property Assertions"]
     end
 
+    subgraph e2e_suite ["xe-cmake-checker-e2e-test (E2E Test Target)"]
+        E2E_GEN["SyntheticProjectGenerator<br/>(In-Memory VFS Project Fixture)"]
+        E2E_DSL["DslEndToEndTest<br/>(Full-Stack DSL Checking & Fixit)"]
+        E2E_CHAI["ChaiScriptEndToEndTest<br/>(Full-Stack Chai Checking & Fixit)"]
+    end
+
     CK_CLI --> orchestration
     RF_CLI -.-> orchestration
     orchestration --> dsl_lib
@@ -107,6 +187,14 @@ flowchart TB
     testing -.-> core
     testing -.-> analysis
     testing -.-> io
+
+    e2e_suite --> orchestration
+    e2e_suite --> dsl_lib
+    e2e_suite --> script_lib
+    e2e_suite --> analysis
+    e2e_suite --> core
+    e2e_suite --> io
+    e2e_suite --> testing
 ```
 
 ### Structurizr Architecture Model Reference
@@ -126,6 +214,7 @@ The table below establishes the **1:1 synchronization key** between the architec
 | `libxe-cmake-checker-io` | `libxe-cmake-checker-io` | `xe::cmake-checker-io` | `src/cmake-checker/src/libxe-cmake-checker-io` | `xe::cmake::io` |
 | `libxe-cmake-checker-core` | `libxe-cmake-checker-core` | `xe::cmake-checker-core` | `src/cmake-checker/src/libxe-cmake-checker-core` | `xe::cmake::core` |
 | `libxe-cmake-checker-testing` | `libxe-cmake-checker-testing` | `xe::cmake-checker-testing` | `src/cmake-checker/src/libxe-cmake-checker-testing` | `xe::cmake::testing` |
+| `xe-cmake-checker-e2e-test` | `xe-cmake-checker-e2e-test` | N/A (Executable / Test) | `src/cmake-checker/src/xe-cmake-checker-e2e-test` | `xe::cmake::testing` |
 
 ---
 
@@ -288,10 +377,16 @@ src/cmake-checker/src/
 │   │   ├── CheckerDriver.h/.cpp
 │   │   └── main.cpp
 │   └── CMakeLists.txt
-└── xe-cmake-checker-test/                    # Golden end-to-end regression tests
+├── xe-cmake-checker-test/                    # Golden end-to-end regression tests
+│   ├── src/
+│   │   ├── GoldenRegressionTest.cpp
+│   │   └── CliIntegrationTest.cpp
+│   └── CMakeLists.txt
+└── xe-cmake-checker-e2e-test/                # In-memory full-stack integration test suite (DSL & ChaiScript)
     ├── src/
-    │   ├── GoldenRegressionTest.cpp
-    │   └── CliIntegrationTest.cpp
+    │   ├── SyntheticProjectGenerator.h/.cpp
+    │   ├── DslEndToEndTest.cpp
+    │   └── ChaiScriptEndToEndTest.cpp
     └── CMakeLists.txt
 ```
 
@@ -386,6 +481,37 @@ target_link_libraries(${target} PRIVATE xe::cmake-checker-io)
 target_link_libraries(${target} PRIVATE xe::cmake-checker-core)
 target_link_libraries(${target} PRIVATE cxxopts::cxxopts)
 target_link_libraries(${target} PRIVATE fmt::fmt)
+```
+
+**End-to-End Test Target Specification (`xe-cmake-checker-e2e-test/CMakeLists.txt`)**:
+```cmake
+find_package(Catch2 REQUIRED)
+
+set (target "xe-cmake-checker-e2e-test")
+
+set (sources
+    "src/SyntheticProjectGenerator.cpp"
+    "src/DslEndToEndTest.cpp"
+    "src/ChaiScriptEndToEndTest.cpp"
+)
+
+add_executable(${target} ${sources})
+
+target_include_directories(${target} PUBLIC "src")
+
+# one line per dependency
+target_link_libraries(${target} PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-rule-engine)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-dsl)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-script)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-analysis)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-io)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-core)
+target_link_libraries(${target} PUBLIC xe::cmake-checker-testing)
+
+# Enable autodiscovering
+include(Catch)
+catch_discover_tests(${target})
 ```
 
 ---
@@ -638,6 +764,358 @@ In strict accordance with `docs/TESTING.md`:
    - `libxe-cmake-checker-script-test`: ChaiScript engine facade isolation and primitive bindings.
    - `libxe-cmake-checker-rule-engine-test`: Multi-rule coordination and reverse-offset conflict resolution.
    - `xe-cmake-checker-test`: End-to-end golden CLI regression tests on mock fixtures.
+   - `xe-cmake-checker-e2e-test`: Dedicated standalone test executable performing in-memory full-stack integration testing (excluding CLI) of ChaiScript checking/fixits and Declarative DSL checking/fixits against synthetic CMake projects.
+
+---
+
+## End-to-End In-Memory Integration Testing Architecture (`xe-cmake-checker-e2e-test`)
+
+### 1. Purpose & Architectural Isolation
+
+To thoroughly validate the checking and automated fixit capabilities of both the **Declarative YAML DSL** (`libxe-cmake-checker-dsl`) and the **Embedded ChaiScript Engine** (`libxe-cmake-checker-script`), a dedicated end-to-end integration test suite is established in:
+**`xe-cmake-checker-e2e-test`** (`src/cmake-checker/src/xe-cmake-checker-e2e-test/`)
+
+#### Why a Dedicated Test Target (`xe-cmake-checker-e2e-test`)?
+- **Combinatorial Scope**: These tests synthesize multi-target project hierarchies with varied, non-standard CMake syntax, parse complete project listfiles, build multi-graph dependency representations, execute script interpreters, perform multi-file text splices, re-parse from memory, and re-execute analysis passes.
+- **Execution Profile**: Slower and broader than fast, localized unit tests (`*-test`). Isolating wide tests into a separate target prevents impacting inner-loop developer test cycles while ensuring thorough systemic verification.
+- **Zero Disk I/O Risk**: All operations execute strictly against `xe::cmake::io::InMemoryFileSystem` (our virtual filesystem abstraction). Not a single file on physical disk is created or modified, completely eliminating disk contention, OS locking, or repository pollution risks.
+
+---
+
+### 2. Whole-Stack Execution Pipeline (Excluding CLI Frontend)
+
+The end-to-end test validates the entire programmatic C++ engine stack directly, bypassing only CLI options parsing and stdout formatting:
+
+```mermaid
+flowchart TD
+    subgraph VFS ["Virtual Filesystem (InMemoryFileSystem)"]
+        SYNTH_FILES["Synthetic CMake Project<br/>(CMakeLists.txt, *.h, *.cpp)"]
+        MUTATED_FILES["Mutated CMake Project<br/>(After Surgical Fixits)"]
+    end
+
+    subgraph Phase1 ["Pass 1: Discovery & Graph Construction"]
+        LOADER["ProjectLoader<br/>(Discovers & Reads Listfiles)"]
+        PARSE["Lexer & ConcreteSyntaxTree<br/>(Lossless CST with Trivia & Spans)"]
+        GRAPH_BUILD["SemanticModel & DirectedDependencyGraph<br/>(Targets, Edges, Incoming/Outgoing Matrices)"]
+    end
+
+    subgraph Phase2 ["Pass 1: Rule Loading & Execution"]
+        RULE_LOAD["YamlRuleLoader / ScriptRuleLoader<br/>(Parses YAML DSL / ChaiScript)"]
+        RUNNER["CheckRunner<br/>(Evaluates Predicates & Script Hooks)"]
+        FINDINGS["Findings & Fix Collection<br/>(Generates TextEdits with Spans)"]
+    end
+
+    subgraph Phase3 ["Pass 1: Mutation & Write-Back"]
+        RESOLVE["FixConflictResolver<br/>(Sorts Reverse-Offset, Detects Overlaps)"]
+        SPLICER["SyncWriter / MutationEngine<br/>(Slices TextEdits into InMemoryFileSystem)"]
+    end
+
+    subgraph Phase4 ["Pass 2: Mandatory Verification"]
+        REPARSE["Reparsing Validation<br/>(Invariant 1: Zero Syntax Errors, Valid Spans)"]
+        RECHECK["Second Checking Pass<br/>(Invariant 2: Zero Violations Reported)"]
+    end
+
+    SYNTH_FILES --> LOADER
+    LOADER --> PARSE
+    PARSE --> GRAPH_BUILD
+    GRAPH_BUILD --> RUNNER
+    RULE_LOAD --> RUNNER
+    RUNNER --> FINDINGS
+    FINDINGS --> RESOLVE
+    RESOLVE --> SPLICER
+    SPLICER --> MUTATED_FILES
+    MUTATED_FILES --> REPARSE
+    REPARSE --> RECHECK
+```
+
+#### Step-by-Step Whole-Stack Pipeline:
+1. **CMake Project Parsing**:
+   - `ProjectLoader` discovers and reads listfiles directly from `InMemoryFileSystem`.
+   - `Lexer` and `ConcreteSyntaxTree` parse tokens, comments, and commands into a lossless Concrete Syntax Tree (CST) with byte-exact `SourceSpan`s.
+2. **Traversal & Semantic Graph Construction**:
+   - `DirectedDependencyGraph` and `SemanticModel` traverse the CSTs, cataloging target definitions, link dependencies, and file relationships.
+   - Directed edges (incoming and outgoing) are populated for all target interactions.
+3. **DSL / ChaiScript Loading**:
+   - **For DSL**: `YamlRuleLoader` parses YAML specifications into declarative rule ASTs.
+   - **For ChaiScript**: `ScriptRuleLoader` initializes `ScriptEngineFacade` and loads `*.chai` files, binding C++ primitives into the ChaiScript VM.
+4. **Analysis & Finding Collection**:
+   - `CheckRunner` evaluates rule criteria against CST nodes and graph edges.
+   - Any violation produces a `Finding`. If the rule provides a remedy, a `Fix` containing atomic `TextEdit`s is attached.
+5. **Conflict Resolution & In-Memory Splicing**:
+   - `FixConflictResolver` validates edit intervals, verifies non-overlapping spans, and sorts edits in descending reverse-offset order to preserve line/column coordinates.
+   - `SyncWriter` splices the text replacements directly into `InMemoryFileSystem`.
+6. **Mandatory Post-Fix Invariants (Validation)**:
+   - **Invariant 1: Parsability by CMake Parser without Errors**:
+     The mutated listfiles in `InMemoryFileSystem` MUST be completely re-parsed by `ConcreteSyntaxTree` and `ProjectLoader` with **zero syntax errors**. All tokens, command blocks, and trivia must form a valid CST, and all `SourceSpan`s must be monotonic and within buffer boundaries (`requireCstValidSpans`).
+   - **Invariant 2: Clean Second Checking Pass**:
+     A subsequent full analysis pass (traversal, graph construction, rule execution) executed against the repaired in-memory project MUST pass **cleanly with zero diagnostic findings** for all repaired rules.
+
+---
+
+### 3. Parametric Synthetic Project Generator (`SyntheticProjectGenerator`)
+
+Conforming strictly to `docs/TESTING.md`, synthetic projects are generated programmatically using the Builder Pattern:
+
+```cpp
+const InMemoryProject project = generate(CMakeProjectFixtureBuilder()
+    .withExecutableCount(num_exes)
+    .withLibraryCount(num_libs)
+    .withTestCount(num_tests)
+    .withRandomDependencies()
+    .withDiverseCMakeSyntaxStyles()
+    .withSeed(Catch::rngSeed())
+    .build());
+```
+
+#### Synthetic Generation Parameters:
+1. **Target Counts**:
+   - Number of executable targets (`exe_count`, e.g., 1–5).
+   - Number of static/shared library targets (`lib_count`, e.g., 2–10).
+   - Number of unit test targets (`test_count`, e.g., 1–5).
+2. **Trivial Source & Header Code Generation**:
+   - The associated `.h` and `.cpp` files are intentionally minimal: each library declares and defines a trivial function returning a distinct constant:
+     ```cpp
+     // virtual_project/lib_alpha/src/Alpha.h
+     #pragma once
+     int lib_alpha_calculate_constant();
+
+     // virtual_project/lib_alpha/src/Alpha.cpp
+     #include "Alpha.h"
+     int lib_alpha_calculate_constant() {
+         return 107;
+     }
+     ```
+   - Executable targets generate a minimal `main.cpp` that calls the linked library functions:
+     ```cpp
+     // virtual_project/exe_app/src/main.cpp
+     #include "Alpha.h"
+     #include "Beta.h"
+     int main() {
+         return lib_alpha_calculate_constant() + lib_beta_calculate_constant();
+     }
+     ```
+   - Test targets generate a minimal Catch2 test translation unit:
+     ```cpp
+     // virtual_project/lib_alpha-test/src/AlphaTest.cpp
+     #include <catch2/catch_test_macros.hpp>
+     #include "Alpha.h"
+     TEST_CASE("Alpha constant verification") {
+         REQUIRE(lib_alpha_calculate_constant() == 107);
+     }
+     ```
+3. **Random Dependency Assignment**:
+   - Exe targets randomly select 1 to $N$ library targets to link against.
+   - Inter-library dependencies are randomly generated while enforcing a Directed Acyclic Graph (DAG) without circular link cycles.
+4. **Diverse Valid CMake Constructs (Different from Repository Guidelines)**:
+   The generator purposefully produces diverse styles of syntactically valid CMake constructs inspired by the official CMake Reference Documentation, intentionally violating Xenoide's strict guidelines (`docs/CMAKE.md`) to challenge the checkers and fixers:
+   - **Style 1: Direct Inline Sources in Target Declarations**:
+     `add_executable(my_app src/main.cpp src/helper.cpp)` or `add_library(my_lib STATIC src/lib.cpp)` (omitting `set (sources ...)` and `${target}`).
+   - **Style 2: Multi-Library `target_link_libraries` Statements**:
+     `target_link_libraries(my_app PRIVATE lib_alpha lib_beta PUBLIC lib_gamma)` (multiple libraries in a single call, violating the one-dependency-per-line rule).
+   - **Style 3: Legacy Unscoped `target_link_libraries`**:
+     `target_link_libraries(my_app lib_alpha lib_beta)` (omitting scope keywords `PUBLIC`/`PRIVATE`/`INTERFACE`).
+   - **Style 4: Unquoted Source Paths**:
+     `set (sources src/file1.cpp src/file2.cpp)` without surrounding double quotes.
+   - **Style 5: Target Name Diverging from Folder Name**:
+     Folder is `rendering_core`, but CMake listfile declares `set (target "engine_graphics")` or `add_library(graphics_backend ...)`.
+   - **Style 6: Multiple Targets Declared in a Single Directory**:
+     A single `CMakeLists.txt` defining both an executable and a helper utility library.
+   - **Style 7: Missing Library ALIAS Target**:
+     Static library declaration without `add_library(prefix::name ALIAS ${target})`.
+   - **Style 8: Missing `target_include_directories`**:
+     Library target lacking `target_include_directories(${target} PUBLIC "src")`.
+   - **Style 9: Incomplete or Non-Standard Catch2 Declarations**:
+     Test target missing `find_package(Catch2 REQUIRED)` or missing `catch_discover_tests(${target})`.
+   - **Style 10: Modern `target_sources` Declarations**:
+     Attaching sources using `target_sources(my_target PRIVATE "src/alpha.cpp")` instead of `set(sources ...)`.
+
+---
+
+## DSL Checking & FixIt Support End-to-End Testing
+
+### 1. Test Architecture (`DslEndToEndTest.cpp`)
+
+The declarative DSL end-to-end test validates that declarative YAML rules loaded via `rapidyaml` correctly identify style violations in synthetic in-memory CMake projects and synthesize surgical `TextEdit`s that transform non-standard syntax into full compliance with `docs/CMAKE.md`.
+
+### 2. Full-Stack Verification Workflow
+
+```mermaid
+sequenceDiagram
+    participant Test as DslEndToEndTest
+    participant Gen as SyntheticProjectGenerator
+    participant VFS as InMemoryFileSystem
+    participant Loader as ProjectLoader
+    participant CST as ConcreteSyntaxTree
+    participant Graph as DirectedDependencyGraph
+    participant YamlLoader as YamlRuleLoader (rapidyaml)
+    participant Runner as CheckRunner (DslPredicateEvaluator)
+    participant Splicer as SyncWriter / MutationEngine
+
+    Test->>Gen: generate(Builder.withDiverseCMakeSyntaxStyles())
+    Gen->>VFS: Populate virtual project (CMakeLists.txt, *.h, *.cpp)
+    Test->>Loader: load_project(VFS, "/virtual_project")
+    Loader->>CST: parse(listfile_content)
+    Loader->>Graph: build_graph(cst_nodes)
+    Test->>YamlLoader: load_rules("rules/cmake_guidelines.yaml")
+    Test->>Runner: execute(cst, graph, dsl_rules)
+    Runner-->>Test: List of Findings with attached Fixes
+    Test->>Splicer: apply_fixes(VFS, findings)
+    
+    Note over Test,VFS: Invariant 1: Reparsing with Zero Errors
+    Test->>Loader: load_project(VFS, "/virtual_project")
+    Loader->>CST: parse(modified_listfile_content)
+    Test->>Test: requireCstValidSpans(reparsed_cst)
+
+    Note over Test,Runner: Invariant 2: Clean Second Checking Pass
+    Test->>Runner: execute(reparsed_cst, updated_graph, dsl_rules)
+    Test->>Test: REQUIRE(recheck_findings.empty())
+```
+
+### 3. Concrete DSL E2E Test Scenarios
+
+#### Scenario A: Multi-Dependency `target_link_libraries` Splitting (`split_target_link_libraries_per_line`)
+1. **Initial Synthetic State**:
+   The generator injects valid multi-argument link commands:
+   ```cmake
+   target_link_libraries(${target} PRIVATE lib_alpha lib_beta PUBLIC lib_gamma)
+   ```
+2. **Whole-Stack Pass 1**:
+   - `YamlRuleLoader` loads `formatting.target-link-single-dependency`.
+   - `DslPredicateEvaluator` matches the command node having dependency count > 1.
+   - `FixTemplateEngine` generates the replacement text:
+     ```cmake
+     # one line per dependency
+     target_link_libraries(${target} PRIVATE lib_alpha)
+     target_link_libraries(${target} PRIVATE lib_beta)
+     target_link_libraries(${target} PUBLIC lib_gamma)
+     ```
+   - `SyncWriter` splices the replacement into `InMemoryFileSystem`.
+3. **Verification of Invariants**:
+   - **Invariant 1**: Re-parsing listfile yields valid CST statement nodes with monotonic source spans.
+   - **Invariant 2**: Second checking pass reports 0 violations of `formatting.target-link-single-dependency`.
+
+#### Scenario B: Unquoted Source Paths (`quote_argument`)
+1. **Initial Synthetic State**:
+   Listfiles declare unquoted sources:
+   ```cmake
+   set (sources src/Alpha.cpp src/Beta.cpp)
+   ```
+2. **Whole-Stack Pass 1**:
+   - `DslPredicateEvaluator` detects `arg.index > 0 && !arg.is_quoted` within `set(sources ...)`.
+   - Instantiates `quote_argument` template, creating `TextEdit.replace` wrapping the span in `"..."`.
+   - Spliced atomically into `InMemoryFileSystem`.
+3. **Verification of Invariants**:
+   - **Invariant 1**: Re-parsed CST verifies every source token has `quote_kind == QuoteKind::Quoted`.
+   - **Invariant 2**: Second checking pass yields 0 unquoted path findings.
+
+#### Scenario C: Direct Target Declaration Variable Substitution
+1. **Initial Synthetic State**:
+   Listfiles declare targets directly by name:
+   ```cmake
+   add_executable(my_synthetic_app ${sources})
+   ```
+2. **Whole-Stack Pass 1**:
+   - Rule `target.declaration-uses-variable` matches first argument `!= '${target}'`.
+   - Generates `TextEdit.replace(cmd.argument(0).span, "${target}")`.
+   - Spliced into `InMemoryFileSystem`.
+3. **Verification of Invariants**:
+   - **Invariant 1**: Re-parsed CST shows argument 0 text is exactly `"${target}"`.
+   - **Invariant 2**: Clean second pass with 0 target declaration findings.
+
+---
+
+## ChaiScript Checking & FixIt Support End-to-End Testing
+
+### 1. Test Architecture (`ChaiScriptEndToEndTest.cpp`)
+
+The ChaiScript end-to-end test validates procedural script rules (`rules/cmake_guidelines.chai`) executing within embedded ChaiScript 6.1.0 (`libxe-cmake-checker-script`). It exercises cross-file logic, global graph traversal, target renaming, and structural insertions.
+
+### 2. Full-Stack Verification Workflow
+
+```mermaid
+sequenceDiagram
+    participant Test as ChaiScriptEndToEndTest
+    participant Gen as SyntheticProjectGenerator
+    participant VFS as InMemoryFileSystem
+    participant Loader as ProjectLoader
+    participant CST as ConcreteSyntaxTree
+    participant Graph as DirectedDependencyGraph
+    participant ScriptEngine as ScriptEngineFacade (ChaiScript 6.1.0)
+    participant Runner as CheckRunner
+    participant Splicer as SyncWriter / MutationEngine
+
+    Test->>Gen: generate(Builder.withDiverseCMakeSyntaxStyles())
+    Gen->>VFS: Populate virtual project (CMakeLists.txt, *.h, *.cpp)
+    Test->>Loader: load_project(VFS, "/virtual_project")
+    Loader->>CST: parse(listfile_content)
+    Loader->>Graph: build_graph(cst_nodes)
+    Test->>ScriptEngine: load_script("rules/cmake_guidelines.chai")
+    Test->>Runner: execute_script_hooks(check_file, check_command, check_project)
+    Runner-->>Test: List of Findings with procedural Fixes
+    Test->>Splicer: apply_fixes(VFS, findings)
+    
+    Note over Test,VFS: Invariant 1: Reparsing with Zero Errors
+    Test->>Loader: load_project(VFS, "/virtual_project")
+    Loader->>CST: parse(modified_listfile_content)
+    Test->>Test: requireCstValidSpans(reparsed_cst)
+
+    Note over Test,Runner: Invariant 2: Clean Second Checking Pass
+    Test->>Runner: execute_script_hooks(check_file, check_command, check_project)
+    Test->>Test: REQUIRE(recheck_findings.empty())
+```
+
+### 3. Concrete ChaiScript E2E Test Scenarios
+
+#### Scenario A: Graph-Aware Target Naming vs. Folder Synchronization (`naming.target-matches-folder`)
+1. **Initial Synthetic State**:
+   Generator creates folder `virtual_project/libxe-alpha/` where `CMakeLists.txt` declares:
+   ```cmake
+   set (target "alpha_legacy_internal")
+   ```
+   Downstream executable `virtual_project/xe-app/` links to `alpha_legacy_internal`.
+2. **Whole-Stack Pass 1**:
+   - `check_file(ctx, file)` detects `declared_target != folder_name`.
+   - Procedural ChaiScript rule creates a `Fix("Rename target to match folder")`:
+     - Edit 1: Replaces `set (target "alpha_legacy_internal")` with `set (target "libxe-alpha")`.
+   - Script queries graph: `graph.incoming_edges("alpha_legacy_internal")` discovers `xe-app`.
+     Adds edits to update link calls in `xe-app/CMakeLists.txt`.
+   - `SyncWriter` applies multi-file `WorkspaceEdit` to `InMemoryFileSystem`.
+3. **Verification of Invariants**:
+   - **Invariant 1**: All modified files in `InMemoryFileSystem` re-parse without errors.
+   - **Invariant 2**: Re-running `check_file` and `check_project` confirms target name equals folder name project-wide, producing 0 diagnostics.
+
+#### Scenario B: Static Library Specification (`library.alias-specification` & `include-directories-src`)
+1. **Initial Synthetic State**:
+   Generator creates static library target lacking ALIAS and include directories:
+   ```cmake
+   set (target "libxe-math")
+   set (sources "src/Math.cpp")
+   add_library(${target} ${sources})
+   ```
+2. **Whole-Stack Pass 1**:
+   - ChaiScript inspects target commands: identifies `is_library && !is_test`.
+   - Detects `alias_cmd == null` and `include_dirs_cmd == null`.
+   - Generates procedural `Fix` appending:
+     ```cmake
+     add_library(xe::math ALIAS ${target})
+
+     target_include_directories(${target} PUBLIC "src")
+     ```
+   - Spliced cleanly after `add_library` statement.
+3. **Verification of Invariants**:
+   - **Invariant 1**: Re-parsed CST contains new `add_library` (ALIAS) and `target_include_directories` nodes with monotonic spans.
+   - **Invariant 2**: Second checking pass reports 0 missing alias or include directory warnings.
+
+#### Scenario C: Catch2 Test Specification (`testing.catch2-structure`)
+1. **Initial Synthetic State**:
+   Generator creates test target `libxe-math-test` without `find_package(Catch2 REQUIRED)` or `catch_discover_tests(${target})`.
+2. **Whole-Stack Pass 1**:
+   - ChaiScript rule flags missing Catch2 initialization and discovery.
+   - Generates procedural text edits inserting `find_package(Catch2 REQUIRED)` at top and `include(Catch)` / `catch_discover_tests(${target})` at bottom.
+   - Spliced into `InMemoryFileSystem`.
+3. **Verification of Invariants**:
+   - **Invariant 1**: Modified test listfile re-parses with zero errors.
+   - **Invariant 2**: Second checking pass confirms complete compliance with `docs/CMAKE.md`.
 
 ---
 
@@ -1128,14 +1606,22 @@ Therefore, as part of plan execution, an independent dedicated plan artifact is 
 
 ## Adoption & Verification Plan
 
-All verification steps adhere strictly to the zero-warning policy (`-Werror`) and dev tasks orchestration via Mise:
+All verification steps adhere strictly to the zero-warning policy (`-Werror`), mandatory quality gates, and dev tasks orchestration via Mise:
 
 ```bash
+# 0. Pre-Implementation Quality Tooling Verification
+mise run format --project engine
+mise run configure:tidy:release
+mise run configure:tidy:debug
+mise run tidy:release
+mise run coverage:llvm-cov:release --help
+mise run mutation:mull --help
+
 # 1. Update Conan dependencies
 mise run export-recipes
 mise run install:cmake-check:release
 
-# 2. Build the toolsuite and unit test suites (Release)
+# 2. Build the toolsuite, unit test suites, and e2e integration test target (Release)
 mise run build:cmake-check:release
 
 # 3. Run per-library unit tests (verifying entity-prefixed Catch2 assertions)
@@ -1147,24 +1633,38 @@ src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-script-test
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-rule-engine-test
 src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-test
 
-# 4. Verify Debug build and tests
+# 4. Run wide End-to-End In-Memory Integration Tests (DSL & ChaiScript checking + fixits)
+src/cmake-checker/build-cmake-check/Release/bin/xe-cmake-checker-e2e-test
+
+# 5. Verify Debug build and tests
 mise run install:cmake-check:debug
 mise run build:cmake-check:debug
 src/cmake-checker/build-cmake-check/Debug/bin/libxe-cmake-checker-core-test
+src/cmake-checker/build-cmake-check/Debug/bin/xe-cmake-checker-e2e-test
 
-# 5. Static Analysis & Formatting
-mise run tidy:release --fix
+# 6. Post-Implementation Quality Gates (MANDATORY)
+# Gate A: Format all modified files
 mise run format
 
-# 6. Materialize Output Artifacts from docs/CMAKE.md
+# Gate B: Static Analysis (zero warnings treated as errors)
+mise run tidy:release --fix
+mise run tidy:debug
+
+# Gate C: Enforce Code Coverage (Strictly > 95% threshold)
+mise run coverage:llvm-cov --check 95
+
+# Gate D: Mutation Testing (Mull Pass - all mutants killed)
+mise run mutation:mull --kill --threshold 85
+
+# 7. Materialize Output Artifacts from docs/CMAKE.md
 # Generates src/cmake-checker/rules/cmake_guidelines.yaml
 # Generates src/cmake-checker/rules/cmake_guidelines.chai
 
-# 7. Safe Engine Verification (Check-Only, NO fixits applied)
+# 8. Safe Engine Verification (Check-Only, NO fixits applied)
 mise run configure:cmake-check:release
 mise run cmake-check:release
 
-# 8. Create Plan Artifact: docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md
+# 9. Create Plan Artifact: docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md
 # Prepares the isolated sandbox project (tests/fixtures/cmake-fixit-sandbox/)
 # and specifies full DSL & ChaiScript fixit verification before any live fixits.
 ```

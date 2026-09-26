@@ -71,6 +71,13 @@ workspace "xe-cmake-checker" "Architecture model for the Xenoide CMake style che
                 graph_generator = component "GraphSyntheticGenerator" "Deterministic random builder for dependency graphs using Catch2 seed." "C++17"
                 property_assertions = component "PropertyAssertions" "Reusable Catch2 property assertions (requireLosslessRoundTrip, requireValidSpans)." "C++17 / Catch2"
             }
+
+            // End-to-End In-Memory Integration Test Target
+            xe_cmake_checker_e2e_test = container "xe-cmake-checker-e2e-test" "End-to-end in-memory synthetic fixture integration test suite for DSL and ChaiScript." "C++17 Executable / Catch2" {
+                synthetic_proj_gen = component "SyntheticProjectGenerator" "Generates parametric in-memory CMake project fixtures with diverse valid syntax styles." "C++17"
+                dsl_e2e_test = component "DslEndToEndTest" "Validates full-stack parsing, graph, DSL rule execution, fixits, reparsing, and clean second pass." "C++17 / Catch2"
+                chai_e2e_test = component "ChaiScriptEndToEndTest" "Validates full-stack parsing, graph, ChaiScript execution, fixits, reparsing, and clean second pass." "C++17 / Catch2"
+            }
         }
 
         // Top-Level Relationships
@@ -113,6 +120,15 @@ workspace "xe-cmake-checker" "Architecture model for the Xenoide CMake style che
         xeCmake.libxe_cmake_checker_testing -> xeCmake.libxe_cmake_checker_core "Generates synthetic CSTs and tests roundtrips" "C++ API"
         xeCmake.libxe_cmake_checker_testing -> xeCmake.libxe_cmake_checker_analysis "Generates synthetic dependency graphs" "C++ API"
         xeCmake.libxe_cmake_checker_testing -> xeCmake.libxe_cmake_checker_io "Provides InMemoryFileSystem for tests" "C++ API"
+
+        // End-to-End Test Suite Relationships
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_rule_engine "Executes unified rule checks" "C++ API"
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_dsl "Evaluates YAML rules and fix templates" "C++ API"
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_script "Executes ChaiScript rules and procedural fixits" "C++ API"
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_analysis "Builds and queries semantic graph" "C++ API"
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_io "Operates on InMemoryFileSystem" "C++ API"
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_core "Parses CST and splices mutations" "C++ API"
+        xeCmake.xe_cmake_checker_e2e_test -> xeCmake.libxe_cmake_checker_testing "Uses shared Catch2 assertion utilities" "C++ API"
     }
 
     views {
@@ -162,6 +178,11 @@ workspace "xe-cmake-checker" "Architecture model for the Xenoide CMake style che
         }
 
         component xeCmake.libxe_cmake_checker_testing "TestingComponents" "Components inside libxe-cmake-checker-testing." {
+            include *
+            autoLayout lr
+        }
+
+        component xeCmake.xe_cmake_checker_e2e_test "E2eTestComponents" "Components inside xe-cmake-checker-e2e-test." {
             include *
             autoLayout lr
         }
