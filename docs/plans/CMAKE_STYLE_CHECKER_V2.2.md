@@ -26,12 +26,12 @@ An accompanying **Structurizr Architecture Model** is maintained alongside this 
 | **Separation of Concerns** | **Dedicated DSL & Script Libraries** | `libxe-cmake-checker-dsl` owns all YAML DSL parsing and evaluation; `libxe-cmake-checker-script` owns ChaiScript embedding and script rule execution. |
 | **Low-Level C++ Primitives** | **Lean C++ Core, Computed in Scripts/DSL** | C++ exposes low-level, orthogonal primitives (CST nodes, quotes, string/regex ops, generic directed graph edges). High-level checks are computed within DSL / ChaiScript. |
 | **Scripting Engine** | **ChaiScript 6.1.0** | Available via ConanCenter (`chaiscript/6.1.0`, header-only, C++17 compatible). Isolated strictly within `libxe-cmake-checker-script` behind an opaque Pimpl facade. |
-| **Fixit Philosophy** | **Strictly Optional Fixits** | Rules catch errors; providing an automated fix (`Fix`) is optional. Findings without fixes report as diagnostics requiring manual intervention. |
+| **Fixit Philosophy** | **Strictly Optional Fixits & Isolated Testing** | Rules catch errors; providing an automated fix (`Fix`) is optional. Findings without fixes report as diagnostics requiring manual intervention. **Engine runs are strictly check-only (`--check`, no fixits applied).** Fixits are tested exclusively within an isolated synthetic sandbox project via a separate plan artifact (`docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md`) to avoid corrupting repository CMake projects. |
 | **Graph Model** | **Concrete Syntax Tree (CST) + Directed Graph** | Lossless trivia preservation (comments, whitespace, exact spans) with parent/sibling pointers and generic directed dependency edges (incoming/outgoing). |
 | **Write-back** | **Surgical Minimal-Diff** | Untouched bytes stay identical; only mutated spans are spliced. Supports multi-file transactional edits (`WorkspaceEdit`). |
 | **CMake Target Standards** | **Strict `docs/CMAKE.md` Compliance** | One target per folder, target name matches folder name (`libxe-cmake-checker-*`), one line per dependency in `target_link_libraries`, alias targets `xe::cmake-checker-*`. |
 | **C++ Standards** | **Strict `docs/CPP.md` Compliance** | C++17, zero warnings (`-Werror`), explicit types (no `auto` for primitives), `std::string_view` for views, namespace `xe::cmake::*`, constructor DI for orchestrators. |
-| **Testing Strategy** | **Strict `docs/TESTING.md` Compliance** | Catch2 v3, property-based synthetic builders, Catch2 seed determinism (`Catch::rngSeed()`), reusable assertions, in-memory filesystem tests, shared `libxe-cmake-checker-testing` library. |
+| **Testing Strategy** | **Strict `docs/TESTING.md` Compliance** | Catch2 v3, property-based synthetic builders, Catch2 seed determinism (`Catch::rngSeed()`), reusable entity-prefixed assertions (`requireCstProperty`, `requireCstValidSpans`, `requireWorkspaceEditNonOverlapping`, `requireGraphAcyclic`), in-memory filesystem tests, shared `libxe-cmake-checker-testing` library. |
 | **Dependencies** | **Conan 2.x packages** | `chaiscript/6.1.0`, `rapidyaml/0.7.1`, `nlohmann_json/3.12.0`, `cxxopts/3.3.1`, `fmt/[>=11 <12]`, `catch2/3.14.0`. |
 | **Migration** | **Big-Bang Rewrite** | Replace v1 internal architecture; verify against frozen v1 golden diagnostics. Existing tree outside `src/cmake-checker` remains untouched. |
 
@@ -166,7 +166,7 @@ The table below establishes the **1:1 synchronization key** between the architec
    - Shared test infrastructure complying with `docs/TESTING.md`.
    - Parametric synthetic data generators (Builder pattern) for CST nodes, dependency graphs, and mock CMake projects.
    - Deterministic execution using Catch2's active execution seed (`Catch::rngSeed()`).
-   - Reusable Catch2 property assertions (`requireLosslessRoundTrip`, `requireValidSpans`, `requireNonOverlappingEdits`).
+   - Reusable Catch2 property assertions with entity-prefixed naming (`requireCstProperty`, `requireCstLosslessRoundTrip`, `requireCstValidSpans`, `requireWorkspaceEditNonOverlapping`, `requireGraphAcyclic`).
 8. **`xe-cmake-checker` (CLI application)**:
    - Thin command-line interface using `cxxopts` and `fmt`.
    - Orchestrates loading, checking, `--diff` preview, `--fix` application, and diagnostics reporting.
@@ -620,11 +620,15 @@ In strict accordance with `docs/TESTING.md`:
          .build());
      ```
    - **Determinism**: Synthetic random generators use Catch2's active execution seed via `Catch::rngSeed()` for reproducible test failures.
-   - **Reusable Property Assertions**: Custom assertions verify domain properties across all tests:
-     - `requireLosslessRoundTrip(cst, original_bytes)`
-     - `requireValidSpans(cst)`
-     - `requireNonOverlappingEdits(workspace_edit)`
-     - `requireAcyclicGraph(directed_graph)`
+   - **Reusable Property Assertions (Entity-Prefixed Naming)**: All assertion utilities explicitly embed their target entity in the function name to eliminate ambiguity and enforce strict domain type checking:
+     - `requireCstProperty(cst, predicate, description)`: Verifies structural and semantic invariants on CST nodes.
+     - `requireCstLosslessRoundTrip(cst, original_bytes)`: Verifies byte-for-byte serialization matches original source text.
+     - `requireCstValidSpans(cst)`: Verifies all token and node source spans are monotonic, non-inverting, and within buffer bounds.
+     - `requireWorkspaceEditNonOverlapping(workspace_edit)`: Verifies multi-file transactional text edits contain zero overlapping intervals.
+     - `requireWorkspaceEditSplicingValid(workspace_edit, source_text)`: Verifies text edits splice cleanly without corrupting boundaries.
+     - `requireGraphAcyclic(directed_graph)`: Verifies dependency graph contains no circular references.
+     - `requireFindingMatches(finding, expected_rule_id, expected_severity)`: Verifies diagnostic reporter output properties.
+     - `requireFixApplicable(fix, cst)`: Verifies automated fixits cleanly apply to the target syntax tree.
 4. **Precondition & Postcondition Checks**: Every test checks preconditions on generated test data before invoking the SUT.
 5. **Sibling Test Targets**:
    - `libxe-cmake-checker-core-test`: Lossless CST round-trips, span validity, mutation splicer reversibility.
@@ -637,9 +641,494 @@ In strict accordance with `docs/TESTING.md`:
 
 ---
 
+## Rule Authoring API Reference: DSL & ChaiScript
+
+This reference details the full programming model and API available to rule authors for both the Declarative YAML DSL (`libxe-cmake-checker-dsl`) and the Procedural ChaiScript Engine (`libxe-cmake-checker-script`).
+
+### 1. Declarative YAML DSL API Reference
+
+The declarative DSL is optimized for concise, pattern-based validation of CMake syntax trees and simple graph queries. Rules are stored in `.yaml` files under `src/cmake-checker/rules/`.
+
+#### Schema & Rule Structure
+
+```yaml
+rules:
+  - id: "<category>.<rule-slug>"              # Unique rule identifier (e.g., formatting.quote-sources)
+    severity: "error" | "warn" | "info" | "off" # Diagnostic severity
+    description: "<Human readable summary>"   # Short explanation of what the rule enforces
+    match:
+      node: "file" | "command" | "argument" | "block" # Target CST node type
+      name: "<command_name_or_regex>"         # Optional filter for 'command' nodes
+      pattern: "<regex_pattern>"              # Optional filter for 'argument' nodes
+    when: "<expression>"                      # Boolean predicate evaluated against matched node
+    message: "<Diagnostic text>"              # Output message; supports ${expr} string interpolations
+    fix:                                      # STRICTLY OPTIONAL
+      template: "<builtin_template_name>"     # Predefined C++ fix template
+      parameters:                             # Template arguments
+        <param_name>: "<value>"
+      # OR custom declarative text edit:
+      description: "<Fix summary>"
+      edits:
+        - action: "replace" | "insert_before" | "insert_after" | "remove"
+          span: "<span_expression>"
+          content: "<replacement_or_inserted_text>"
+```
+
+#### Node Contexts & Property Accessors
+
+| Context Object | Available In | Properties / Methods | Description |
+| :--- | :--- | :--- | :--- |
+| `file` | `file`, `command`, `argument` | `file.path` | Full normalized absolute path to the listfile (`string`) |
+| | | `file.directory` | Directory path containing the listfile (`string`) |
+| | | `file.folder_name` | Name of the parent directory (e.g. `"libxe-core"`) (`string`) |
+| | | `file.commands` | Read-only sequence of all `cmd` objects in the file |
+| | | `file.has_command(name)` | Returns `true` if a command with `name` exists (`bool`) |
+| | | `file.count_commands(name)` | Returns count of commands matching `name` (`int`) |
+| `cmd` | `command`, `argument` | `cmd.name` | Lowercase command name (e.g., `"add_library"`) (`string`) |
+| | | `cmd.arguments` | Sequence of all `arg` objects in the command |
+| | | `cmd.argument_count` | Number of arguments (`int`) |
+| | | `cmd.argument(idx)` | Retrieves `arg` at 0-based `idx` |
+| | | `cmd.first_arg` | First argument node, or `null` if empty |
+| | | `cmd.last_arg` | Last argument node, or `null` if empty |
+| | | `cmd.span` | Exact byte-range span of the full command statement (`span`) |
+| | | `cmd.file_path` | Source file containing the command (`string`) |
+| | | `cmd.parent` | Parent node reference (`block` or `file`) |
+| `arg` | `argument` | `arg.text` | Unescaped text content of the argument (`string`) |
+| | | `arg.quote_kind` | Quote classification: `"raw"`, `"quoted"`, `"bracket"` (`string`) |
+| | | `arg.is_quoted` | `true` if enclosed in double quotes (`bool`) |
+| | | `arg.is_raw` | `true` if unquoted token (`bool`) |
+| | | `arg.is_bracket` | `true` if enclosed in `[=[...]=]` bracket (`bool`) |
+| | | `arg.span` | Source byte span of the argument token (`span`) |
+| | | `arg.index` | 0-based argument position within the command (`int`) |
+| `graph` | Global query | `graph.node_ids` | Sequence of all target identifiers (`string`) |
+| | | `graph.has_target(name)` | Returns `true` if target `name` is declared in project (`bool`) |
+| | | `graph.incoming_edges(target)` | Sequence of `edge`s leading into `target` (consumers) |
+| | | `graph.outgoing_edges(target)` | Sequence of `edge`s from `target` (dependencies) |
+| | | `graph.is_dependency(from, to)`| Returns `true` if `from` links or depends on `to` (`bool`) |
+| `edge` | Edge queries | `edge.source` | Identifier of source target (`string`) |
+| | | `edge.target` | Identifier of destination target (`string`) |
+| | | `edge.attribute(key)` | Edge metadata (e.g., `"kind"`: `"target_link"`) (`string`) |
+| `span` | Span properties | `span.start_offset`, `span.end_offset` | Byte offsets in file buffer (`int`) |
+| | | `span.start_line`, `span.start_column` | 1-based source coordinate at start |
+| | | `span.end_line`, `span.end_column` | 1-based source coordinate at end |
+
+#### Built-in DSL Functions & Operators
+
+- **Higher-Order Sequences**:
+  - `count(seq, item -> boolean_expr)`: Counts matching elements.
+  - `exists(seq, item -> boolean_expr)`: Returns `true` if any element matches.
+  - `all(seq, item -> boolean_expr)`: Returns `true` if every element matches.
+  - `filter(seq, item -> boolean_expr)`: Filters sequence to matching items.
+  - `first(seq, item -> boolean_expr)`: Returns first matching item or `null`.
+  - `len(seq)`: Length of sequence.
+- **String & Regex Primitives**:
+  - `regex_match(text, pattern)`: Exact regex match.
+  - `regex_search(text, pattern)`: Substring regex search.
+  - `starts_with(text, prefix)`: Substring prefix check.
+  - `ends_with(text, suffix)`: Substring suffix check.
+  - `contains(text, substr)`: Substring containment check.
+  - `split(text, delimiter)`: Splits string into list of strings.
+  - `to_lower(text)` / `to_upper(text)`: Casing transformations.
+- **Path Utilities**:
+  - `path_basename(path)`: Returns filename or terminal directory name.
+  - `path_dirname(path)`: Returns directory path.
+  - `path_stem(path)`: Returns filename without extension.
+  - `path_extension(path)`: Returns file extension including leading dot.
+- **Comparison & Logical Operators**:
+  - `==`, `!=`, `<`, `<=`, `>`, `>=`
+  - `in`, `not in`
+  - `&&`, `||`, `!`
+
+#### Built-in Declarative Fix Templates
+
+| Template Name | Parameters | Behavior |
+| :--- | :--- | :--- |
+| `split_target_link_libraries_per_line` | None | Slices multi-target `target_link_libraries(target scope dep1 dep2 ...)` into one command per dependency: `target_link_libraries(${target} scope depN)`. |
+| `quote_argument` | `span` (default: `arg.span`) | Wraps the target unquoted argument in double quotes: `"text"`. |
+| `unquote_argument` | `span` (default: `arg.span`) | Removes bounding double quotes if raw token is safe. |
+| `replace_command_name` | `new_name: string` | Replaces command identifier token while preserving argument spans and trivia. |
+| `set_variable_value` | `var_name: string`, `new_value: string` | Replaces target expression in `set(<var> <value>)`. |
+| `append_command_after` | `target_cmd`, `command_text: string` | Slices a new formatted command statement directly after the matched command. |
+
+---
+
+### 2. ChaiScript Scripting API Reference
+
+For non-trivial structural validations, cross-file analysis, or multi-statement traversals, rules are authored in ChaiScript (`rules/*.chai`). ChaiScript rules run within an isolated sandbox managed by `libxe-cmake-checker-script`.
+
+#### Script Discovery & Hook Entry Points
+
+Rule files can define one or more standard hook functions:
+
+```chai
+// Invoked once for each parsed CMakeLists.txt file
+def check_file(ctx, file) {
+    // Structural, ordering, and target-level validations
+}
+
+// Invoked for each command statement
+def check_command(ctx, cmd) {
+    // Statement-level syntax and argument validations
+}
+
+// Invoked once per project with complete global dependency graph
+def check_project(ctx, project, graph) {
+    // Global graph, cycle, and reachability validations
+}
+```
+
+#### Core Classes & Method Bindings
+
+##### 1. `ExecutionContext` (`ctx`)
+- `ctx.report(Finding finding)`: Reports a diagnostic finding.
+- `ctx.file_path()` -> `std::string`: Returns path of current listfile being analyzed.
+
+##### 2. `Severity`
+- `Severity.Info`: Informational note.
+- `Severity.Warn`: Style or convention violation (default).
+- `Severity.Error`: Severe structural or correctness violation.
+
+##### 3. `Finding`
+- `Finding(rule_id: string, severity: Severity, message: string, span: SourceSpan)`: Constructs diagnostic-only finding (**no fixit**).
+- `Finding(rule_id: string, severity: Severity, message: string, span: SourceSpan, fix: Fix)`: Constructs finding with attached optional fix.
+- `finding.rule_id()` -> `string`
+- `finding.severity()` -> `Severity`
+- `finding.message()` -> `string`
+- `finding.span()` -> `SourceSpan`
+- `finding.has_fix()` -> `bool`
+- `finding.fix()` -> `Fix`
+
+##### 4. `Fix` & `TextEdit`
+- `Fix(description: string)`: Constructs automated fix container.
+- `fix.description()` -> `string`
+- `fix.add_edit(TextEdit edit)`: Appends an atomic text edit.
+- `fix.edits()` -> `Vector<TextEdit>`
+- `TextEdit.replace(span: SourceSpan, new_text: string)` -> `TextEdit`
+- `TextEdit.insert_before(offset: int, text: string)` -> `TextEdit`
+- `TextEdit.insert_after(offset: int, text: string)` -> `TextEdit`
+- `TextEdit.remove(span: SourceSpan)` -> `TextEdit`
+
+##### 5. `SourceSpan`
+- `span.start_offset()` -> `int`: 0-based buffer start offset.
+- `span.end_offset()` -> `int`: 0-based buffer end offset.
+- `span.start_line()` -> `int`: 1-based start line.
+- `span.start_column()` -> `int`: 1-based start column.
+- `span.end_line()` -> `int`: 1-based end line.
+- `span.end_column()` -> `int`: 1-based end column.
+
+##### 6. `ListfileNode` (`file`)
+- `file.path()` -> `string`: Full path to file.
+- `file.directory()` -> `string`: Parent directory path.
+- `file.folder_name()` -> `string`: Basename of parent folder.
+- `file.commands()` -> `Vector<CommandNode>`: All top-level commands in order.
+- `file.find_commands(name: string)` -> `Vector<CommandNode>`: Filtered commands matching name.
+
+##### 7. `CommandNode` (`cmd`)
+- `cmd.name()` -> `string`: Lowercase command name.
+- `cmd.arguments()` -> `Vector<ArgumentNode>`: All argument nodes.
+- `cmd.argument_count()` -> `int`: Total arguments count.
+- `cmd.argument(index: int)` -> `ArgumentNode`: Argument at 0-based index.
+- `cmd.span()` -> `SourceSpan`: Full span of command statement.
+- `cmd.file_path()` -> `string`: Enclosing listfile path.
+
+##### 8. `ArgumentNode` (`arg`)
+- `arg.text()` -> `string`: Unescaped argument text.
+- `arg.quote_kind()` -> `QuoteKind`: Quoting classification.
+- `arg.span()` -> `SourceSpan`: Exact token span.
+- `arg.index()` -> `int`: Position in argument list.
+
+##### 9. `QuoteKind`
+- `QuoteKind.Raw`: Unquoted token (e.g. `STATIC`, `${target}`).
+- `QuoteKind.Quoted`: Double-quoted string (e.g. `"src/Source.cpp"`).
+- `QuoteKind.Bracket`: Bracket-quoted string (`[=[...]=]`).
+
+##### 10. `DirectedDependencyGraph` (`graph`)
+- `graph.node_ids()` -> `Vector<string>`: All target names in project.
+- `graph.outgoing_edges(node_id: string)` -> `Vector<GraphEdge>`: Dependencies required by `node_id`.
+- `graph.incoming_edges(node_id: string)` -> `Vector<GraphEdge>`: Targets consuming `node_id`.
+- `graph.has_edge(source: string, target: string)` -> `bool`: Direct link existence check.
+- `graph.find_cycles()` -> `Vector<Vector<string>>`: Returns detected circular dependency cycles.
+
+##### 11. `GraphEdge` (`edge`)
+- `edge.source()` -> `string`: Consumer target name.
+- `edge.target()` -> `string`: Dependency target name.
+- `edge.attribute(key: string)` -> `string`: Edge metadata (e.g. `"kind"`: `"target_link"`).
+
+##### 12. `ProjectContext` (`project`)
+- `project.files()` -> `Vector<ListfileNode>`: All discovered project listfiles.
+- `project.find_targets(regex: string)` -> `Vector<string>`: Target names matching regex.
+- `project.find_commands(name_regex: string)` -> `Vector<CommandNode>`: Commands matching regex project-wide.
+
+##### 13. Primitive Helper Functions
+- `regex_match(text: string, pattern: string)` -> `bool`
+- `regex_search(text: string, pattern: string)` -> `bool`
+- `str_contains(text: string, substr: string)` -> `bool`
+- `str_starts_with(text: string, prefix: string)` -> `bool`
+- `str_ends_with(text: string, suffix: string)` -> `bool`
+- `str_split(text: string, delim: string)` -> `Vector<string>`
+- `to_string(val)` -> `string`
+
+---
+
+## Materialized Rule Catalog from `docs/CMAKE.md` (Output Artifacts)
+
+The repository conventions defined in [docs/CMAKE.md](file:///home/fapablaza/Desktop/nativedevcl/Xenoide/docs/CMAKE.md) are materialized into two concrete rule output artifacts:
+1. **`src/cmake-checker/rules/cmake_guidelines.yaml`** (Declarative DSL rules)
+2. **`src/cmake-checker/rules/cmake_guidelines.chai`** (ChaiScript procedural & graph rules)
+
+### Rule Mapping Summary
+
+| # | `docs/CMAKE.md` Convention | Rule Identifier | Implementation Layer | Automated Fixit |
+| :- | :--- | :--- | :--- | :--- |
+| **1** | A single CMake target should be stored in a given folder | `structure.single-target-per-folder` | DSL & ChaiScript | Diagnostic only (no safe split) |
+| **2** | Target name should have the same name as the folder | `naming.target-matches-folder` | ChaiScript | Optional rename fix |
+| **3** | A Target can exist in either `src/engine` or `src/ide` | `structure.target-location` | ChaiScript | Diagnostic only |
+| **4** | Target name declared via `set (target "...")` | `target.variable-definition` | DSL & ChaiScript | Optional template fix |
+| **5** | Target declaration uses `${target}` variable | `target.declaration-uses-variable` | DSL | Optional replace fix |
+| **6** | Source files declared via `set (sources ...)` | `sources.variable-definition` | DSL | Diagnostic only |
+| **7** | Source files in `set (sources ...)` must be quoted | `formatting.quote-source-paths` | DSL & ChaiScript | Optional quote fix |
+| **8** | `# one line per dependency` in `target_link_libraries` | `formatting.target-link-single-dependency`| DSL | Optional split template fix |
+| **9** | Static libraries declare `add_library(prefix::name ALIAS ${target})` | `library.alias-specification` | ChaiScript | Diagnostic only |
+| **10** | Static libraries declare `target_include_directories(${target} PUBLIC "src")` | `library.include-directories-src` | ChaiScript | Optional append fix |
+| **11** | Catch2 tests declare `find_package(Catch2 REQUIRED)`, `PRIVATE Catch2::Catch2WithMain`, `include(Catch)`, and `catch_discover_tests(${target})` | `testing.catch2-structure` | ChaiScript | Diagnostic only |
+
+---
+
+### Output Artifact 1: `src/cmake-checker/rules/cmake_guidelines.yaml`
+
+```yaml
+# Materialized DSL rules generated from docs/CMAKE.md
+rules:
+  # 1. Target declaration uses ${target} variable
+  - id: target.declaration-uses-variable
+    severity: error
+    description: "add_library and add_executable must use ${target} as the first argument"
+    match:
+      node: command
+    when: "cmd.name in ['add_library', 'add_executable'] && cmd.argument_count > 0 && cmd.argument(0).text != '${target}'"
+    message: "Target declaration in ${file.path} must use '\${target}' as its first argument (docs/CMAKE.md)"
+    fix:
+      description: "Replace target identifier with ${target}"
+      edits:
+        - action: replace
+          span: cmd.argument(0).span
+          content: "${target}"
+
+  # 2. Source file paths in set(sources ...) must be double-quoted
+  - id: formatting.quote-source-paths
+    severity: warn
+    description: "Source files declared in set(sources ...) must be enclosed in quotes"
+    match:
+      node: argument
+    when: "cmd.name == 'set' && cmd.argument_count > 1 && cmd.argument(0).text == 'sources' && arg.index > 0 && !arg.is_quoted"
+    message: "Source file '${arg.text}' in set(sources ...) must be quoted (docs/CMAKE.md)"
+    fix:
+      template: quote_argument
+
+  # 3. One line per dependency in target_link_libraries
+  - id: formatting.target-link-single-dependency
+    severity: warn
+    description: "target_link_libraries must declare exactly one linked dependency per statement"
+    match:
+      node: command
+      name: "target_link_libraries"
+    when: "count(cmd.arguments, a -> a.index > 1 && a.text not in ['PUBLIC', 'PRIVATE', 'INTERFACE']) > 1"
+    message: "target_link_libraries must have one line per dependency (docs/CMAKE.md)"
+    fix:
+      template: split_target_link_libraries_per_line
+
+  # 4. Target variable definition check
+  - id: target.variable-definition
+    severity: error
+    description: "Every target listfile must define set(target \"...\")"
+    match:
+      node: file
+    when: "!file.has_command('set') || count(file.commands, c -> c.name == 'set' && c.argument_count >= 2 && c.argument(0).text == 'target') == 0"
+    message: "Listfile ${file.path} is missing mandatory set(target \"...\") declaration (docs/CMAKE.md)"
+    # Diagnostic only - fix requires human decision
+```
+
+---
+
+### Output Artifact 2: `src/cmake-checker/rules/cmake_guidelines.chai`
+
+```chai
+// Materialized ChaiScript rules generated from docs/CMAKE.md
+
+def check_file(ctx, file) {
+    var path = file.path();
+    var folder_name = file.folder_name();
+    
+    // Ignore top-level root or non-target directories
+    if (folder_name == "src" || folder_name == "cmake" || folder_name == "engine" || folder_name == "ide") {
+        return;
+    }
+
+    // 1. Target location check: A Target can exist in either src/engine or src/ide
+    if (!str_contains(path, "src/engine/") && !str_contains(path, "src/ide/") && !str_contains(path, "src/cmake-checker/")) {
+        ctx.report(Finding(
+            "structure.target-location",
+            Severity.Warn,
+            "Target directory '" + folder_name + "' must exist under src/engine or src/ide (docs/CMAKE.md)",
+            SourceSpan(0, 0, 1, 1, 1, 1)
+        ));
+    }
+
+    // Collect target definitions
+    var target_commands = Vector();
+    var set_target_cmd = null;
+    var set_sources_cmd = null;
+    var alias_cmd = null;
+    var include_dirs_cmd = null;
+    var catch_discover_cmd = null;
+    var find_catch2_cmd = null;
+
+    for (cmd in file.commands()) {
+        if (cmd.name() == "add_library" || cmd.name() == "add_executable") {
+            if (cmd.argument_count() > 1 && cmd.argument(1).text() == "ALIAS") {
+                alias_cmd = cmd;
+            } else {
+                target_commands.push_back(cmd);
+            }
+        } else if (cmd.name() == "set" && cmd.argument_count() >= 2) {
+            if (cmd.argument(0).text() == "target") {
+                set_target_cmd = cmd;
+            } else if (cmd.argument(0).text() == "sources") {
+                set_sources_cmd = cmd;
+            }
+        } else if (cmd.name() == "target_include_directories") {
+            include_dirs_cmd = cmd;
+        } else if (cmd.name() == "catch_discover_tests") {
+            catch_discover_cmd = cmd;
+        } else if (cmd.name() == "find_package" && cmd.argument_count() >= 1 && cmd.argument(0).text() == "Catch2") {
+            find_catch2_cmd = cmd;
+        }
+    }
+
+    // 2. Single CMake target per folder
+    if (target_commands.size() > 1) {
+        ctx.report(Finding(
+            "structure.single-target-per-folder",
+            Severity.Error,
+            "Folder '" + folder_name + "' defines " + to_string(target_commands.size()) + 
+            " targets; exactly one target per folder is permitted (docs/CMAKE.md)",
+            target_commands[1].span()
+        ));
+    }
+
+    // 3. Target name should have the same name as the folder
+    if (set_target_cmd != null && set_target_cmd.argument_count() >= 2) {
+        var declared_target = set_target_cmd.argument(1).text();
+        if (declared_target != folder_name) {
+            var fix = Fix("Set target name to match folder name");
+            fix.add_edit(TextEdit.replace(set_target_cmd.argument(1).span(), "\"" + folder_name + "\""));
+
+            ctx.report(Finding(
+                "naming.target-matches-folder",
+                Severity.Error,
+                "Target name '" + declared_target + "' does not match folder name '" + folder_name + "' (docs/CMAKE.md)",
+                set_target_cmd.argument(1).span(),
+                fix
+            ));
+        }
+    }
+
+    // If target is a static library: verify ALIAS and target_include_directories
+    var is_library = (target_commands.size() == 1 && target_commands[0].name() == "add_library");
+    var is_test = str_ends_with(folder_name, "-test");
+
+    if (is_library && !is_test) {
+        if (alias_cmd == null) {
+            ctx.report(Finding(
+                "library.alias-specification",
+                Severity.Warn,
+                "Static library in '" + folder_name + "' must declare an ALIAS target (docs/CMAKE.md)",
+                target_commands[0].span()
+            ));
+        }
+
+        if (include_dirs_cmd == null) {
+            ctx.report(Finding(
+                "library.include-directories-src",
+                Severity.Warn,
+                "Static library in '" + folder_name + "' must declare target_include_directories(${target} PUBLIC \"src\") (docs/CMAKE.md)",
+                target_commands[0].span()
+            ));
+        }
+    }
+
+    // If target is a Catch2 test target: verify Catch2 specification
+    if (is_test) {
+        if (find_catch2_cmd == null) {
+            ctx.report(Finding(
+                "testing.catch2-specification",
+                Severity.Error,
+                "Test target '" + folder_name + "' is missing find_package(Catch2 REQUIRED) (docs/CMAKE.md)",
+                file.commands()[0].span()
+            ));
+        }
+        if (catch_discover_cmd == null) {
+            ctx.report(Finding(
+                "testing.catch2-specification",
+                Severity.Error,
+                "Test target '" + folder_name + "' is missing catch_discover_tests(${target}) (docs/CMAKE.md)",
+                file.commands()[file.commands().size() - 1].span()
+            ));
+        }
+    }
+}
+```
+
+---
+
+## Engine Verification & FixIt Testing Strategy (Isolated Sandbox Plan)
+
+To eliminate any possibility of corrupting the live repository codebase, adoption follows a strict **two-track execution strategy**:
+
+### Track 1: Safe Engine Verification (`src/engine`) — Check-Only (Zero Fixits)
+
+1. The `xe-cmake-checker` tool is executed against `src/engine` **strictly in read-only check mode**:
+   ```bash
+   mise run cmake-check:release
+   # Evaluates all engine listfiles with zero write operations
+   ```
+2. **Strict Invariant**: No `--fix` option is supplied. Zero modifications or text splices will be performed against any listfile in `src/engine` or `src/ide`.
+3. **Verification**: Tool execution is verified against the v1 baseline to ensure zero regressions, zero false positives, and clear diagnostic reporting.
+
+### Track 2: Dedicated Plan Artifact for FixIt Verification (`CMAKE_CHECKER_FIXIT_TESTING_PLAN.md`)
+
+Automated text edits and AST splicing are high-risk mutations. Running untested fixits directly on real project CMake files risks silent corruption, destroyed trivia, invalid spans, or broken builds.
+
+Therefore, as part of plan execution, an independent dedicated plan artifact is created:
+**`docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md`**
+
+#### Key Provisions of the FixIt Testing Plan:
+1. **Isolated Sandbox Test Project**:
+   A dedicated synthetic CMake fixture project is created at `tests/fixtures/cmake-fixit-sandbox/`. This sandbox is completely decoupled from repository build targets and intentionally incorporates violations of every guideline in `docs/CMAKE.md`:
+   - Multiple targets declared within a single directory.
+   - Target names conflicting with folder names.
+   - Unquoted source files in `set (sources ...)`.
+   - Multi-argument `target_link_libraries` calls.
+   - Missing library ALIAS and missing `target_include_directories`.
+   - Incomplete Catch2 test setups.
+2. **DSL Fix Template Validation in Sandbox**:
+   - Executes `split_target_link_libraries_per_line` against sandbox listfiles.
+   - Executes `quote_argument` on unquoted source paths.
+   - Enforces `requireWorkspaceEditNonOverlapping` and `requireWorkspaceEditSplicingValid`.
+3. **ChaiScript Procedural Fixit Validation in Sandbox**:
+   - Executes ChaiScript rules generating `Fix` objects with `TextEdit.replace`, `insert_before`, and `remove`.
+   - Validates that reverse-offset text splicing preserves byte-exact formatting trivia and produces clean git diffs.
+4. **Idempotency & Build Integrity Verification**:
+   - **Pass 1**: Applying fixits resolves the target diagnostics.
+   - **Pass 2**: A subsequent run produces **zero diffs** (idempotency).
+   - **Build Validation**: Invoking `cmake -B <build_dir>` on the repaired sandbox project executes without configuration errors.
+5. **Production Gate**: Under no circumstances will `--fix` be executed on `src/engine` or `src/ide` until the entire verification matrix in `CMAKE_CHECKER_FIXIT_TESTING_PLAN.md` has been successfully executed and approved.
+
+---
+
 ## Adoption & Verification Plan
 
-All steps utilize Mise and adhere to the zero-warning policy (`-Werror`):
+All verification steps adhere strictly to the zero-warning policy (`-Werror`) and dev tasks orchestration via Mise:
 
 ```bash
 # 1. Update Conan dependencies
@@ -649,7 +1138,7 @@ mise run install:cmake-check:release
 # 2. Build the toolsuite and unit test suites (Release)
 mise run build:cmake-check:release
 
-# 3. Run per-library unit tests
+# 3. Run per-library unit tests (verifying entity-prefixed Catch2 assertions)
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-core-test
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-io-test
 src/cmake-checker/build-cmake-check/Release/bin/libxe-cmake-checker-analysis-test
@@ -667,12 +1156,17 @@ src/cmake-checker/build-cmake-check/Debug/bin/libxe-cmake-checker-core-test
 mise run tidy:release --fix
 mise run format
 
-# 6. Run style check on engine (verification against v1 baseline)
+# 6. Materialize Output Artifacts from docs/CMAKE.md
+# Generates src/cmake-checker/rules/cmake_guidelines.yaml
+# Generates src/cmake-checker/rules/cmake_guidelines.chai
+
+# 7. Safe Engine Verification (Check-Only, NO fixits applied)
 mise run configure:cmake-check:release
 mise run cmake-check:release
 
-# 7. Verify optional fixits preview and apply
-mise run cmake-check:release -- --fix --diff
+# 8. Create Plan Artifact: docs/plans/CMAKE_CHECKER_FIXIT_TESTING_PLAN.md
+# Prepares the isolated sandbox project (tests/fixtures/cmake-fixit-sandbox/)
+# and specifies full DSL & ChaiScript fixit verification before any live fixits.
 ```
 
 ---
