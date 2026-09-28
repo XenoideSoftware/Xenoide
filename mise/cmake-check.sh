@@ -10,7 +10,7 @@ fi
 
 CONFIG="$1"
 LOWER="$(echo "$CONFIG" | tr '[:upper:]' '[:lower:]')"
-BIN="$REPO_ROOT/src/cmake-checker/build-cmake-check/$CONFIG/bin/cmake-checker"
+BIN="$REPO_ROOT/src/cmake-checker/build-cmake-check/$CONFIG/bin/xe-cmake-checker"
 
 if [ ! -x "$BIN" ]; then
     echo "Error: cmake-checker binary not found at $BIN."

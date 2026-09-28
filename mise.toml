@@ -7,7 +7,7 @@ run_windows = "powershell -ExecutionPolicy Bypass -File mise/export-recipes.ps1"
 description = "Install Conan dependencies for Release configuration"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 run = './mise/install.sh Release "{{ usage.project }}"'
@@ -17,7 +17,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/install.ps1 -Config
 description = "Install Conan dependencies for Debug configuration"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 run = './mise/install.sh Debug "{{ usage.project }}"'
@@ -27,7 +27,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/install.ps1 -Config
 description = "Default dependency setup (Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [
@@ -39,7 +39,7 @@ depends = [
 description = "Configure CMake for Release build"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "install:release", args = ["--project", "{{usage.project}}"] }]
@@ -50,7 +50,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Conf
 description = "Configure CMake for Debug build"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "install:debug", args = ["--project", "{{usage.project}}"] }]
@@ -61,7 +61,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/configure.ps1 -Conf
 description = "Default CMake configuration (Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "configure:release", args = ["--project", "{{usage.project}}"] }]
@@ -70,7 +70,7 @@ depends = [{ task = "configure:release", args = ["--project", "{{usage.project}}
 description = "Build Release binaries"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "configure:release", args = ["--project", "{{usage.project}}"] }]
@@ -81,7 +81,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/build.ps1 -Configur
 description = "Build Debug binaries"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "configure:debug", args = ["--project", "{{usage.project}}"] }]
@@ -92,7 +92,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/build.ps1 -Configur
 description = "Default build (Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "build:release", args = ["--project", "{{usage.project}}"] }]
@@ -101,7 +101,7 @@ depends = [{ task = "build:release", args = ["--project", "{{usage.project}}"] }
 description = "Run tests for Release build"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "build:release", args = ["--project", "{{usage.project}}"] }]
@@ -112,7 +112,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/test.ps1 -Configura
 description = "Run tests for Debug build"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "build:debug", args = ["--project", "{{usage.project}}"] }]
@@ -123,7 +123,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/test.ps1 -Configura
 description = "Default test (Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "test:release", args = ["--project", "{{usage.project}}"] }]
@@ -132,7 +132,7 @@ depends = [{ task = "test:release", args = ["--project", "{{usage.project}}"] }]
 description = "Format C/C++ source files in the selected subproject using clang-format"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 run = './mise/format.sh "{{ usage.project }}"'
@@ -142,7 +142,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/format.ps1 -Project
 description = "Install Conan dependencies for tidy (Debug)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 run = './mise/setup-tidy.sh Debug "{{ usage.project }}"'
@@ -152,7 +152,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Con
 description = "Install Conan dependencies for tidy (Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 run = './mise/setup-tidy.sh Release "{{ usage.project }}"'
@@ -162,7 +162,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/setup-tidy.ps1 -Con
 description = "Configure CMake for tidy analysis (Debug)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "install:tidy:debug", args = ["--project", "{{usage.project}}"] }]
@@ -173,7 +173,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 
 description = "Configure CMake for tidy analysis (Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 depends = [{ task = "install:tidy:release", args = ["--project", "{{usage.project}}"] }]
@@ -184,7 +184,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/configure-tidy.ps1 
 description = "Run clang-tidy against the Debug build"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--fix" help="Apply clang-tidy fix-its to source files"
 flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
@@ -199,7 +199,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configura
 description = "Run clang-tidy against the Release build"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--fix" help="Apply clang-tidy fix-its to source files"
 flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
@@ -214,7 +214,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/tidy.ps1 -Configura
 description = "Run clang-tidy against both Debug and Release builds for full coverage"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--fix" help="Apply clang-tidy fix-its to source files"
 flag "--full" help="Check all files in compile_commands.json instead of only git-modified files"
@@ -287,7 +287,7 @@ powershell -ExecutionPolicy Bypass -File mise/cmake-check.ps1 -Configuration Rel
 description = "Clean build directories of the selected subproject"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 '''
 run = './mise/clean.sh "{{ usage.project }}"'
@@ -301,7 +301,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/clean.ps1 -Project 
 description = "Generate code coverage using GCC and gcov (Debug configuration)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -316,7 +316,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Generate code coverage using GCC and gcov (Release configuration)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -331,7 +331,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Generate code coverage using GCC and gcov (Merged Debug + Release configurations)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -346,7 +346,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Default GCC code coverage (Merged Debug + Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -361,7 +361,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Generate code coverage using Clang and llvm-cov (Debug configuration)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -376,7 +376,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Generate code coverage using Clang and llvm-cov (Release configuration)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -391,7 +391,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Generate code coverage using Clang and llvm-cov (Merged Debug + Release configurations)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -406,7 +406,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Default LLVM code coverage (Merged Debug + Release)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -421,7 +421,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Default code coverage (llvm-cov all)"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--config <config>" help="Build configuration to run coverage for: Debug, Release or all"
 flag "--export <format>" help="Report export format: text, html or csv"
@@ -440,7 +440,7 @@ run_windows = 'powershell -ExecutionPolicy Bypass -File mise/coverage.ps1 -Tool 
 description = "Run Mull mutation testing against the unit test suite"
 usage = '''
 flag "--project <project>" help="Subproject to operate on: engine, ide, pocs or all" default="all" {
-  choices "engine" "ide" "pocs" "all"
+  choices "engine" "ide" "pocs" "cmake-checker" "all"
 }
 flag "--generate" help="Discover and generate mutants without running tests (dry run)"
 flag "--kill" help="Execute unit tests against each mutant to kill them (default mode)"

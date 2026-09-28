@@ -19,11 +19,12 @@ MISE_DIR="$REPO_ROOT/mise"
 # explicit directory path.
 resolve_projects() {
     case "${1:-all}" in
-        engine) echo "src/engine" ;;
-        ide)    echo "src/ide" ;;
-        pocs)   echo "src/pocs" ;;
-        all)    echo "src/engine src/ide src/pocs" ;;
-        *)      echo "$1" ;;
+        engine)        echo "src/engine" ;;
+        ide)           echo "src/ide" ;;
+        pocs)          echo "src/pocs" ;;
+        cmake-checker) echo "src/cmake-checker" ;;
+        all)           echo "src/engine src/ide src/pocs" ;;
+        *)             echo "$1" ;;
     esac
 }
 

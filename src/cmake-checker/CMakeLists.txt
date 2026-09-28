@@ -7,8 +7,6 @@ project (cmake-checker VERSION ${XE_BUILD_VERSION})
 include(XETesting)
 include(XEBaseTarget)
 
-option (XE_CMAKE_CHECKER_WITH_TESTS "Build the cmake-checker unit test suite" OFF)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

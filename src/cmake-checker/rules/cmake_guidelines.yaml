@@ -1,0 +1,48 @@
+# Materialized DSL rules generated from docs/CMAKE.md
+rules:
+  # 1. Target declaration uses ${target} variable
+  - id: target.declaration-uses-variable
+    severity: error
+    description: "add_library and add_executable must use ${target} as the first argument"
+    match:
+      node: command
+    when: "cmd.name in ['add_library', 'add_executable'] && cmd.argument_count > 0 && cmd.argument(0).text != '${target}'"
+    message: "Target declaration in ${file.path} must use '${target}' as its first argument (docs/CMAKE.md)"
+    fix:
+      description: "Replace target identifier with ${target}"
+      edits:
+        - action: replace
+          span: cmd.argument(0).span
+          content: "${target}"
+
+  # 2. Source file paths in set(sources ...) must be double-quoted
+  - id: formatting.quote-source-paths
+    severity: warn
+    description: "Source files declared in set(sources ...) must be enclosed in quotes"
+    match:
+      node: argument
+    when: "cmd.name == 'set' && cmd.argument_count > 1 && cmd.argument(0).text == 'sources' && arg.index > 0 && !arg.is_quoted"
+    message: "Source file '${arg.text}' in set(sources ...) must be quoted (docs/CMAKE.md)"
+    fix:
+      template: quote_argument
+
+  # 3. One line per dependency in target_link_libraries
+  - id: formatting.target-link-single-dependency
+    severity: warn
+    description: "target_link_libraries must declare exactly one linked dependency per statement"
+    match:
+      node: command
+      name: "target_link_libraries"
+    when: "count(cmd.arguments, a -> a.index > 1 && a.text not in ['PUBLIC', 'PRIVATE', 'INTERFACE']) > 1"
+    message: "target_link_libraries must have one line per dependency (docs/CMAKE.md)"
+    fix:
+      template: split_target_link_libraries_per_line
+
+  # 4. Target variable definition check
+  - id: target.variable-definition
+    severity: error
+    description: "Every target listfile must define set(target \"...\")"
+    match:
+      node: file
+    when: "!file.has_command('set') || count(file.commands, c -> c.name == 'set' && c.argument_count >= 2 && c.argument(0).text == 'target') == 0"
+    message: "Listfile ${file.path} is missing mandatory set(target \"...\") declaration (docs/CMAKE.md)"
