@@ -1,0 +1,281 @@
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:1:24: warn L1.space_before_paren command 'cmake_minimum_required' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:6:9: warn L1.space_before_paren command 'project' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:10:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:11:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:12:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:13:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:14:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:15:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:16:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/CMakeLists.txt:17:8: warn L1.space_before_paren command 'option' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/CMakeLists.txt:2:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/CMakeLists.txt:3:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/CMakeLists.txt:4:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:2:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:3:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:4:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:5:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:6:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:7:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:8:18: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:10:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:12:7: warn L1.space_before_paren command 'endif' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:14:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:15:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:16:7: warn L1.space_before_paren command 'endif' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:18:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:22:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:23:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:24:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:27:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:29:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:30:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:31:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:32:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/CMakeLists.txt:33:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core-platform-glfw/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core-platform-glfw/CMakeLists.txt:6:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core-platform-glfw/CMakeLists.txt:12:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core-platform-glfw/CMakeLists.txt:16:48: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core-platform-glfw/CMakeLists.txt:19:1: warn R2a.library_name library target 'xe-platform-glfw' must match its folder name 'xe-core-platform-glfw' (leading 'lib' stripped)
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core-platform-glfw/CMakeLists.txt:22:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:6:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:6:13: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:7:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:8:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:9:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:10:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:11:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:12:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:13:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:14:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:15:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:16:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:22:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:28:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:30:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:31:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:31:23: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:34:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:35:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:37:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:39:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:40:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:41:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:42:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:43:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:45:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:47:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:48:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:49:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:50:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:51:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:52:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:53:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:54:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:55:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:58:13: warn L1.space_before_paren command 'add_library' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:61:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:62:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:66:1: warn R4.link_keywords target_link_libraries('xe-core'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:67:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:68:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-core/CMakeLists.txt:69:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-geometry-test/CMakeLists.txt:2:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-geometry-test/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-geometry/CMakeLists.txt:2:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-geometry/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-geometry/CMakeLists.txt:18:50: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl-test/CMakeLists.txt:1:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl-test/CMakeLists.txt:3:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl-test/CMakeLists.txt:7:1: warn R2c.test_name test target 'libxe-graphics-test' must be named 'xe-graphics-gl-test' (folder 'libxe-graphics-gl-test' with 'lib' stripped) and end with '-test'
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl-test/CMakeLists.txt:8:64: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:9:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:11:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:12:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:13:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:14:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:15:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:16:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:17:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:18:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:19:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:20:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:24:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:25:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:27:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:28:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:29:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:30:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:31:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:32:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:33:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:36:1: warn R2a.library_name library target 'libxe-graphics-gl' must match its folder name 'xe-graphics-gl' (leading 'lib' stripped)
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:36:13: warn L1.space_before_paren command 'add_library' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:39:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:40:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:40:28: warn L1.space_before_paren command 'target_precompile_headers' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:43:28: warn L1.space_before_paren command 'target_include_directories' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:44:1: warn R4.link_keywords target_link_libraries('libxe-graphics-gl'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:44:23: warn L1.space_before_paren command 'target_link_libraries' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:45:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:46:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:47:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:48:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:49:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:50:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:51:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:52:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl/CMakeLists.txt:53:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:6:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:6:13: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:7:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:8:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:9:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:10:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:11:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:12:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:13:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:14:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:15:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:18:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:19:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:20:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:21:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:22:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:23:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:24:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:25:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:26:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:30:1: warn R2a.library_name library target 'libxe-graphics-gl3' must match its folder name 'xe-graphics-gl3' (leading 'lib' stripped)
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:30:13: warn L1.space_before_paren command 'add_library' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:35:23: warn L1.space_before_paren command 'target_link_libraries' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:36:23: warn L1.space_before_paren command 'target_link_libraries' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-gl3/CMakeLists.txt:37:23: warn L1.space_before_paren command 'target_link_libraries' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-png/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-png/CMakeLists.txt:5:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics-png/CMakeLists.txt:5:13: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:9:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:11:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:12:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:13:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:14:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:15:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:16:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:17:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:18:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:19:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:20:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:21:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:22:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:23:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:24:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:25:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:26:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:27:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:28:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:29:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:30:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:31:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:32:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:33:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:34:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:36:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:37:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:38:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:41:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:42:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:44:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:45:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:46:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:47:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:48:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:49:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:50:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:51:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:52:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:53:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:54:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:55:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:56:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:57:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:58:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:60:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:61:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:64:1: warn R2a.library_name library target 'libxe-graphics' must match its folder name 'xe-graphics' (leading 'lib' stripped)
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:64:13: warn L1.space_before_paren command 'add_library' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:67:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:68:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:68:28: warn L1.space_before_paren command 'target_precompile_headers' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:71:28: warn L1.space_before_paren command 'target_include_directories' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:72:1: warn R4.link_keywords target_link_libraries('libxe-graphics'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:72:23: warn L1.space_before_paren command 'target_link_libraries' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:73:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:74:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:75:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:76:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:77:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:78:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:79:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-graphics/CMakeLists.txt:80:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-imgui/CMakeLists.txt:8:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-imgui/CMakeLists.txt:9:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-imgui/CMakeLists.txt:14:9: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-imgui/CMakeLists.txt:15:9: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-imgui/CMakeLists.txt:21:1: warn R2a.library_name library target 'libxe-imgui' must match its folder name 'xe-imgui' (leading 'lib' stripped)
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math-test/CMakeLists.txt:1:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math-test/CMakeLists.txt:3:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math-test/CMakeLists.txt:20:50: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math-test/CMakeLists.txt:22:25: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math/CMakeLists.txt:2:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math/CMakeLists.txt:24:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math/CMakeLists.txt:38:13: warn L1.space_before_paren command 'add_library' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-math/CMakeLists.txt:41:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-mesh/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-mesh/CMakeLists.txt:6:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene-test/CMakeLists.txt:2:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene-test/CMakeLists.txt:3:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene-test/CMakeLists.txt:10:64: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:2:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:3:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:4:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:5:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:7:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:8:1: warn L2.whitespace tabs are not allowed; use spaces only
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/components/libxe-scene/CMakeLists.txt:15:57: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/CMakeLists.txt:3:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/CMakeLists.txt:7:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/CMakeLists.txt:8:3: warn L2.whitespace indentation must be a multiple of 4 spaces
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/CMakeLists.txt:11:31: warn L2.whitespace trailing whitespace is not allowed
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-glaze-app/CMakeLists.txt:5:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-glaze-app/CMakeLists.txt:6:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-glaze-app/CMakeLists.txt:10:53: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-render-core-3d-app/CMakeLists.txt:8:1: warn R2b.executable_name executable target 'xe-render-core-3d' must match its folder name 'xe-render-core-3d-app' exactly
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-render-core-3d-app/CMakeLists.txt:13:53: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-render-core-app/CMakeLists.txt:5:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-render-core-app/CMakeLists.txt:6:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/demos/xe-render-core-app/CMakeLists.txt:12:53: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/CMakeLists.txt:2:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/CMakeLists.txt:3:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/CMakeLists.txt:6:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/CMakeLists.txt:7:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/CMakeLists.txt:10:4: warn L1.space_before_paren command 'if' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/CMakeLists.txt:11:22: warn L1.space_before_paren command 'add_subdirectory' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltf-view/CMakeLists.txt:8:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltf-view/CMakeLists.txt:9:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltf-view/CMakeLists.txt:23:1: warn R4.link_keywords target_link_libraries('xe-gltf-view'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltf-view/CMakeLists.txt:23:1: warn R4.link_keywords target_link_libraries('xe-gltf-view'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltf-view/CMakeLists.txt:23:62: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltf-view/CMakeLists.txt:23:181: warn L3.line_length line is 211 columns long; maximum is 180
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltfc/CMakeLists.txt:4:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltfc/CMakeLists.txt:5:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltfc/CMakeLists.txt:9:1: warn R4.link_keywords target_link_libraries('xe-gltfc'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-gltfc/CMakeLists.txt:9:62: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-ktxc/CMakeLists.txt:9:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-ktxc/CMakeLists.txt:10:5: warn L1.space_before_paren command 'set' must be written without a space before '('
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-ktxc/CMakeLists.txt:14:1: warn R4.link_keywords target_link_libraries('xe-ktxc'): link keyword groups must appear in the fixed order PUBLIC -> PRIVATE -> INTERFACE
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-ktxc/CMakeLists.txt:14:62: warn R4.link_keywords target_link_libraries must list one dependency per line
+/home/fapablaza/Desktop/nativedevcl/Xenoide/src/engine/src/tools/xe-ktxc/CMakeLists.txt:14:181: warn L3.line_length line is 194 columns long; maximum is 180

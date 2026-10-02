@@ -4,15 +4,19 @@ param(
     [string]$Tool,
     [Parameter(Mandatory)]
     [ValidateSet('Debug', 'Release', 'all')]
-    [string]$Configuration
+    [string]$Configuration,
+
+    [string]$Project = "all"
 )
 
 $ErrorActionPreference = "Stop"
 
-$ProjectRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+. "$PSScriptRoot\lib\common.ps1"
+Set-Location $RepoRoot
 
 # mise exposes user-provided usage flags as environment variables; let them
 # override the parameters baked into the mise task definitions.
+$project = if ($env:usage_project) { $env:usage_project } else { $Project }
 $config = if ($env:usage_config) { $env:usage_config } else { $Configuration }
 $export = if ($env:usage_export) { $env:usage_export } else { "text" }
 $check = if ($env:usage_check) { $env:usage_check } else { $null }
@@ -41,180 +45,208 @@ if ($check) {
     }
 }
 
-if (-not $outputDir) {
-    if ($config -eq "all") { $outputDir = "coverage/$Tool" }
-    else { $outputDir = "coverage/$Tool/$config" }
-}
-New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
-
-$os = $PSVersionTable.OS
-if ($os -match 'Linux' -or $os -match 'Darwin') {
-    $profile = "conan/profiles/unix"
-} else {
-    $profile = "conan/profiles/windows"
-}
-
+$profile = Get-ConanProfile
 $configs = @()
 if ($config -eq "all") { $configs = @("Debug", "Release") } else { $configs = @($config) }
 
-$llvmBinaries = @()
+$folders = @(Resolve-Projects $project)
+$multiFolder = $folders.Count -gt 1
 
-foreach ($cfg in $configs) {
-    $buildDir = "build/coverage-$Tool/$cfg"
+# Each subproject owns its build trees and its report, so a run is fully
+# self-contained inside the subproject directory.
+foreach ($folder in $folders) {
+    $sourceDir = Join-Path $RepoRoot $folder
 
-    Write-Host ""
-    Write-Host "=== [$Tool / $cfg] Installing Conan dependencies ==="
-    # The coverage tree does not use presets; skip the root CMakeUserPresets.json
-    # update so duplicate preset names do not break `cmake --preset`.
-    conan install . --build=missing -s build_type=$cfg -pr:h $profile -pr:b $profile -of $buildDir `
-        -c "tools.cmake.cmaketoolchain:user_presets="
-    if ($LASTEXITCODE -ne 0) { exit 1 }
-
-    $toolchain = Get-ChildItem -Path $buildDir -Recurse -Filter "conan_toolchain.cmake" -ErrorAction SilentlyContinue |
-        Select-Object -First 1 -ExpandProperty FullName
-    if (-not $toolchain) {
-        Write-Host "Error: conan_toolchain.cmake not found under $buildDir"
-        exit 1
-    }
-
-    Write-Host "=== [$Tool / $cfg] Configuring CMake ==="
-    $cmakeArgs = @(
-        "-B", $buildDir,
-        "-DCMAKE_TOOLCHAIN_FILE=$toolchain",
-        "-DCMAKE_BUILD_TYPE=$cfg",
-        "-DXE_ENABLE_COVERAGE=ON"
-    )
-    if ($Tool -eq "llvm-cov") {
-        $cmakeArgs += "-DCMAKE_C_COMPILER=clang"
-        $cmakeArgs += "-DCMAKE_CXX_COMPILER=clang++"
-    }
-    cmake @cmakeArgs
-    if ($LASTEXITCODE -ne 0) { exit 1 }
-
-    $testTargets = @()
-    try {
-        $json = ctest --test-dir $buildDir --show-only=json-v1 2>$null | ConvertFrom-Json
-        foreach ($t in $json.tests) {
-            if ($t.command -and $t.command.Count -gt 0) {
-                $testTargets += Split-Path -Leaf $t.command[0]
-            } else {
-                $name = [string]$t.name
-                if ($name -match '^(.*?)_NOT_BUILT-') {
-                    $testTargets += $Matches[1]
-                } elseif ($name) {
-                    $testTargets += $name
-                }
-            }
-        }
-    } catch {
-        $testTargets = @()
-    }
-    $testTargets = @($testTargets | Select-Object -Unique)
-
-    Write-Host "=== [$Tool / $cfg] Building test targets ==="
-    if ($testTargets.Count -gt 0) {
-        cmake --build $buildDir --parallel --target $testTargets
+    if ($outputDir) {
+        $reportDir = $outputDir
+        if ($multiFolder) { $reportDir = Join-Path $outputDir (Split-Path -Leaf $folder) }
     } else {
-        Write-Host "Warning: no test targets discovered, building the full tree"
-        cmake --build $buildDir --parallel
+        $reportDir = "$folder/coverage/$Tool"
+        if ($config -ne "all") { $reportDir = "$reportDir/$config" }
     }
-    if ($LASTEXITCODE -ne 0) { exit 1 }
+    New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
 
-    Write-Host "=== [$Tool / $cfg] Running CTest ==="
-    if ($clean -eq "true") {
-        Get-ChildItem -Path $buildDir -Recurse -Include *.gcda, *.profraw -ErrorAction SilentlyContinue |
-            Remove-Item -Force -ErrorAction SilentlyContinue
-    }
+    $llvmBinaries = @()
 
-    if ($Tool -eq "llvm-cov") {
-        $profileDir = Join-Path $buildDir "profiles"
-        New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
-        $env:LLVM_PROFILE_FILE = Join-Path $ProjectRoot "$profileDir/%p.profraw"
-        ctest --test-dir $buildDir --output-on-failure
-        if ($LASTEXITCODE -ne 0) { exit 1 }
-        Remove-Item Env:\LLVM_PROFILE_FILE
+    foreach ($cfg in $configs) {
+        $buildDir = Join-Path $sourceDir "build/coverage-$Tool/$cfg"
 
+        Write-Host ""
+        Write-Host "=== [$folder / $Tool / $cfg] Installing Conan dependencies ==="
+        # The coverage tree does not use presets; skip the root CMakeUserPresets.json
+        # update so duplicate preset names do not break `cmake --preset`.
+        Push-Location $sourceDir
+        try {
+            conan install . --build=missing -s build_type=$cfg -pr:h $profile -pr:b $profile -of $buildDir `
+                -c "tools.cmake.cmaketoolchain:user_presets="
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+        } finally {
+            Pop-Location
+        }
+
+        $toolchain = Get-ChildItem -Path $buildDir -Recurse -Filter "conan_toolchain.cmake" -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty FullName
+        if (-not $toolchain) {
+            Write-Host "Error: conan_toolchain.cmake not found under $buildDir"
+            exit 1
+        }
+
+        Write-Host "=== [$folder / $Tool / $cfg] Configuring CMake ==="
+        $cmakeArgs = @(
+            "-S", $sourceDir,
+            "-B", $buildDir,
+            "-DCMAKE_TOOLCHAIN_FILE=$toolchain",
+            "-DCMAKE_BUILD_TYPE=$cfg",
+            "-DXE_ENABLE_COVERAGE=ON"
+        )
+        if ($Tool -eq "llvm-cov") {
+            $cmakeArgs += "-DCMAKE_C_COMPILER=clang"
+            $cmakeArgs += "-DCMAKE_CXX_COMPILER=clang++"
+        }
+        # The subprojects resolve `CMAKE_MODULE_PATH` entries such as "../cmake"
+        # against the working directory, so CMake must run from the subproject.
+        Push-Location $sourceDir
+        try {
+            cmake @cmakeArgs
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+        } finally {
+            Pop-Location
+        }
+
+        $testTargets = @()
         try {
             $json = ctest --test-dir $buildDir --show-only=json-v1 2>$null | ConvertFrom-Json
             foreach ($t in $json.tests) {
                 if ($t.command -and $t.command.Count -gt 0) {
-                    $exe = $t.command[0]
-                    if ($llvmBinaries -notcontains $exe) { $llvmBinaries += $exe }
+                    $testTargets += Split-Path -Leaf $t.command[0]
+                } else {
+                    $name = [string]$t.name
+                    if ($name -match '^(.*?)_NOT_BUILT-') {
+                        $testTargets += $Matches[1]
+                    } elseif ($name) {
+                        $testTargets += $name
+                    }
                 }
             }
         } catch {
-            $llvmBinaries = @()
+            $testTargets = @()
         }
-    } else {
-        ctest --test-dir $buildDir --output-on-failure
-        if ($LASTEXITCODE -ne 0) { exit 1 }
-    }
-}
+        $testTargets = @($testTargets | Select-Object -Unique)
 
-$reporterArgs = @("--tool", $Tool, "--export", $export, "--output-dir", $outputDir)
-if ($check) { $reporterArgs += @("--check", $check) }
-
-if ($Tool -eq "llvm-cov") {
-    Write-Host ""
-    Write-Host "=== Merging LLVM profiles ==="
-    $profraws = Get-ChildItem -Path "build/coverage-$Tool" -Recurse -Filter *.profraw -ErrorAction SilentlyContinue
-    if (-not $profraws) {
-        Write-Host "Error: no .profraw profile files found under build/coverage-$Tool"
-        exit 1
-    }
-    $merged = Join-Path $outputDir "merged.profdata"
-    llvm-profdata merge -o $merged $profraws.FullName
-    if ($LASTEXITCODE -ne 0) { exit 1 }
-    Write-Host "Merged profiles into $merged"
-
-    if ($llvmBinaries.Count -eq 0) {
-        Write-Host "Error: no instrumented test executables found"
-        exit 1
-    }
-
-    $exportDir = Join-Path $outputDir ".llvm-exports"
-    New-Item -ItemType Directory -Force -Path $exportDir | Out-Null
-    Write-Host "=== Exporting coverage from $($llvmBinaries.Count) test executable(s) ==="
-    $index = 0
-    foreach ($exe in ($llvmBinaries | Select-Object -Unique)) {
-        $outJson = Join-Path $exportDir "report-$index.json"
-        llvm-cov export -instr-profile=$merged $exe 2>$null | Set-Content -Path $outJson
-        if ($LASTEXITCODE -eq 0) {
-            $index++
+        Write-Host "=== [$folder / $Tool / $cfg] Building test targets ==="
+        if ($testTargets.Count -gt 0) {
+            cmake --build $buildDir --parallel --target $testTargets
         } else {
-            Write-Host "  (skipped '$(Split-Path -Leaf $exe)': no coverage data)"
+            Write-Host "Warning: no test targets discovered, building the full tree"
+            cmake --build $buildDir --parallel
         }
-    }
-    if ($index -eq 0) {
-        Write-Host "Error: no llvm-cov export JSON files could be generated"
-        exit 1
-    }
-    Get-ChildItem -Path $exportDir -Filter "report-*.json" | ForEach-Object { $reporterArgs += $_.FullName }
-} else {
-    Write-Host ""
-    Write-Host "=== Aggregating gcov data ==="
-    $gcovDir = Join-Path $outputDir ".gcov-json"
-    New-Item -ItemType Directory -Force -Path $gcovDir | Out-Null
-    foreach ($cfg in $configs) {
-        $cfgDir = Join-Path $gcovDir $cfg
-        New-Item -ItemType Directory -Force -Path $cfgDir | Out-Null
-        $buildDir = "build/coverage-$Tool/$cfg"
-        $count = 0
-        $gcnos = Get-ChildItem -Path (Join-Path $ProjectRoot $buildDir) -Recurse -Filter *.gcno -ErrorAction SilentlyContinue
-        foreach ($gcno in $gcnos) {
-            $gcda = $gcno.FullName -replace '\.gcno$', '.gcda'
-            if (-not (Test-Path $gcda)) { continue }
-            Push-Location $cfgDir
-            gcov -j $gcno.FullName *> $null
-            Pop-Location
-            $count++
-        }
-        Write-Host "  [$cfg] generated gcov data for $count executed translation unit(s)"
-    }
-    $reporterArgs += @("--gcov-dir", $gcovDir)
-}
+        if ($LASTEXITCODE -ne 0) { exit 1 }
 
-Write-Host ""
-Write-Host "=== Generating $export report ==="
-python mise/coverage_reporter.py @reporterArgs
+        Write-Host "=== [$folder / $Tool / $cfg] Running CTest ==="
+        if ($clean -eq "true") {
+            Get-ChildItem -Path $buildDir -Recurse -Include *.gcda, *.profraw -ErrorAction SilentlyContinue |
+                Remove-Item -Force -ErrorAction SilentlyContinue
+        }
+
+        if ($Tool -eq "llvm-cov") {
+            $profileDir = Join-Path $buildDir "profiles"
+            New-Item -ItemType Directory -Force -Path $profileDir | Out-Null
+            $env:LLVM_PROFILE_FILE = Join-Path $profileDir "%p.profraw"
+            ctest --test-dir $buildDir --output-on-failure
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+            Remove-Item Env:\LLVM_PROFILE_FILE
+
+            try {
+                $json = ctest --test-dir $buildDir --show-only=json-v1 2>$null | ConvertFrom-Json
+                foreach ($t in $json.tests) {
+                    if ($t.command -and $t.command.Count -gt 0) {
+                        $exe = $t.command[0]
+                        if ($llvmBinaries -notcontains $exe) { $llvmBinaries += $exe }
+                    }
+                }
+            } catch {
+                $llvmBinaries = @()
+            }
+        } else {
+            ctest --test-dir $buildDir --output-on-failure
+            if ($LASTEXITCODE -ne 0) { exit 1 }
+        }
+    }
+
+    # ---------------------------------------------------------------------------
+    # 2. Merge / aggregate the coverage data across configurations.
+    # ---------------------------------------------------------------------------
+
+    $reporterArgs = @("--tool", $Tool, "--export", $export, "--output-dir", $reportDir)
+    if ($check) { $reporterArgs += @("--check", $check) }
+
+    if ($Tool -eq "llvm-cov") {
+        Write-Host ""
+        Write-Host "=== [$folder] Merging LLVM profiles ==="
+        $profraws = Get-ChildItem -Path (Join-Path $sourceDir "build/coverage-$Tool") -Recurse -Filter *.profraw -ErrorAction SilentlyContinue
+        if (-not $profraws) {
+            Write-Host "Error: no .profraw profile files found under $sourceDir/build/coverage-$Tool"
+            exit 1
+        }
+        $merged = Join-Path $reportDir "merged.profdata"
+        llvm-profdata merge -o $merged $profraws.FullName
+        if ($LASTEXITCODE -ne 0) { exit 1 }
+        Write-Host "Merged profiles into $merged"
+
+        if ($llvmBinaries.Count -eq 0) {
+            Write-Host "Error: no instrumented test executables found"
+            exit 1
+        }
+
+        $exportDir = Join-Path $reportDir ".llvm-exports"
+        New-Item -ItemType Directory -Force -Path $exportDir | Out-Null
+        Write-Host "=== Exporting coverage from $($llvmBinaries.Count) test executable(s) ==="
+        $index = 0
+        foreach ($exe in ($llvmBinaries | Select-Object -Unique)) {
+            $outJson = Join-Path $exportDir "report-$index.json"
+            llvm-cov export -instr-profile=$merged $exe 2>$null | Set-Content -Path $outJson
+            if ($LASTEXITCODE -eq 0) {
+                $index++
+            } else {
+                Write-Host "  (skipped '$(Split-Path -Leaf $exe)': no coverage data)"
+            }
+        }
+        if ($index -eq 0) {
+            Write-Host "Error: no llvm-cov export JSON files could be generated"
+            exit 1
+        }
+        Get-ChildItem -Path $exportDir -Filter "report-*.json" | ForEach-Object { $reporterArgs += $_.FullName }
+    } else {
+        Write-Host ""
+        Write-Host "=== [$folder] Aggregating gcov data ==="
+        $gcovDir = Join-Path $reportDir ".gcov-json"
+        New-Item -ItemType Directory -Force -Path $gcovDir | Out-Null
+        foreach ($cfg in $configs) {
+            $cfgDir = Join-Path $gcovDir $cfg
+            New-Item -ItemType Directory -Force -Path $cfgDir | Out-Null
+            $buildDir = Join-Path $sourceDir "build/coverage-$Tool/$cfg"
+            $count = 0
+            $gcnos = Get-ChildItem -Path $buildDir -Recurse -Filter *.gcno -ErrorAction SilentlyContinue
+            foreach ($gcno in $gcnos) {
+                $gcda = $gcno.FullName -replace '\.gcno$', '.gcda'
+                if (-not (Test-Path $gcda)) { continue }
+                Push-Location $cfgDir
+                gcov -j $gcno.FullName *> $null
+                Pop-Location
+                $count++
+            }
+            Write-Host "  [$cfg] generated gcov data for $count executed translation unit(s)"
+        }
+        $reporterArgs += @("--gcov-dir", $gcovDir)
+    }
+
+    # ---------------------------------------------------------------------------
+    # 3. Produce the requested report and enforce the quality gate.
+    # ---------------------------------------------------------------------------
+
+    Write-Host ""
+    Write-Host "=== [$folder] Generating $export report ==="
+    python (Join-Path $MiseDir "coverage_reporter.py") @reporterArgs
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+}
 exit $LASTEXITCODE

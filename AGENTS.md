@@ -6,7 +6,7 @@
 
 1. **A Custom Engine (`src/engine/`)**.
 2. **A Native Integrated IDE (`src/ide/`)**.
-3. **Shared Build Options Infrastructure (`src/base-target/`)**.
+3. **Shared Build Options Infrastructure (`src/cmake`)**.
 
 Eventually, Xenoide will provide native UIs implemented, initially for 
 
@@ -25,32 +25,33 @@ For development speed reasons, we will start with **Qt6**.
 - **Code Formatting**: clang-format.
 - **Static Analysis**: clang-tidy.
 
-
 ## Agent Instructions & Verification Checklist
 
 ### General instruction guidelines
-- Ignore any file or folder referenced in `.gitignore` file: Usually 
+- Ignore any file or folder referenced in `.gitignore` file.
+- When running in PLAN mode, always store / update a local copy of that PLAN in Markdown format, at the `docs/plans/` folder.
 
 ### Specific language changes
 - **C/C++**: Refer to @docs/CPP.md
 - **CMake**: Refer to @docs/CMAKE.md
 - **Conan**: Refer to @docs/CONAN.md
+- **Catch2 Unit Tests**: Refer to @docs/TESTING.md
 
 ### Implementing new features 
 
 When assigned a task in this repository, follow this systematic checklist:
 
 1. **Check Local Custom Recipes**:
-   - If any file in `conan/packages/` (especially `glazer`, `glazed`, or `winlamb`) is created or modified, immediately execute:
+   - If any file in `conan/recipes/` (especially `glazer`, `glazed`, or `winlamb`) is created or modified, immediately execute:
      ```bash
-     mise run setup:export-recipes
+     mise run export-recipes
      ```
 2. **Setup Dependencies**:
    - Ensure the Conan cache and build layout are up-to-date:
      ```bash
-     mise run setup:release
+     mise run install:release
      # or for debug workflows
-     mise run setup:debug
+     mise run install:debug
      ```
 3. **CMake Configuration**:
    - Generate build system files:
@@ -61,26 +62,34 @@ When assigned a task in this repository, follow this systematic checklist:
    - Adhere strictly to **C++17**.
    - Respect target grouping and module boundaries (e.g., do not introduce circular dependencies between `engine` and `ide`).
 5. **Run Static Code Analysis**:
-    - Run tidy to currently modified, with auto-fixes.
-    - For those changes that tidy can't fix, use a conservative approach to fix them.
-    ```bash
+   - Run tidy to currently modified, with auto-fixes.
+   - For those changes that tidy can't fix, use a conservative approach to fix them.
+     ```bash
      mise run tidy:release --fix
      ```
-6. **Compile & Verify (Zero Warnings)**:
+6. **Run the CMake Style Checker**:
+   - When CMake files under `src/engine` are modified, run the style checker:
+     ```bash
+     mise run cmake-check:release
+     ```
+   - It only reports findings (Phase A runs in `warn` mode); see `docs/plans/CMAKE_STYLE_CHECKER_V2.2.md`.
+7. **Format Modified Code**:
+   - Format currently modified source files before building:
+     ```bash
+     mise run format
+     ```
+8. **Compile & Verify (Zero Warnings)**:
    - Compile using Mise:
      ```bash
      mise run build:release
      ```
    - Resolve any warnings immediately (warnings are treated as errors).
-7. **Run Automated Tests**:
+   - Also verify the debug configuration:
+     ```bash
+     mise run build:debug
+     ```
+9. **Run Automated Tests**:
    - Execute the test suite to ensure regressions were not introduced:
      ```bash
      mise run test:release
      ```
-8. **Format Modified Code**:
-   - Format currently modified source files before building:
-     ```bash
-     mise run format
-     ```
-   - Build in both debug and release (mise run build)
-   - Run the unit tests to discard any regressions (mise run test)

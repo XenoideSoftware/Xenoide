@@ -1,0 +1,18 @@
+
+if (NOT XE_BUILD_VERSION)
+    set (XE_BUILD_VERSION_DEFAULT "0.0.0")
+    message (WARNING "Xenoide: XE_BUILD_VERSION not set, defaulting to ${XE_BUILD_VERSION_DEFAULT}")
+    set(XE_BUILD_VERSION "${XE_BUILD_VERSION_DEFAULT}")
+endif()
+
+if (NOT XE_BUILD_COMMIT)
+    set(XE_BUILD_COMMIT_DEFAULT "local")
+    message (WARNING "Xenoide: XE_BUILD_COMMIT not set, defaulting to '${XE_BUILD_COMMIT_DEFAULT}'")
+    set(XE_BUILD_COMMIT "${XE_BUILD_COMMIT_DEFAULT}")
+endif()
+
+if (NOT XE_BUILD_TIMESTAMP)
+    set(XE_BUILD_TIMESTAMP_DEFAULT "now")
+    message (WARNING "Xenoide: XE_BUILD_TIMESTAMP not set, defaulting to '${XE_BUILD_TIMESTAMP_DEFAULT}'")
+    set(XE_BUILD_TIMESTAMP "${XE_BUILD_TIMESTAMP_DEFAULT}")
+endif()

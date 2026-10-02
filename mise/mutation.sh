@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$PROJECT_ROOT"
+. "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
+cd "$REPO_ROOT"
 
 usage() {
     cat <<'EOF'
@@ -11,12 +11,13 @@ Usage: ./mise/mutation.sh [options]
 Runs Mull mutation testing against the Xenoide unit test suite.
 
 Options:
+  --project <name>      Subproject to test: engine, ide, pocs or all (default: all)
   --generate            Discover and generate mutants without running tests (dry run)
   --kill                Execute unit tests against each mutant to kill them (default)
   --config <cfg>        Build type: Debug (default) or Release
   --reporters <list>    Comma-separated report formats: IDE,SQLite,Elements,Patches,Sarif
                         (default: IDE,SQLite,Elements)
-  --output-dir <dir>    Directory for report files (default: mutation/mull)
+  --output-dir <dir>    Directory for report files (default: <subproject>/mutation/mull)
   --report-name <name>  Report database base name (default: xenoide)
   --clean               Delete existing build/mutation artifacts before running
   --target <name>       Run against a specific test target (e.g. xe-core-test)
@@ -34,8 +35,9 @@ die() {
 GENERATE="false"
 KILL="false"
 CONFIG="Debug"
+PROJECT="all"
 REPORTERS="IDE,SQLite,Elements"
-OUTPUT_DIR="mutation/mull"
+OUTPUT_DIR=""
 REPORT_NAME="xenoide"
 CLEAN="false"
 TARGET=""
@@ -63,6 +65,11 @@ while [ $# -gt 0 ]; do
         --config)
             require_value "$1" "${2:-}"
             CONFIG="$2"
+            shift 2
+            ;;
+        --project)
+            require_value "$1" "${2:-}"
+            PROJECT="$2"
             shift 2
             ;;
         --reporters)
@@ -115,6 +122,7 @@ done
 # override the arguments parsed from the command line.
 [ "${usage_generate:-}" = "true" ] && GENERATE="true"
 [ "${usage_kill:-}" = "true" ] && KILL="true"
+[ -n "${usage_project:-}" ] && PROJECT="$usage_project"
 [ -n "${usage_config:-}" ] && CONFIG="$usage_config"
 [ -n "${usage_reporters:-}" ] && REPORTERS="$usage_reporters"
 [ -n "${usage_output_dir:-}" ] && OUTPUT_DIR="$usage_output_dir"
@@ -143,8 +151,10 @@ case "$CLEAN" in
     *) CLEAN="false" ;;
 esac
 
-[ -n "$OUTPUT_DIR" ] || die "--output-dir cannot be empty"
 [ -n "$REPORT_NAME" ] || die "--report-name cannot be empty"
+
+read -r -a FOLDERS <<< "$(resolve_projects "$PROJECT")"
+[ ${#FOLDERS[@]} -gt 0 ] || die "--project must resolve to at least one subproject"
 
 canon_reporter() {
     case "$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" in
@@ -257,34 +267,43 @@ echo "  mode         : $( [ "$GENERATE" = "true" ] && echo 'generate (dry run)' 
 echo "  config       : $CONFIG"
 
 # ---------------------------------------------------------------------------
+# Per-subproject pipeline
+#
+# The pipeline is a shell function so that it can be replayed for every
+# selected subproject without re-indenting the whole body.
+# ---------------------------------------------------------------------------
+
+run_mutation() {
+local folder="$1"
+local REPORT_DIR="$2"
+local SOURCE_DIR="$REPO_ROOT/$folder"
+
+# ---------------------------------------------------------------------------
 # Optional clean-up
 # ---------------------------------------------------------------------------
 
 if [ "$CLEAN" = "true" ]; then
     echo ""
-    echo "=== Cleaning build and mutation artifacts ==="
-    rm -rf build-mutation-mull "$OUTPUT_DIR"
+    echo "=== [$folder] Cleaning build and mutation artifacts ==="
+    rm -rf "$SOURCE_DIR/build-mutation-mull" "$REPORT_DIR"
 fi
 
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$REPORT_DIR"
 
-case "$(uname -s 2>/dev/null || echo Windows)" in
-    Linux*|Darwin*) PROFILE="conan/profiles/unix" ;;
-    *) PROFILE="conan/profiles/windows" ;;
-esac
+PROFILE="$(conan_profile)"
 
-BUILD_DIR="build-mutation-mull/$CONFIG"
+BUILD_DIR="$SOURCE_DIR/build-mutation-mull/$CONFIG"
 
 # ---------------------------------------------------------------------------
 # 1. Configure and build the instrumented test targets in an isolated tree.
 # ---------------------------------------------------------------------------
 
 echo ""
-echo "=== [$CONFIG] Installing Conan dependencies ==="
+echo "=== [$folder / $CONFIG] Installing Conan dependencies ==="
 # Disable the root CMakeUserPresets.json update: this isolated tree does not
 # use presets, and accumulating include entries would break `cmake --preset`
 # with duplicate preset names.
-conan install . --build=missing -s build_type="$CONFIG" \
+conan install "$SOURCE_DIR" --build=missing -s build_type="$CONFIG" \
     -pr:h "$PROFILE" -pr:b "$PROFILE" -of "$BUILD_DIR" \
     -c "tools.cmake.cmaketoolchain:user_presets="
 
@@ -293,9 +312,10 @@ if [ -z "$TOOLCHAIN" ]; then
     die "conan_toolchain.cmake not found under $BUILD_DIR"
 fi
 
-echo "=== [$CONFIG] Configuring CMake with Mull instrumentation ==="
+echo "=== [$folder / $CONFIG] Configuring CMake with Mull instrumentation ==="
 MULL_FLAGS="-fpass-plugin=$MULL_PLUGIN -O0 -g -grecord-command-line"
 CMAKE_ARGS=(
+    -S "$SOURCE_DIR"
     -B "$BUILD_DIR"
     -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN"
     -DCMAKE_BUILD_TYPE="$CONFIG"
@@ -309,7 +329,12 @@ if [ "$CONFIG" = "Release" ]; then
         -DCMAKE_CXX_FLAGS_RELEASE="-O0 -g -DNDEBUG"
     )
 fi
-CFLAGS="$MULL_FLAGS" CXXFLAGS="$MULL_FLAGS" cmake "${CMAKE_ARGS[@]}"
+# The subprojects resolve `CMAKE_MODULE_PATH` entries such as "../cmake"
+# against the working directory, so CMake must run from the subproject.
+(
+    cd "$SOURCE_DIR"
+    CFLAGS="$MULL_FLAGS" CXXFLAGS="$MULL_FLAGS" cmake "${CMAKE_ARGS[@]}"
+)
 
 # CFLAGS/CXXFLAGS only seed the cache on the first configure of a tree; catch
 # build trees that were previously configured without Mull instrumentation.
@@ -354,7 +379,7 @@ if [ -n "$TARGET" ] && [ -n "$TEST_TARGETS" ]; then
     fi
 fi
 
-echo "=== [$CONFIG] Building test targets ==="
+echo "=== [$folder / $CONFIG] Building test targets ==="
 if [ -n "$TEST_TARGETS" ]; then
     # shellcheck disable=SC2086
     cmake --build "$BUILD_DIR" --parallel --target $TEST_TARGETS
@@ -411,12 +436,12 @@ fi
 # 3. Execute (or dry-run) every target, accumulating results in SQLite.
 # ---------------------------------------------------------------------------
 
-DB_PATH="$OUTPUT_DIR/$REPORT_NAME.sqlite"
+DB_PATH="$REPORT_DIR/$REPORT_NAME.sqlite"
 rm -f "$DB_PATH"
 
 RUNNER_ARGS=(
     --reporters SQLite
-    --report-dir "$OUTPUT_DIR"
+    --report-dir "$REPORT_DIR"
     --report-name "$REPORT_NAME"
     --allow-surviving
 )
@@ -424,7 +449,7 @@ RUNNER_ARGS=(
 [ -n "$TIMEOUT" ] && RUNNER_ARGS+=(--timeout "$TIMEOUT")
 
 echo ""
-echo "=== Running mull-runner on ${#RUN_EXECUTABLES[@]} test executable(s) ==="
+echo "=== [$folder] Running mull-runner on ${#RUN_EXECUTABLES[@]} test executable(s) ==="
 for exe in "${RUN_EXECUTABLES[@]}"; do
     echo ""
     echo "--- $(basename "$exe") ---"
@@ -449,7 +474,7 @@ done
 [ ${#REPORTER_CLI_ARGS[@]} -gt 0 ] || REPORTER_CLI_ARGS=(--reporters IDE)
 
 REPORTER_ARGS=(
-    --report-dir "$OUTPUT_DIR"
+    --report-dir "$REPORT_DIR"
     --report-name "$REPORT_NAME"
 )
 if [ -n "$THRESHOLD" ]; then
@@ -459,10 +484,26 @@ else
 fi
 
 echo ""
-echo "=== Generating consolidated reports ==="
+echo "=== [$folder] Generating consolidated reports ==="
 "$MULL_REPORTER" "${REPORTER_ARGS[@]}" "${REPORTER_CLI_ARGS[@]}" "$DB_PATH"
 
 echo ""
-echo "=== Mutation testing artifacts ==="
+echo "=== [$folder] Mutation testing artifacts ==="
 echo "  database : $DB_PATH"
-echo "  reports  : $OUTPUT_DIR (report name: $REPORT_NAME)"
+echo "  reports  : $REPORT_DIR (report name: $REPORT_NAME)"
+}
+
+# ---------------------------------------------------------------------------
+# Replay the pipeline for every selected subproject.
+# ---------------------------------------------------------------------------
+
+for folder in "${FOLDERS[@]}"; do
+    if [ -z "$OUTPUT_DIR" ]; then
+        report_dir="$folder/mutation/mull"
+    elif [ ${#FOLDERS[@]} -gt 1 ]; then
+        report_dir="$OUTPUT_DIR/$(basename "$folder")"
+    else
+        report_dir="$OUTPUT_DIR"
+    fi
+    run_mutation "$folder" "$report_dir"
+done

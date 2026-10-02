@@ -13,7 +13,7 @@ We use [mise](https://mise.jdx.dev/) as our unified task runner. For complete do
 1. **Setup Dependencies**: Exports local custom recipes and installs dependencies via Conan:
    ```bash
    mise run setup            # Release (default)
-   mise run setup:debug      # Debug
+   mise run install:debug      # Debug
    ```
 
 2. **Configure**: Generates CMake build files:

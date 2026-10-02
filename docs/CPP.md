@@ -1,8 +1,10 @@
 # CPP guidelines
 
 ## Standard & Language Features
-- **Strict C++17**: Code must strictly conform to C++17. Do not use C++20 features (e.g., concepts, ranges library, `std::span` unless provided by `ms-gsl`/`gsl-lite` and the cpp-backport library, coroutines).
+- **Strict C++17**: Code must strictly conform to C++17. Do not use C++20 features (e.g., concepts, ranges library, `std::span` unless provided by `ms-gsl`/`gsl-lite` and the cpp-backport library).
 - **Vendor Extensions Disabled**: Do not rely on compiler-specific non-standard extensions.
+- **Usage of auto**: Use `auto` only for its original purpose: To infer types from complex template instantiations. When working with types such as `int`, `short int`, `std::string`, or `std::vector<std::string>`, use the type instead of `auto`.
+- Don't use magic numbers / strings: Give them an identity by using const or constexpr whenever applicable.
 
 ## Zero-Warning Tolerance
 - All code is compiled All Warnings and Warnings as Errors enabled.
@@ -21,3 +23,4 @@
   2. Subsystem internal headers.
   3. Third-party library headers (e.g., `<fmt/format.h>`, `<tl/expected.hpp>`).
   4. Standard library headers (e.g., `<vector>`, `<string>`, `<memory>`).
+- **Dependency Injection**: When a class is an orchestrator (and ultra-high-performance is not a hard requirement), which uses other classes to implement its functionality, evaluate abstracting those dependent classes, and inject them via constructor and/or setter methods, specially with those classes that manipulate external resources, like files or sockets. We want testable code.
