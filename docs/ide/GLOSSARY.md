@@ -1,35 +1,74 @@
 # Xenoide IDE
 
-A domain language for describing code-editing applications: full IDEs, SDI code editors, and related tools. Only domain concepts belong here; architecture archetypes and flows live in @ARCHITECTURE.md.
+A domain language for describing code-editing applications: full IDEs, SDI code editors, and related tools. Only domain concepts belong here; architecture archetypes and flows live in @ARCHITECTURE.md, and relationships/invariants live in @DOMAIN-MODEL.md.
 
 ## Language
 
-**Editor**:
-A surface where the User reads, modifies, and navigates a Source.
-
-**Editor Manager**:
-The owner of the set of open Editors; every Editor is associated with exactly one Source.
-
-**Filesystem Browser**:
-A view of the folder and file hierarchy of a Project.
-
-**Source**:
-A source-code file that belongs to a Project.
-
-**Diagnostic**:
-Information produced by a Tool about a specific File location and line within a Project, intended for display in a UI.
+**Workspace**:
+The optional top-level container of a development session; holds one or more Projects.
 
 **Project**:
-The workspace model; it references the solution root folder and knows its Build System, Package Manager, and generated artifacts.
+A buildable unit; references a root folder and knows its Build System, Package Manager, and produced Artifacts.
+
+**Source**:
+A source-code file; belongs to a Project or is opened standalone.
+
+**Document**:
+The in-memory unit of editing; holds content, a dirty flag, and undo/redo history, and references at most one Source by path.
+
+**Editor**:
+A pane bound to exactly one Document; holds per-pane caret and selection.
+
+**Document Manager**:
+The owner of the set of open Documents.
+
+**Command**:
+A named operation the User invokes (Open, Save, Build, Debug, Refactor).
+
+**Event**:
+A named occurrence reported by the system (BuildFinished, DiagnosticPublished, DebugPaused).
+
+**Tool**:
+Any external capability the IDE drives or integrates.
+
+**Invoked Tool**:
+A Tool that is transient; each operation is a fresh invocation that runs and returns output.
+
+**Server Tool**:
+A Tool that is long-running; has a start-to-stop lifecycle, holds internal state, and streams events.
+
+**Tool Capability**:
+A discrete ability a Tool advertises; gates the availability of Commands.
+
+**Symbol**:
+A named, addressable code element (function, class, variable, type, macro) with a location in a Source.
+
+**Symbol Index**:
+The queryable model of Symbols across a Project's Sources.
+
+**Diagnostic**:
+Information about a location in a Source — a severity, the producing Tool, and a line/column.
+
+**Artifact**:
+A file produced by a Build; kinds are determined by the language/tech stack.
 
 **Executable**:
-The binary artifact produced by a Build operation through the Build System; it optionally carries debug information and can be debugged.
+A runnable, debug-capable Artifact.
 
-**Build System**:
-A toolchain that groups source files, configuration, and options in order to produce one or more Build Artifacts.
+**Build**:
+An operation that runs a Build System over a Project to produce Artifacts and Diagnostics.
 
-**Package Manager**:
-A toolchain that fetches, compiles, and installs external libraries used as dependencies by a Project.
+**Compile**:
+A Build scoped to a single Source.
 
-**Debugger**:
-A tool that runs an existing Executable to follow execution, inspect runtime values and the call stack, set breakpoints, and pause execution.
+**Launch Configuration**:
+How to start an Executable — the artifact, arguments, environment, and working directory.
+
+**Run**:
+Starting an Executable without a debugger.
+
+**Debug Session**:
+A stateful session in which a Debugger controls a running Executable.
+
+**Breakpoint**:
+A pause location (Source + line); a conditional Breakpoint fires when a predicate is true.
