@@ -1,123 +1,138 @@
-
-# Xenoshader
+# XenoShader
 
 ## Disclaimer
 
-NOTE: This project it a test of the AI-assisted development methodology that I'm refining: The strategy is to give several architectural constraints to the AI in order to quickly generate the major application components and connect them in a way that is easily maintable by humans and/or AI agents in the future. These generated application components should be cross-functional, have low coupled dependencies, be highly reusable, and most importantly, should support one or more *features* (see the specs/ folder). Let's remember that a *feature* is defined as the composition of several *components*, plus some ad-hoc glue code. After several iterations we should give form to that glue code.
+NOTE: This project is a test of an AI-assisted development methodology: give the AI several architectural constraints to generate application components that are cross-functional, low-coupled, highly reusable, and that support one or more *features* (a feature being the composition of several *components* plus ad-hoc glue). After several iterations the glue should take a stable form.
 
 ## Introduction
-Xenoshader is a *SDI* (Single Document Interface) application specializing at *editing*, *compiling* and *debugging* *GLSL shaders*.
 
-NOTE: An SDI app is an application that contains a MenuBar, a single document editing area, and a set of docked panels for diagnostics and output. It manages one file at a time.
+XenoShader is a desktop application for *editing*, *building*, *previewing*, and *inspecting* **GLSL shader programs**. It does **not** attempt CPU-style debugging: GPUs do not step through source lines. Instead, live *preview* and a scriptable *inspection* overlay replace the traditional debugger.
 
-## Functional Specs / Archtypes
+In the domain model (@DOMAIN-MODEL.md), XenoShader is a **Document Manager** restricted to a single **Project** (a **Shader Program**) at a time, holding 1..N open **Document**s, each shown in an **Editor**.
 
-### SDI
+## Domain Instantiation
 
-A *SDI* application is one that:
-- Allows the user to edit a single source code at a time -> should integrate a single `xenoide-ui-codeeditor`, and supports the *editing* feature.
-- Should contain a MenuBar with the typical SDI allowed application commands (File, Edit, View, Help). These menus will also support the *editing* feature, because they allow to create, save, load, etc, GLSL files.
-- Should contain a *diagnostics* or *build errors* UI component (`xenoide-ui-build-diagnostics`), that displays notes, diagnostics, linting / build errors, etc, for the current source code being edited.
-- Should contain a *terminal* UI component, that allows to open one or more terminal windows in order to commit Git changes, call AI agents, and other tasks.
-- Should automatically be listening to background changes in the currently edited file. When an external change is detected, the user must be prompted to choose whether to reload the file from disk or keep the in-memory version.
+The domain entities (@GLOSSARY.md) map onto XenoShader as follows:
 
-### GLSL Shaders
+| Domain Entity | XenoShader Instantiation |
+|---|---|
+| **Workspace** | Deferred. One **Project** is open at a time; multi-project sessions belong to the fuller IDE. |
+| **Project** | A **Shader Program**: a root folder + a manifest (`xshader.json`) declaring stage `Source`s, uniform defaults, texture bindings, include search paths, and a default primitive. |
+| **Source** | A GLSL stage file (`.vert`, `.frag`, `.comp`), the ChaiScript inspect file (`.chai`), or an include file. |
+| **Document** | The in-memory unit of editing (content, dirty flag, undo/redo). |
+| **Editor** | A pane bound to exactly one `Document`; the code editor and the ChaiScript editor are both `Editor`s over their respective `Document`s. |
+| **Document Manager** | Owns the open `Document`s; a tabbed multi-document editor with one active `Document`. |
+| **Artifact** | A **Shader Program** Artifact: a bundle of per-stage SPIR-V modules plus reflection data (active uniforms, attributes, binding points). |
+| **Build** | Compiles all stages in the manifest via the Language Server. |
+| **Compile** | A single-`Source` `Build` (fast diagnostics for one stage). |
+| **Launch Configuration** | How to run the preview: uniform values, texture bindings, selected primitive, and GL context version/profile. |
+| **Run** | Starting the preview render loop (GPU execution) from a `Launch Configuration`. |
+| **Diagnostic** | An error/warning/note at a `Source` location, produced by `glslang`, the GPU driver, or the ChaiScript runtime. |
 
-- Will complement the *editing* and *compiling* features, giving GLSL-specific knowledge to the editor to display parameters, compilation errors, hover information, and so on. This is supported by embedding the `glslang` library directly (rather than invoking an external process), which removes the runtime dependency on external tools and simplifies distribution. The embedded `glslang` is exposed externally as a **GLSL Language Server** process, implementing the *Language Server Protocol* (LSP), so that it can serve language intelligence to the editor and any other future client.
-- GLSL `#include` resolution must be handled by the language server, using a configurable set of include search paths defined per-project.
-- A **uniform/attribute inspector** panel (`xenoide-ui-uniform-inspector`) will display the active uniforms, their types, and binding points derived from the compilation output of the current shader.
-- **SPIR-V inspection** is in scope. After a successful compilation, the resulting SPIR-V binary can be disassembled (via `spirv-cross` or `spirv-dis`) and displayed in a dedicated `xenoide-ui-disassembly` panel. This panel shows the SPIR-V text alongside the original GLSL source for cross-reference.
-- The *debugging* feature will be implemented via the **RenderDoc API**. RenderDoc provides a vendor-neutral capture and replay mechanism that works across Intel, NVIDIA, and AMD hardware, avoiding the fragmentation of vendor-specific OpenGL extensions.
+There is **no** `Debug Session`, `Debugger`, or `Breakpoint` in XenoShader: those entities are simply not instantiated.
+
+## Tools
+
+XenoShader drives two external Tools (@GLOSSARY.md):
+
+| Tool | Kind | Role |
+|---|---|---|
+| `xenoshader-langserver` — GLSL Language Server | Server Tool | Embeds `glslang`. Provides LSP, offline validation, `#include` resolution, hover, go-to-declaration, and **uniform reflection**. Compiles stages to SPIR-V and reports Diagnostics. |
+| `xenoshader-fswatcher` — Filesystem watcher | Server Tool (File Watcher) | Monitors the Project's Sources; emits `file.conflict_detected`. |
+
+Each Tool advertises **Tool Capabilities**, which gate the available Commands:
+
+| Tool | Advertised Capabilities |
+|---|---|
+| `xenoshader-langserver` | `hover`, `go-to-declaration`, `compile`, `build`, `uniform-reflection`, `include-resolution`, `completion` |
+| `xenoshader-fswatcher` | `conflict-detection` |
+
+> The **preview is deliberately *not* a Tool**. It is a concrete `View` + `Presenter` living on the UI main thread (see below), because it depends directly on the native UI toolkit and drives a native graphics API to display data.
 
 ## Software Architecture
 
-### Abstract
+### Processes
 
-This app is structured using a *client-server architecture* split across **multiple processes from the start**. The SDI GUI process has the role of the *client*, and the collection of background services are independent *server* processes. Both sides communicate through a *message bus*, which is fully decoupled from any GUI framework event loop.
-
-The multi-process split is intentional: it provides crash isolation (a GPU driver crash or a runaway compilation does not kill the editor), enables future remote development scenarios, and makes each service independently testable. Every background capability — the GLSL language server, the RenderDoc integration, the filesystem watcher — runs in its own process.
-
-The defined processes are:
+Multi-process from the start. The GUI is the client; background capabilities are server processes, communicating over a **Message Bus** decoupled from the GUI event loop.
 
 | Process | Role |
 |---|---|
-| `xenoshader` | GUI client (Qt 6 SDI application) |
-| `xenoshader-langserver` | GLSL Language Server (LSP, wraps embedded `glslang`) |
-| `xenoshader-rdoc` | RenderDoc integration service |
-| `xenoshader-fswatcher` | Filesystem watcher background service |
+| `xenoshader` | GUI client (Qt 6), hosting all Views/Presenters, including the preview. |
+| `xenoshader-langserver` | GLSL Language Server (glslang). |
+| `xenoshader-fswatcher` | Filesystem watcher. |
 
 ### Message Bus
 
-Both the client-side and backend-side components *subscribe*/*listen* and *emit*/*send* typed *messages*. This message bus is implemented as a dedicated library, `xenoide-msgbus`, which is the **only** component that directly depends on ZeroMQ and protobuf. All other components depend exclusively on the typed C++ service API that `xenoide-msgbus` exposes, making the transport swappable and the rest of the codebase testable without a running ZeroMQ instance.
-
-The layering is:
+Typed messages over a bus implemented in `xenoide-msgbus`, the only component that depends directly on ZeroMQ and protobuf. Everything else depends on the typed C++ service API, keeping the transport swappable and the rest testable without a running ZeroMQ instance.
 
 | Layer | Responsibility | Technology |
 |---|---|---|
 | Transport | Moving bytes between processes | ZeroMQ (`zeromq`) |
 | Serialization | Encoding/decoding messages | Protocol Buffers (`protobuf`) |
-| Message Bus | Routing, subscription, request/reply patterns | `xenoide-msgbus` library |
-| Service API | Domain-typed C++ interface for the rest of the code | Thin wrappers over the bus |
+| Message Bus | Routing, subscription, request/reply | `xenoide-msgbus` |
+| Service API | Domain-typed C++ interface | Thin wrappers over the bus |
 
-In order to support this architecture, there will be an *sdi* app framework that contains the initial UI along with predefined standard *messages* (such as *file open*, *file save*, *file conflict detected*, etc.). This framework integrates a base client and server and implements the basic communication protocol for message orchestration.
+The preview renderer is an **in-process worker-thread service in the GUI process** (the architecture's "hybrid concurrency"), not a bus participant. It is still a first-class `Component`/`View` with a lifecycle.
 
-### Actions, Commands, and Events
+### Messages
 
-The message bus carries two fundamentally different kinds of messages. Mixing them leads to ambiguity about who can send what, and who should receive it.
+The bus carries two kinds of Message (@ARCHITECTURE.md):
 
-**Commands** are imperative instructions sent *to* a service. They are consumed by exactly one handler (ZeroMQ PUSH/PULL pattern). They may be emitted by an Action (user-triggered) or programmatically by any component.
+- **Command** — an imperative instruction consumed by exactly one handler (PUSH/PULL).
+- **Event** — a declarative announcement broadcast to all subscribers (PUB/SUB).
 
-**Events** are declarative announcements emitted *by* a service after something has happened. They are broadcast to all interested subscribers (ZeroMQ PUB/SUB pattern). No Action maps to an event directly.
-
-**Actions** are the UI-layer objects that bridge user intent and commands. Each Action:
-- Has a visual representation (menu item, toolbar button, keybinding).
-- Has an enabled/disabled state driven exclusively by the Application State Machine.
-- When activated, emits exactly one Command onto the bus.
-
-This keeps the bus dumb and fast. State enforcement happens at the Action layer — a disabled Action never emits its Command, so the bus router never needs to drop messages based on app state.
+**Actions** are UI-layer objects bridging user intent and Commands: each has a visual representation, an enabled/disabled state driven by the application state machine, and emits exactly one Command when activated. State enforcement happens at the Action layer, so the bus never drops messages based on state.
 
 #### Actions
 
-| Action | Command Emitted | Valid States |
+| Action | Command | Valid States |
 |---|---|---|
-| `FileNewAction` | `cmd.file.new` | `Idle`, `Editing`, `Compiled`, `CompileError` |
-| `FileOpenAction` | `cmd.file.open` | `Idle`, `Editing`, `Compiled`, `CompileError` |
-| `FileSaveAction` | `cmd.file.save` | `Editing`, `Compiled`, `CompileError` |
-| `FileSaveAsAction` | `cmd.file.save_as` | `Editing`, `Compiled`, `CompileError` |
+| `FileNewAction` | `cmd.file.new` | `Idle`, `Editing`, `Compiled`, `CompileError`, `Previewing` |
+| `FileOpenAction` | `cmd.file.open` | `Idle`, `Editing`, `Compiled`, `CompileError`, `Previewing` |
+| `FileSaveAction` | `cmd.file.save` | `Editing`, `Compiled`, `CompileError`, `Previewing` |
+| `FileSaveAsAction` | `cmd.file.save_as` | `Editing`, `Compiled`, `CompileError`, `Previewing` |
 | `ExitAction` | `cmd.app.exit` | *(all)* |
 | `UndoAction` | `cmd.edit.undo` | `Editing` |
 | `RedoAction` | `cmd.edit.redo` | `Editing` |
 | `CutAction` | `cmd.edit.cut` | `Editing` |
-| `CopyAction` | `cmd.edit.copy` | `Editing`, `Compiled`, `CompileError` |
+| `CopyAction` | `cmd.edit.copy` | `Editing`, `Compiled`, `CompileError`, `Previewing` |
 | `PasteAction` | `cmd.edit.paste` | `Editing` |
-| `GoToDeclarationAction` | `cmd.edit.go_to_declaration` | `Editing`, `Compiled`, `CompileError` |
+| `GoToDeclarationAction` | `cmd.edit.go_to_declaration` | `Editing`, `Compiled`, `CompileError`, `Previewing` |
 | `CompileAction` | `cmd.shader.compile` | `Editing`, `CompileError` |
-| `DebugAction` | `cmd.debug.start` | `Compiled` |
-| `ToggleBreakpointAction` | `cmd.debug.toggle_breakpoint` | `Compiled`, `Debugging`, `Paused` |
+| `BuildAction` | `cmd.shader.build` | `Editing`, `CompileError` |
+| `RunAction` | `cmd.preview.run` | `Compiled` |
+| `StopAction` | `cmd.preview.stop` | `Previewing` |
+| `PauseAction` | `cmd.preview.pause` | `Previewing` |
+| `SetPrimitiveAction` | `cmd.preview.set_primitive` | `Compiled`, `Previewing` |
+| `SetContextAction` | `cmd.preview.set_context` | `Compiled`, `Previewing` |
+| `SetUniformAction` | `cmd.uniforms.set` | `Compiled`, `Previewing` |
 
-Actions are registered in a central `ActionRegistry`. The registry observes state machine transitions and enables/disables the relevant actions in bulk.
+Actions are registered in the **ActionRegistry**, which observes state transitions and enables/disables the relevant Actions in bulk.
 
 #### Commands
 
-Commands emitted by Actions or programmatically by any component:
-
 | Command | Description |
 |---|---|
-| `cmd.file.new` | Discard current document, reset to blank state |
-| `cmd.file.open` | Open a file picker and load a GLSL file |
-| `cmd.file.save` | Save the current document to its existing path |
-| `cmd.file.save_as` | Save the current document to a new path |
-| `cmd.file.reload` | Reload the current document from disk (used programmatically on conflict resolution) |
-| `cmd.app.exit` | Initiate application shutdown sequence |
+| `cmd.file.new` | Discard the current Document, reset to a blank (unsaved) Document |
+| `cmd.file.open` | Open a file picker and load a Source into a Document |
+| `cmd.file.save` | Save the current Document to its existing Source path |
+| `cmd.file.save_as` | Save the current Document to a new path (creating a Source) |
+| `cmd.file.reload` | Reload the Document from its Source on disk (conflict resolution) |
+| `cmd.app.exit` | Initiate application shutdown |
 | `cmd.edit.undo` | Undo last edit |
 | `cmd.edit.redo` | Redo last undone edit |
 | `cmd.edit.cut` | Cut selected text |
 | `cmd.edit.copy` | Copy selected text |
 | `cmd.edit.paste` | Paste from clipboard |
-| `cmd.edit.go_to_declaration` | Navigate to the declaration of the symbol under the cursor |
-| `cmd.shader.compile` | Compile the current GLSL source via the language server |
-| `cmd.debug.start` | Begin a RenderDoc capture session |
-| `cmd.debug.toggle_breakpoint` | Toggle a breakpoint at the current cursor line |
+| `cmd.edit.go_to_declaration` | Navigate to the declaration of the Symbol under the cursor |
+| `cmd.shader.compile` | Compile the current Source (a single-`Source` Build) via the Language Server |
+| `cmd.shader.build` | Build the whole Shader Program (all manifest stages) via the Language Server |
+| `cmd.preview.run` | Start the preview render loop (GPU execution) from the Launch Configuration |
+| `cmd.preview.stop` | Stop the preview render loop |
+| `cmd.preview.pause` | Pause/resume the preview render loop |
+| `cmd.preview.set_primitive` | Select the preview geometry primitive |
+| `cmd.preview.set_context` | Select the OpenGL context version/profile used by the preview |
+| `cmd.uniforms.set` | Set a uniform value in the Launch Configuration |
 
 #### Events
 
@@ -125,44 +140,175 @@ Events emitted by services; no Action maps to these directly:
 
 | Event | Emitted by | Description |
 |---|---|---|
-| `file.opened` | FileService | A file was successfully loaded into the editor |
-| `file.saved` | FileService | A file was successfully written to disk |
-| `file.conflict_detected` | `xenoshader-fswatcher` | The file on disk changed while the editor holds unsaved modifications |
-| `compilation.succeeded` | `xenoshader-langserver` | Compilation produced a valid SPIR-V binary |
-| `compilation.failed` | `xenoshader-langserver` | Compilation produced errors; diagnostics are attached |
-| `diagnostics.updated` | `xenoshader-langserver` | A new set of diagnostic items is available for the current source |
-| `debug.started` | `xenoshader-rdoc` | A RenderDoc capture session is active |
-| `debug.paused` | `xenoshader-rdoc` | The debugger paused at a shader invocation |
-| `debug.stopped` | `xenoshader-rdoc` | The debug session ended |
+| `file.opened` | FileService | A Source was loaded into a Document |
+| `file.saved` | FileService | The Document was written to its Source on disk |
+| `file.conflict_detected` | `xenoshader-fswatcher` | The Source on disk changed while the Document holds unsaved modifications |
+| `compilation.succeeded` | `xenoshader-langserver` | A single-Source Compile produced valid SPIR-V |
+| `compilation.failed` | `xenoshader-langserver` | A single-Source Compile produced errors |
+| `build.succeeded` | `xenoshader-langserver` | The program Build produced a valid Shader Program Artifact (SPIR-V bundle + reflection) |
+| `build.failed` | `xenoshader-langserver` | The program Build produced errors |
+| `diagnostics.updated` | `xenoshader-langserver` | A new set of Diagnostic items is available |
+| `preview.started` | Preview Presenter | The render loop is running |
+| `preview.stopped` | Preview Presenter | The render loop ended |
+| `preview.paused` | Preview Presenter | The render loop is paused |
+| `preview.resumed` | Preview Presenter | The render loop resumed |
+| `script.compiled` | Preview Presenter (ChaiScript) | The inspect script compiled/loaded successfully |
+| `script.error` | Preview Presenter (ChaiScript) | The inspect script failed to compile or threw at runtime |
 
-### Diagnostic Data Model
+### Diagnostics
 
-All diagnostic items (from `glslang`, the filesystem watcher, or future LSP sources) share a single protobuf message type defined in `message.proto`:
+All diagnostic items share the domain **Diagnostic** shape (@DOMAIN-MODEL.md):
 
 ```
-DiagnosticItem {
-  string   file_path
-  uint32   line
-  uint32   column
-  enum     severity  // NOTE, WARNING, ERROR
-  string   message
-  string   source    // e.g. "glslang", "fswatcher"
+Diagnostic {
+  source_path   // Source location
+  line
+  column
+  severity      // NOTE, WARNING, ERROR
+  message
+  tool          // "glslang", "driver", "chaiscript", "fswatcher"
 }
 ```
 
-This avoids duplication and lets the `xenoide-ui-build-diagnostics` panel consume diagnostics from any backend uniformly.
+This avoids duplication and lets `xenoide-ui-build-diagnostics` consume diagnostics from any source uniformly.
+
+There are **three** diagnostic producers in XenoShader:
+
+- **`glslang`** (offline): produced by `Compile`/`Build` in the Language Server.
+- **`driver`** (runtime): produced when the preview feeds a program to the GPU driver under the selected context, and the driver rejects it.
+- **`chaiscript`** (runtime): produced when the inspect script fails to compile or throws.
 
 ### Application State Machine
 
-The application lifecycle follows a state machine that controls which messages and UI actions are valid at any given time:
+XenoShader's concrete state machine is composed from the domain building blocks (`Document.dirty`, `Build.status`):
 
-| State | Description |
+| State | Meaning (domain-derived) |
 |---|---|
-| `Idle` | No file open |
-| `Editing` | File open, not compiled |
-| `Compiled` | File compiled successfully, SPIR-V available |
-| `CompileError` | Compilation failed, diagnostics available |
-| `Debugging` | RenderDoc capture session active |
-| `Paused` | Debugger paused at a shader invocation |
+| `Idle` | No Document open |
+| `Editing` | Document open, not yet compiled |
+| `Compiled` | Last `Build` Succeeded |
+| `CompileError` | Last `Build` Failed |
+| `Previewing` | The preview render loop is running (entered via `Run`, gated on `Compiled`) |
 
-Menu items and toolbar buttons are enabled/disabled based on the current state via the `ActionRegistry`. State enforcement happens entirely at the Action layer — the bus router is stateless and never drops messages.
+While `Previewing`, each successful `Build` live-reloads the render; a failed `Build` transitions back to `CompileError` while the preview keeps rendering the last-good program. Menu items and toolbar buttons are enabled/disabled by the ActionRegistry observing these transitions.
+
+## Features
+
+Features are specified by naming the concrete archetypes they compose (@ARCHITECTURE.md). Each feature is a bundle of UI `Components` + `Services` + `Commands` delivering a workflow.
+
+### F1 — Document Management (File)
+
+Open, create, save, and reload `Document`s; track dirty state.
+
+- **Actions/Commands**: `FileNewAction`, `FileOpenAction`, `FileSaveAction`, `FileSaveAsAction` → `cmd.file.*`, `cmd.app.exit`.
+- **Components**: `xenoide-ui-codeeditor` (View + Presenter).
+- **Services**: `FileService` (emits `file.opened`, `file.saved`), `DocumentManager`.
+- **Events**: `file.opened`, `file.saved`, `file.conflict_detected`.
+
+### F2 — Code Editing
+
+Text editing with undo/redo and clipboard, plus GLSL-aware navigation.
+
+- **Actions/Commands**: `UndoAction`, `RedoAction`, `CutAction`, `CopyAction`, `PasteAction`, `GoToDeclarationAction` → `cmd.edit.*`.
+- **Components**: `xenoide-ui-codeeditor`.
+- **Services**: `xenoshader-langserver` (hover, go-to-declaration).
+- **Tool Capabilities**: `hover`, `go-to-declaration`, `completion`.
+
+### F3 — Project Explorer
+
+Navigate the open Shader Program's Sources.
+
+- **Components**: `xenoide-ui-project-explorer` (View + Presenter).
+- **Services**: `DocumentManager`.
+- **Events**: `file.opened`.
+
+### F4 — Compile & Build
+
+Validate a single stage or the whole program; produce the Shader Program Artifact and Diagnostics.
+
+- **Actions/Commands**: `CompileAction` → `cmd.shader.compile`; `BuildAction` → `cmd.shader.build`.
+- **Components**: `xenoide-ui-build-diagnostics` (View + Presenter).
+- **Services**: `xenoshader-langserver` (compile, build, uniform-reflection).
+- **Events**: `compilation.succeeded`, `compilation.failed`, `build.succeeded`, `build.failed`, `diagnostics.updated`.
+- **Tool Capabilities**: `compile`, `build`, `uniform-reflection`, `include-resolution`.
+
+### F5 — Preview (Run)
+
+Start/stop/pause the render loop; select the geometry primitive and the GL context version/profile.
+
+- **Actions/Commands**: `RunAction`, `StopAction`, `PauseAction`, `SetPrimitiveAction`, `SetContextAction` → `cmd.preview.*`.
+- **Components**: `xenoide-ui-preview` (View + Preview Presenter — primary port, UI main thread), `xenoide-ui-launch-config` (View + Presenter).
+- **Services**: none external; the render loop runs in-process.
+- **Events**: `preview.started`, `preview.stopped`, `preview.paused`, `preview.resumed`.
+
+### F6 — Launch Configuration
+
+Edit uniform values, texture bindings, and the selected primitive for the next Run.
+
+- **Actions/Commands**: `SetUniformAction` → `cmd.uniforms.set`; `SetPrimitiveAction` → `cmd.preview.set_primitive`.
+- **Components**: `xenoide-ui-launch-config` (form over uniforms/textures/primitive), `xenoide-ui-uniform-inspector` (read-only reflection view).
+- **Services**: `xenoshader-langserver` (uniform-reflection).
+- **Events**: `build.succeeded` (populates the uniform list).
+- **Tool Capabilities**: `uniform-reflection`.
+
+### F7 — Inspection (ChaiScript overlay)
+
+Run a per-frame ChaiScript that reads back GPU data, computes metrics, and draws HUD overlays.
+
+- **Actions/Commands**: the script is a `Source` edited in `xenoide-ui-codeeditor`; saving reloads it.
+- **Components**: `xenoide-ui-preview` (hosts the ChaiScript interpreter in its Presenter).
+- **Services**: ChaiScript runtime embedded in the Preview Presenter.
+- **Events**: `script.compiled`, `script.error`.
+
+### F8 — SPIR-V Disassembly
+
+Show the compiled output of the current Build.
+
+- **Components**: `xenoide-ui-disassembly` (View + Presenter).
+- **Services**: `xenoshader-langserver` (produces SPIR-V).
+- **Events**: `build.succeeded`.
+
+## Preview & Inspection
+
+### Render loop
+
+- The preview renders **continuously** (per frame), with a configurable frame rate and pause. A `time` uniform is advanced each frame, enabling animated shaders.
+- On each successful `Build`, the render loop live-reloads the Shader Program; on failure it keeps the last-good render.
+
+### GPU feed (hybrid)
+
+The preview feeds the GPU the program form that the **selected context** supports:
+
+- If the selected OpenGL context supports SPIR-V ingestion (`ARB_gl_spirv`, core in GL 4.6), the preview feeds the per-stage SPIR-V produced by `Build`.
+- Otherwise, the preview feeds the GLSL source directly, and the driver compiles it under the selected context.
+
+This allows XenoShader to exercise the GPU actually available on the machine, and to test the same source across GL versions/profiles via the context selector.
+
+### Context version/profile selector
+
+A selector on the preview `View` lets the user pick the target OpenGL context version/profile (e.g. `4.6 core`, `3.3 core`, `compatibility`, `ES`). Changing it recreates the preview's GL context and re-runs the program under that target.
+
+### Prebuilt primitives
+
+The user selects a prebuilt 3D primitive for the preview, starting with a full-screen quad and growing to sphere and other primitives. The primitive supplies the geometry (positions, normals, UVs) that the program's stages consume; the selected primitive is part of the `Launch Configuration`.
+
+### Uniform & texture inspection
+
+- The `Launch Configuration` `View` presents the program's active uniforms and their data types, populated by `uniform-reflection` from the Language Server (not hand-authored). The user edits values here.
+- The `xenoide-ui-uniform-inspector` is a read-only mirror of the same reflection data.
+- Textures are image files (e.g. PNG/KTX) referenced by the manifest, bound to sampler uniforms by the `Launch Configuration`.
+
+### ChaiScript overlay
+
+- The inspect script is a `.chai` `Source` in the Project, editable in XenoShader's editor.
+- It runs **continuously, per frame**, inside the Preview Presenter (UI main thread).
+- It can read back framebuffer regions, active uniform values, and frame timing; compute metrics/statistics; and draw HUD text/overlays on the viewport.
+- Saving the script recompiles/reloads it; compile/runtime errors are emitted as `Diagnostic`s (`tool = "chaiscript"`).
+
+## Invariants
+
+- A `Document` references at most one `Source`; an unsaved Document references none.
+- A `Command` is invocable only when every required `Tool Capability` is advertised by the configured `Tool`.
+- A `Diagnostic` is produced by exactly one `Tool`/producer and located in exactly one `Source`.
+- `Run` (`cmd.preview.run`) is available only in state `Compiled`.
+- The preview is a `View` on the UI main thread; it is never a bus participant.
