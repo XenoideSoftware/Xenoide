@@ -1,11 +1,12 @@
 cmake_minimum_required (VERSION 3.16)
 
-list(APPEND CMAKE_MODULE_PATH "../cmake")
+# NOTE: This breaks when modifying any CMakeLists.txt file after the build system is generated
+#list(APPEND CMAKE_MODULE_PATH "../cmake")
 
-include(XEVersion)
+include("../cmake/XEVersion.cmake")
 project (Xenoide VERSION ${XE_BUILD_VERSION})
-include(XETesting)
-include(XEBaseTarget)
+include("../cmake/XETesting.cmake")
+include("../cmake/XEBaseTarget.cmake")
 
 option(XE_ENABLE_IDE_WINLAMB_UNICODE "Builds an UNICODE version. ANSI if OFF" ON)
 option(XE_ENABLE_IDE_WINLAMB "Enable WinLamb UI" OFF)
