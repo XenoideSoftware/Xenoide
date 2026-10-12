@@ -20,6 +20,17 @@ enum class MessageKind {
     Query
 };
 
+inline std::ostream& operator<< (std::ostream &os, MessageKind kind) {
+    switch (kind) {
+        case MessageKind::Event: os << "Event";
+        case MessageKind::Command: os << "Command";
+        case MessageKind::Query: os << "Query";
+        default: os << "<UnknownMessageKind>";
+    }
+
+    return os;
+}
+
 using MessageType = uint32_t;
 
 //! Message structure, created by Producers and processed by Consumers
@@ -40,6 +51,11 @@ struct Message {
     //! Who should carry on this Command or Query
     uint32_t consumerId = 0;    
 };
+
+
+
+
+
 
 class MessageBus;
 
