@@ -1,5 +1,7 @@
 
-void MessageBus::registerComponent(Component *component, const MessageTypeSet &supportedMessageTypes = {}) {
+#include "message-bus.h"
+
+void MessageBus::registerComponent(Component *component, const MessageTypeSet &supportedMessageTypes) {
     assert(component);
 
     auto pair = std::make_pair(component, supportedMessageTypes);

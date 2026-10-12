@@ -47,11 +47,9 @@ using MessageTypeSet = std::set<MessageType>;
 
 class Component {
 public:
-    Component ();
+    virtual ~Component() = default;
 
-    virtual ~Component();
-
-    virtual void enqueue(const Message &message);
+    virtual void enqueue(const Message &message) = 0;
 };
 
 class MessageBus {
