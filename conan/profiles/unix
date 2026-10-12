@@ -11,3 +11,4 @@ qt/*:qtshadertools=True
 qt/*:with_sqlite3=False
 cpython/*:with_gdbm=False
 cpython/*:with_tkinter=False
+xenoide/*:with_ide_gtk3=True

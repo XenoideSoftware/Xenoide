@@ -21,7 +21,6 @@ class xenoideRecipe(ConanFile):
 
     options = {
         "with_tests": [True, False],
-        "with_ide": [True, False],
         "with_ide_winlamb": [True, False],
         "with_ide_qt6": [True, False],
         "with_ide_wx3": [True, False],
@@ -60,15 +59,17 @@ class xenoideRecipe(ConanFile):
         return self.options.get_safe("with_engine_tool_ktxc") or self.options.get_safe("with_engine_tool_gltfc")
 
     def _require_wx3(self):
-        return (self.options.get_safe("with_ide") and self.options.get_safe("with_ide_wx3")) or self.options.get_safe("with_poc_wxwidgets")
+        return self.options.get_safe("with_ide_wx3") or self.options.get_safe("with_poc_wxwidgets")
 
     def _require_gtk4(self):
-        return self.options.get_safe("with_ide") and self.options.get_safe("with_ide_gtk4")
+        return self.options.get_safe("with_ide_gtk4")
 
     def _require_gtk3(self):
-        return self.options.get_safe("with_ide") and self.options.get_safe("with_ide_gtk3")
+        return self.options.get_safe("with_ide_gtk3")
 
     def requirements(self):
+        self.requires("gsl-lite/1.1.0")
+        
         # required by all
         if self.options.with_tests:
             self.requires("catch2/3.14.0")
