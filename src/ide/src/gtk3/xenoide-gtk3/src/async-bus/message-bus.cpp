@@ -1,0 +1,90 @@
+#pragma once 
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <set>
+#include <thread>
+#include <chrono>
+#include <functional>
+#include <mutex>
+#include <atomic>
+#include <vector>
+#include <tuple>
+#include <algorithm>
+#include <cassert>
+
+enum class MessageKind {
+    Event,
+    Command,
+    Query
+};
+
+using MessageType = uint32_t;
+
+//! Message structure, created by Producers and processed by Consumers
+//! Delivered by the MessageBus
+struct Message {
+    //! It is a Event, Command or Query?
+    MessageKind kind = MessageKind::Event;
+
+    //! Generated unique identifier
+    uint32_t uuid = 0;          
+
+    //! When it was created
+    uint32_t timestamp = 0;     
+
+    //! The specific type of Event. Created dynamically
+    MessageType type = 0;          
+
+    //! Who should carry on this Command or Query
+    uint32_t consumerId = 0;    
+};
+
+class MessageBus;
+
+using MessageTypeSet = std::set<MessageType>;
+
+class Component {
+public:
+    Component ();
+
+    virtual ~Component();
+
+    virtual void enqueue(const Message &message);
+};
+
+class MessageBus {
+public:
+    void registerComponent(Component *component, const MessageTypeSet &supportedMessageTypes = {}) {
+        assert(component);
+
+        auto pair = std::make_pair(component, supportedMessageTypes);
+        
+        components.push_back(pair);
+    }
+
+    void unregisterComponent(Component *component) {
+        auto it = std::find_if(components.begin(), components.end(), [component](const auto &pair) {
+            return component == pair.first;
+        });
+
+        assert(it != components.end());
+        
+        components.erase(it);
+    }
+
+    void publish(const Message &message) {
+        for (auto &pair : components) {
+            Component *component = pair.first;
+            std::set<MessageType> messageTypes = pair.second;
+
+            if (messageTypes.empty() || messageTypes.count(message.type) > 0) {
+                component->enqueue(message);
+            }
+        }
+    }
+
+private:
+    std::vector<std::pair<Component*, MessageTypeSet>> components;
+};
