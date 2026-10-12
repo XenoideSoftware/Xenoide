@@ -22,6 +22,12 @@ if (XE_ENABLE_IDE_WX3)
     set(CMAKE_FOLDER "IDE")
 endif()
 
+if (XE_ENABLE_IDE_GTK3)
+    set(CMAKE_FOLDER "IDE/GTK3")
+    add_subdirectory("gtk3")
+    set(CMAKE_FOLDER "IDE")
+endif()
+
 if (XE_ENABLE_IDE_GTK4)
     set(CMAKE_FOLDER "IDE/GTK4")
     add_subdirectory("gtk4")

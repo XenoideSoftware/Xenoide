@@ -26,14 +26,16 @@ class xenoideRecipe(ConanFile):
         "with_ide_qt6": [True, False],
         "with_ide_wx3": [True, False],
         "with_ide_gtk4": [True, False],
+        "with_ide_gtk3": [True, False],
     }
 
     default_options = {
         "with_tests": True,
-        "with_ide_winlamb": True,
-        "with_ide_qt6": True,
+        "with_ide_winlamb": False,
+        "with_ide_qt6": False,
         "with_ide_wx3": False,
         "with_ide_gtk4": False,
+        "with_ide_gtk3": False,
     }
 
     # Sources are located in the same place as this recipe, copy them to the recipe
@@ -63,6 +65,9 @@ class xenoideRecipe(ConanFile):
     def _require_gtk4(self):
         return self.options.get_safe("with_ide") and self.options.get_safe("with_ide_gtk4")
 
+    def _require_gtk3(self):
+        return self.options.get_safe("with_ide") and self.options.get_safe("with_ide_gtk3")
+
     def requirements(self):
         # required by all
         if self.options.with_tests:
@@ -81,6 +86,9 @@ class xenoideRecipe(ConanFile):
 
         if self._require_gtk4():
             self.requires("gtk/system", options={"version" : 4})
+
+        if self._require_gtk3():
+            self.requires("gtk/system", options={"version" : 3})
 
         if self._require_wx3():
             self.requires("wxwidgets/3.3.3")
@@ -108,6 +116,7 @@ class xenoideRecipe(ConanFile):
         tc.variables["XE_ENABLE_IDE_QT6"] = "ON" if self.options.get_safe("with_ide_qt6") else "OFF"
         tc.variables["XE_ENABLE_IDE_WX3"] = "ON" if self.options.get_safe("with_ide_wx3") else "OFF"
         tc.variables["XE_ENABLE_IDE_GTK4"] = "ON" if self.options.get_safe("with_ide_gtk4") else "OFF"
+        tc.variables["XE_ENABLE_IDE_GTK3"] = "ON" if self.options.get_safe("with_ide_gtk3") else "OFF"
 
         tc.generate()
 
