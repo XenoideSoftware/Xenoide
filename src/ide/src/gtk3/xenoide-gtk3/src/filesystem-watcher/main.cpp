@@ -1,10 +1,26 @@
 
 #include <iostream>
 #include <string>
+#include <map>
 
 #include <unistd.h>
 #include <sys/inotify.h>
 #include <linux/limits.h>
+
+enum class FileEventType {
+    Created,
+    Deleted,
+    Renamed,
+    MovedIn,
+    MovedOut
+};
+
+struct FileEvent {
+    FileEventType type = FileEventType::Created;
+    std::string fileName;
+    bool isFolder = false;
+};
+
 
 /*
 struct inotify_event {
@@ -64,10 +80,7 @@ std::string mask_to_string(uint32_t mask) {
     return result;
 }
 
-
-int main() {
-    const std::string folder = "/home/fapablaza/Desktop";
-
+void watch(const std::string &folder) {
     int inotfd = inotify_init();
     uint32_t mask = IN_ALL_EVENTS;
     int watchdesc = inotify_add_watch(inotfd, folder.c_str(), mask);
@@ -107,6 +120,10 @@ int main() {
             current++;
         }
     }
+}
 
+int main() {
+    watch("/home/fapablaza/Desktop");
+    
     return 0;
 }
