@@ -16,8 +16,6 @@ public:
     ConcreteComponent(MessageBus *messageBus, ComponentConsumerFn consumerFn) : messageBus(messageBus) {}
 
     void start() {
-        std::cout << "Initializing ConcreteComponent" << std::endl;
-
         running = true;
 
         thread = std::thread([this]() {
@@ -92,9 +90,9 @@ void logMessage(const Message &message) {
     logger(threadId, ss.str());
 }
 
-
 int main() {
     MessageBus messageBus;
+    ConcreteComponent logger(&messageBus, logMessage);
 
     return 0;
 }
