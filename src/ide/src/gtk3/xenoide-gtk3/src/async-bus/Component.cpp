@@ -1,7 +1,6 @@
 
 #include "Component.h"
-#include "message-bus.h"
-
+#include "MessageBus.h"
 
 Component::Component(MessageBus *messageBus, const ComponentRole &roleFlags) : messageBus(messageBus), roleFlags(roleFlags) {
         assert(roleFlags);

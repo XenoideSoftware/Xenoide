@@ -1,5 +1,5 @@
 
-#include "message-bus.h"
+#include "MessageBus.h"
 #include "Component.h"
 
 std::mutex stdoutMutex;

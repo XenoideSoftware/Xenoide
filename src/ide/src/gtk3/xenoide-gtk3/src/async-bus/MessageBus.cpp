@@ -1,5 +1,5 @@
 
-#include "message-bus.h"
+#include "MessageBus.h"
 #include "Component.h"
 
 void MessageBus::registerComponent(Component *component, const MessageTypeSet &supportedMessageTypes) {
