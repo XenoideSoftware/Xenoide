@@ -64,10 +64,10 @@ enum MessageType2 {
     TICK = 1
 };
 
-class LoggerComponent : public AbstractComponent {
+class LoggerComponent : public Component {
 public:
     explicit LoggerComponent(MessageBus *messageBus) 
-        : AbstractComponent(messageBus, ComponentRole::Consumer) {}
+        : Component(messageBus, ComponentRole::Consumer) {}
 
     void consumerLoop() override {
         while (isRunning()) {
@@ -98,10 +98,10 @@ std::string to_string(const AppState &appState) {
     return ss.str();
 }
 
-class AppControlComponent : public AbstractComponent {
+class AppControlComponent : public Component {
 public:
     explicit AppControlComponent(MessageBus *messageBus, AppState *appState) 
-        : AbstractComponent(messageBus, ComponentRole::Consumer), appState(appState) {
+        : Component(messageBus, ComponentRole::Consumer), appState(appState) {
 
         assert(appState);
     }
@@ -129,14 +129,14 @@ private:
     AppState *appState = nullptr;
 };
 
-class TimerComponent : public AbstractComponent {
+class TimerComponent : public Component {
 public:
-    TimerComponent(MessageBus *messageBus) : AbstractComponent(messageBus, ComponentRole::Producer) {}
+    TimerComponent(MessageBus *messageBus) : Component(messageBus, ComponentRole::Producer) {}
 
     void producerLoop() override {
         while (isRunning()) {
             Message event = createEvent(MessageType2::TICK);
-            getMessageBus()->publish(event);
+            getMessageBus()->publishMessage(event);
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }

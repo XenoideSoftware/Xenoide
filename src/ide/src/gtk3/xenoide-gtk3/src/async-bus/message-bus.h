@@ -65,7 +65,7 @@ public:
 
     void unregisterComponent(Component *component);
 
-    void publish(const Message &message);
+    void publishMessage(const Message &message);
 
 private:
     std::vector<std::pair<Component*, MessageTypeSet>> components;

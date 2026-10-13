@@ -20,7 +20,7 @@ void MessageBus::unregisterComponent(Component *component) {
     components.erase(it);
 }
 
-void MessageBus::publish(const Message &message) {
+void MessageBus::publishMessage(const Message &message) {
     for (auto &pair : components) {
         Component *component = pair.first;
         std::set<MessageType> messageTypes = pair.second;

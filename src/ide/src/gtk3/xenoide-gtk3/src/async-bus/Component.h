@@ -1,7 +1,6 @@
 
 #pragma once
 
-
 #include <iostream>
 #include <string>
 #include <map>
@@ -19,79 +18,35 @@
 #include <optional>
 #include <chrono>
 
-
-class Component {
-public:
-    virtual ~Component() = default;
-
-    virtual void enqueue(const Message &message) = 0;
-};
-
-
 enum ComponentRole {
     Consumer = 0x01,
     Producer = 0x02
 };
 
-class AbstractComponent : public Component {
+struct Message;
+
+class MessageBus;
+class Component {
 public:
-    AbstractComponent(MessageBus *messageBus, const ComponentRole &roleFlags) : messageBus(messageBus), roleFlags(roleFlags) {
-        assert(roleFlags);
-    }
+    Component(MessageBus *messageBus, const ComponentRole &roleFlags);
 
-    void start() {
-        setRunnning(true);
+    virtual ~Component();
 
-        if (roleFlags & ComponentRole::Producer) {
-            producer = std::thread(&AbstractComponent::producerLoop, this);
-        }
+    void start();
 
-        if (roleFlags & ComponentRole::Consumer) {
-            consumer = std::thread(&AbstractComponent::consumerLoop, this);
-        }
-    }
+    void shutdown();
 
-    void shutdown() {
-        setRunnning(false);
+    void enqueue(const Message &message);
 
-        if (roleFlags & ComponentRole::Producer) {
-            producer.join();
-        }
+    bool hasMessages();
 
-        if (roleFlags & ComponentRole::Consumer) {
-            consumer.join();
-        }
-    }
+    Message consume();
 
-    void enqueue(const Message &message) override {
-        std::lock_guard<std::mutex> guard(messagesMutex);
-        messages.push_back(message);
-    }
+    bool isRunning() const;
 
-    bool hasMessages() {
-        return !messages.empty();
-    }
+    MessageBus* getMessageBus();
 
-    Message consume() {
-        std::lock_guard<std::mutex> guard(messagesMutex);
-        Message message = messages.front();
-        messages.erase(messages.begin());
-
-        return message;
-    }
-
-    bool isRunning() const {
-        return running;
-    }
-
-    MessageBus* getMessageBus() {
-        return messageBus;
-    }
-
-    void setRunnning(bool value) {
-        std::lock_guard<std::mutex> guard(runningMutex);
-        running = value;
-    }
+    void setRunnning(bool value);
 
 protected:
     virtual void producerLoop() {}
