@@ -2,6 +2,11 @@
 #include "MessageBus.h"
 #include "Component.h"
 
+#include <atomic>
+#include <sstream>
+#include <iostream>
+#include <cassert>
+
 std::mutex stdoutMutex;
 void logline(std::thread::id threadId, std::string msg) {
     std::lock_guard<std::mutex> guard(stdoutMutex);

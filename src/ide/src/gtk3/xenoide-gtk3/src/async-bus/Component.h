@@ -1,22 +1,12 @@
 
 #pragma once
 
-#include <iostream>
 #include <string>
-#include <map>
-#include <set>
 #include <thread>
-#include <chrono>
 #include <functional>
 #include <mutex>
-#include <atomic>
 #include <vector>
 #include <tuple>
-#include <algorithm>
-#include <cassert>
-#include <sstream>
-#include <optional>
-#include <chrono>
 
 enum ComponentRole {
     Consumer = 0x01,

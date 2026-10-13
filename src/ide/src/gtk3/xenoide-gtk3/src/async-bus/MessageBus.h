@@ -1,18 +1,11 @@
 #pragma once 
 
-#include <iostream>
+#include <iosfwd>
 #include <string>
-#include <map>
-#include <set>
 #include <thread>
-#include <chrono>
-#include <functional>
-#include <mutex>
-#include <atomic>
 #include <vector>
 #include <tuple>
-#include <algorithm>
-#include <cassert>
+#include <set>
 
 enum class MessageKind {
     Event,
@@ -20,16 +13,7 @@ enum class MessageKind {
     Query
 };
 
-inline std::ostream& operator<< (std::ostream &os, MessageKind kind) {
-    switch (kind) {
-        case MessageKind::Event: os << "Event"; break;
-        case MessageKind::Command: os << "Command"; break;
-        case MessageKind::Query: os << "Query"; break;
-        default: os << "<UnknownMessageKind>"; break;
-    }
-
-    return os;
-}
+std::ostream& operator<< (std::ostream &os, MessageKind kind);
 
 using MessageType = uint32_t;
 

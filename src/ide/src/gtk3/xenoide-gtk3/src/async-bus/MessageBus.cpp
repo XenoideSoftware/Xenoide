@@ -2,6 +2,22 @@
 #include "MessageBus.h"
 #include "Component.h"
 
+#include <ostream>
+#include <cassert>
+#include <algorithm>
+
+std::ostream& operator<< (std::ostream &os, MessageKind kind) {
+    switch (kind) {
+        case MessageKind::Event: os << "Event"; break;
+        case MessageKind::Command: os << "Command"; break;
+        case MessageKind::Query: os << "Query"; break;
+        default: os << "<UnknownMessageKind>"; break;
+    }
+
+    return os;
+}
+
+
 void MessageBus::registerComponent(Component *component, const MessageTypeSet &supportedMessageTypes) {
     assert(component);
 
