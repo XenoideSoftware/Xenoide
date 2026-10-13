@@ -1,5 +1,6 @@
 
 #include "message-bus.h"
+#include "Component.h"
 
 void MessageBus::registerComponent(Component *component, const MessageTypeSet &supportedMessageTypes) {
     assert(component);
