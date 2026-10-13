@@ -22,10 +22,10 @@ enum class MessageKind {
 
 inline std::ostream& operator<< (std::ostream &os, MessageKind kind) {
     switch (kind) {
-        case MessageKind::Event: os << "Event";
-        case MessageKind::Command: os << "Command";
-        case MessageKind::Query: os << "Query";
-        default: os << "<UnknownMessageKind>";
+        case MessageKind::Event: os << "Event"; break;
+        case MessageKind::Command: os << "Command"; break;
+        case MessageKind::Query: os << "Query"; break;
+        default: os << "<UnknownMessageKind>"; break;
     }
 
     return os;
@@ -35,6 +35,7 @@ using MessageType = uint32_t;
 
 //! Message structure, created by Producers and processed by Consumers
 //! Delivered by the MessageBus
+//! TODO: Add Payload
 struct Message {
     //! It is a Event, Command or Query?
     MessageKind kind = MessageKind::Event;
@@ -43,7 +44,7 @@ struct Message {
     uint32_t uuid = 0;          
 
     //! When it was created
-    uint32_t timestamp = 0;     
+    uint64_t timestamp = 0;     
 
     //! The specific type of Event. Created dynamically
     MessageType type = 0;          
@@ -51,10 +52,6 @@ struct Message {
     //! Who should carry on this Command or Query
     uint32_t consumerId = 0;    
 };
-
-
-
-
 
 
 class MessageBus;
