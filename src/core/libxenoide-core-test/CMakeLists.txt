@@ -5,6 +5,6 @@ set (sources "src/xenoide-test-main.cpp")
 add_executable(${target} ${sources})
 
 target_link_libraries(${target} PRIVATE Catch2::Catch2WithMain)
-target_link_libraries(${target} PRIVATE libxenoide-core)
+target_link_libraries(${target} PRIVATE xenoide-core xenoide::interface)
 
 xenoide_add_catch2_tests (${target})

@@ -3,12 +3,11 @@
 #include "DocumentGtk.h"
 
 namespace Xenoide {
-    DocumentHeader::DocumentHeader(DocumentGtk &editor, const std::string &title) 
-            : m_editor(editor), m_closeImage(Gtk::Stock::CLOSE, Gtk::IconSize(Gtk::ICON_SIZE_MENU)) {
+    DocumentHeader::DocumentHeader(DocumentGtk &editor, const std::string &title) : m_editor(editor), m_closeImage(Gtk::Stock::CLOSE, Gtk::IconSize(Gtk::ICON_SIZE_MENU)) {
         m_title = title;
 
         update_title_label();
-        
+
         m_closeButton.set_image(m_closeImage);
         m_closeButton.set_relief(Gtk::RELIEF_NONE);
 
@@ -17,7 +16,8 @@ namespace Xenoide {
         show_all();
     }
 
-    DocumentHeader::~DocumentHeader() {}
+    DocumentHeader::~DocumentHeader() {
+    }
 
     void DocumentHeader::update_title_label() {
         std::string title = m_title;
@@ -34,7 +34,7 @@ namespace Xenoide {
         update_title_label();
     }
 
-    Gtk::Button* DocumentHeader::get_close_button() {
+    Gtk::Button *DocumentHeader::get_close_button() {
         return &m_closeButton;
     }
-}
+} // namespace Xenoide

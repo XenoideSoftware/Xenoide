@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 DEFAULT_URL = "https://github.com/XenoideSoftware/devkit.git"
-DEFAULT_REF = "v0.1.0"
+DEFAULT_REF = "v0.1.1"
 
 
 def run(cmd, cwd=None):
@@ -57,6 +57,12 @@ def sync(root):
         devkit.symlink_to(local_path, target_is_directory=True)
         print(f"==> Linked .devkit -> {local_path} (development mode)")
         return
+
+    if devkit.is_symlink():
+        # `.devkit` must be a real checkout, never a symlink: checking out
+        # through a link would modify an unrelated sibling tree. Remove it
+        # (dangling, foreign, or valid dev link) before cloning.
+        devkit.unlink()
 
     if (devkit / ".git").is_dir():
         print(f"==> Updating .devkit to {ref}")

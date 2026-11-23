@@ -78,7 +78,7 @@ target_compile_definitions(${target} PUBLIC
     _WIN32_WINDOWS=${XE_IDE_WIN32_TARGET_HEX}
 )
 
-if (XENOIDE_WIN32_UNICODE)
+if (XE_ENABLE_IDE_WINLAMB_UNICODE)
     target_compile_definitions(${target} PUBLIC UNICODE _UNICODE)
     # MinGW's default CRT entry point is WinMainCRTStartup (calls WinMain).
     # Under UNICODE, winlamb's RUN macro expands to wWinMain, which requires

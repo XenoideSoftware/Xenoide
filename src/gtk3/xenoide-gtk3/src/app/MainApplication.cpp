@@ -1,13 +1,12 @@
 
 #include "MainApplication.h"
 
-
 namespace Xenoide {
-    MainApplication::MainApplication(int argc, char* argv[], const char *name) 
-        : Gtk::Application(argc, argv, name) {}
+    MainApplication::MainApplication(int argc, char *argv[], const char *name) : Gtk::Application(argc, argv, name) {
+    }
 
-    Glib::RefPtr<MainApplication> MainApplication::create(int argc, char* argv[], const char *name) {
-        return Glib::RefPtr<MainApplication>(new MainApplication(argc, argv, name) );
+    Glib::RefPtr<MainApplication> MainApplication::create(int argc, char *argv[], const char *name) {
+        return Glib::RefPtr<MainApplication>(new MainApplication(argc, argv, name));
     }
 
     void MainApplication::on_startup() {
@@ -35,4 +34,4 @@ namespace Xenoide {
         set_accel_for_action("win.file_save_as", "<Ctrl><Shift>S");
         set_accel_for_action("win.file_close", "<Ctrl>W");
     }
-}
+} // namespace Xenoide

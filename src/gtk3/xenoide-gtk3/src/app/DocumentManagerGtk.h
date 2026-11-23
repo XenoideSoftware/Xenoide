@@ -8,7 +8,7 @@
 #include "DocumentGtk.h"
 
 namespace Xenoide {
-    typedef sigc::signal<bool, DocumentGtk*> signal_editor_closed_t;
+    typedef sigc::signal<bool, DocumentGtk *> signal_editor_closed_t;
 
     class DocumentManagerGtk : public Gtk::Bin {
     public:
@@ -19,7 +19,7 @@ namespace Xenoide {
     public:
         void open_editor(const std::string &key, const std::string &title, const std::string &content);
 
-        DocumentGtk* get_current_editor();
+        DocumentGtk *get_current_editor();
 
         void change_editor_key(DocumentGtk &editor, const std::string &newKey, const std::string &newTitle);
 
@@ -30,9 +30,9 @@ namespace Xenoide {
 
     private:
         Gtk::Notebook m_notebook;
-        std::map<std::string, DocumentGtk*> m_editors;
+        std::map<std::string, DocumentGtk *> m_editors;
         signal_editor_closed_t m_signal_editor_closed;
     };
-}
+} // namespace Xenoide
 
 #endif

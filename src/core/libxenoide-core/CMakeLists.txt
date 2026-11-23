@@ -1,7 +1,7 @@
 
 find_package(gsl-lite CONFIG REQUIRED)
 
-set (target "libxenoide-core")
+set (target "xenoide-core")
 
 set (sources
     "src/xenoide/core/Predef.h"
@@ -14,6 +14,6 @@ set (sources
 add_library(${target} ${sources})
 
 target_include_directories( ${target} PUBLIC "src/")
-target_link_libraries (${target} PUBLIC gsl-lite::gsl-lite)
+target_link_libraries (${target} PUBLIC gsl-lite::gsl-lite xenoide::interface)
 
 install(TARGETS ${target} DESTINATION "lib")

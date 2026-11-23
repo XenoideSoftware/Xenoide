@@ -1,6 +1,5 @@
 // Lambda-based, multithreaded, event bus
 
-
 #include <iostream>
 #include <string>
 #include <map>
@@ -18,17 +17,19 @@ void logger(std::thread::id threadId, std::string msg) {
     std::cout << "[" << threadId << "] " << msg << std::endl;
 }
 
-typedef std::map<std::string, std::string> EventPayload; 
+typedef std::map<std::string, std::string> EventPayload;
 
 struct Event {
     std::string type;
     EventPayload payload;
 
-    Event(std::string type) : type(type) {}
-    Event(std::string type, EventPayload payload) : type(type), payload(payload) {}
+    Event(std::string type) : type(type) {
+    }
+    Event(std::string type, EventPayload payload) : type(type), payload(payload) {
+    }
 };
 
-typedef std::function<void (Event evt)> EventFn;
+typedef std::function<void(Event evt)> EventFn;
 
 const std::string EVENT_APP_TERMINATE = "app-terminate";
 const std::string EVENT_COUNT_INCREASE = "count-increase";
@@ -89,7 +90,7 @@ int main() {
         std::thread::id threadId = std::this_thread::get_id();
 
         logger(threadId, "Event " + evt.type);
-        
+
         for (const auto &pair : evt.payload) {
             logger(threadId, "    " + pair.first + " " + pair.second);
         }
@@ -116,8 +117,8 @@ int main() {
 
     // this thread will continuouslys produce events until it gets the signal
     // feels hacky, as we are managing outside of the EventBus
-    std::thread producer([&eventBus, &count, &done](){
-        while(!done) {
+    std::thread producer([&eventBus, &count, &done]() {
+        while (!done) {
             EventPayload payload;
             payload["count"] = std::to_string(count);
 

@@ -5,10 +5,11 @@
 #include <cassert>
 
 Component::Component(MessageBus *messageBus, const ComponentRole &roleFlags) : messageBus(messageBus), roleFlags(roleFlags) {
-        assert(roleFlags);
-    }
+    assert(roleFlags);
+}
 
-Component::~Component() {}
+Component::~Component() {
+}
 
 void Component::start() {
     setRunnning(true);
@@ -55,7 +56,7 @@ bool Component::isRunning() const {
     return running;
 }
 
-MessageBus* Component::getMessageBus() {
+MessageBus *Component::getMessageBus() {
     return messageBus;
 }
 

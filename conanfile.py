@@ -4,7 +4,7 @@ from conan import ConanFile
 class xenoideRecipe(ConanFile):
     name = "xenoide"
     version = "0.1.0"  # version file (source of truth); tags are v0.x.y markers
-    python_requires = "xenoide-base/0.1.0"
+    python_requires = "xenoide-base/0.1.1"
     python_requires_extend = "xenoide-base.XenoideCMake"
     package_type = "application"
     build_info_prefix = "XE"
@@ -18,6 +18,7 @@ class xenoideRecipe(ConanFile):
 
     options = {
         "with_ide_winlamb": [True, False],
+        "with_ide_winlamb_unicode": [True, False],
         "with_ide_qt6": [True, False],
         "with_ide_wx3": [True, False],
         "with_ide_gtk4": [True, False],
@@ -26,7 +27,8 @@ class xenoideRecipe(ConanFile):
 
     default_options = {
         "with_ide_winlamb": False,
-        "with_ide_qt6": False,
+        "with_ide_winlamb_unicode": True,
+        "with_ide_qt6": True,
         "with_ide_wx3": False,
         "with_ide_gtk4": False,
         "with_ide_gtk3": False,
@@ -86,6 +88,7 @@ class xenoideRecipe(ConanFile):
     def xenoide_toolchain(self, tc):
         tc.variables["XE_ENABLE_IDE_WINLAMB"] = "ON" if self.options.get_safe("with_ide_winlamb") else "OFF"
         tc.variables["XE_ENABLE_IDE_QT6"] = "ON" if self.options.get_safe("with_ide_qt6") else "OFF"
+        tc.variables["XE_ENABLE_IDE_WINLAMB_UNICODE"] = "ON" if self.options.get_safe("with_ide_winlamb_unicode") else "OFF"
         tc.variables["XE_ENABLE_IDE_WX3"] = "ON" if self.options.get_safe("with_ide_wx3") else "OFF"
         tc.variables["XE_ENABLE_IDE_GTK4"] = "ON" if self.options.get_safe("with_ide_gtk4") else "OFF"
         tc.variables["XE_ENABLE_IDE_GTK3"] = "ON" if self.options.get_safe("with_ide_gtk3") else "OFF"

@@ -8,13 +8,13 @@
 namespace Xenoide {
     class MainApplication : public Gtk::Application {
     public:
-        MainApplication(int argc, char* argv[], const char *name);
+        MainApplication(int argc, char *argv[], const char *name);
 
-        static Glib::RefPtr<MainApplication> create(int argc, char* argv[], const char *name);
+        static Glib::RefPtr<MainApplication> create(int argc, char *argv[], const char *name);
 
     public:
         virtual void on_startup() override;
     };
-}
+} // namespace Xenoide
 
 #endif

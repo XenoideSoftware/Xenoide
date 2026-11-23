@@ -17,7 +17,7 @@ set (sources
 add_library(${target} ${sources})
 
 target_include_directories(${target} PUBLIC "src/")
-target_link_libraries(${target} PUBLIC xenoide-core)
+target_link_libraries(${target} PUBLIC xenoide-core xenoide::interface)
 
 if (XE_ENABLE_IDE_QT6)
     target_link_libraries(${target} PUBLIC xenoide-core scintilla lexilla)

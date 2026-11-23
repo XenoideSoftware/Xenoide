@@ -9,7 +9,11 @@ set (sources
 add_executable(${target} ${sources})
 
 target_include_directories(${target} PRIVATE "./src")
-target_link_libraries(${target} PRIVATE xenoide-ui-codeeditor)
+target_link_libraries(${target} PRIVATE
+    xenoide-ui-codeeditor
+    xenoide-core
+    xenoide::interface
+    Qt6::Core Qt6::Gui Qt6::Widgets)
 
 install (TARGETS ${target} 
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

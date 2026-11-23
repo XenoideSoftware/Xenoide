@@ -14,7 +14,7 @@ namespace {
         dialog.set_title("XenoideGTK");
         dialog.run();
     }
-}
+} // namespace
 
 namespace Xenoide {
     MainWindow::MainWindow() {
@@ -41,20 +41,18 @@ namespace Xenoide {
 
         add(paned);
         paned.show();
-       
+
         maximize();
     }
 
-
-    MainWindow::~MainWindow() {}
-
+    MainWindow::~MainWindow() {
+    }
 
     void MainWindow::on_action_file_new() {
         const std::string title = "Untitled " + std::to_string(m_untitledCounter++);
 
         documentManager.open_editor(title, title, "");
     }
-
 
     void MainWindow::on_action_file_open_project() {
         Gtk::FileChooserDialog dialog("Please choose a Folder", Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
@@ -69,7 +67,6 @@ namespace Xenoide {
             folderBrowser.displayFolder(folderPath);
         }
     }
-
 
     void MainWindow::on_action_file_save() {
         auto *editor = documentManager.get_current_editor();
@@ -95,7 +92,6 @@ namespace Xenoide {
         editor->set_dirty_flag(false);
     }
 
-
     void MainWindow::on_action_file_close() {
         auto *editor = documentManager.get_current_editor();
 
@@ -105,7 +101,6 @@ namespace Xenoide {
 
         documentManager.close_editor(*editor);
     }
-
 
     void MainWindow::on_action_file_open() {
         auto textFilter = Gtk::FileFilter::create();
@@ -125,7 +120,7 @@ namespace Xenoide {
 
         int result = dialog.run();
 
-        if (result == Gtk::RESPONSE_OK) {            
+        if (result == Gtk::RESPONSE_OK) {
             const std::string path = dialog.get_filename();
             const std::string name = fs::path(path).filename().string();
             std::string content;
@@ -138,7 +133,6 @@ namespace Xenoide {
             documentManager.open_editor(path, name, content);
         }
     }
-
 
     void MainWindow::on_action_file_save_as() {
         auto *editor = documentManager.get_current_editor();
@@ -185,11 +179,9 @@ namespace Xenoide {
         }
     }
 
-
     void MainWindow::on_action_file_exit() {
         hide();
     }
-
 
     void MainWindow::on_item_activated(std::string path) {
         if (fs::is_directory(path)) {
@@ -206,4 +198,4 @@ namespace Xenoide {
 
         documentManager.open_editor(path, name, content);
     }
-}
+} // namespace Xenoide

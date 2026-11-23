@@ -8,7 +8,7 @@
 
 using namespace Xenoide;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     auto app = MainApplication::create(argc, argv, "org.fapablazacl.XenoideGTK");
 
     MainWindow window;

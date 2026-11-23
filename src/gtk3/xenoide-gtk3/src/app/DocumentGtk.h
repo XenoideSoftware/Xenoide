@@ -15,10 +15,10 @@ namespace Xenoide {
      */
     class DocumentGtk : public Gtk::Bin {
     public:
-        DocumentGtk(const DocumentGtk&) = delete;
+        DocumentGtk(const DocumentGtk &) = delete;
 
         DocumentGtk(const std::string &key);
-        
+
         virtual ~DocumentGtk();
 
         void set_text(const std::string &text);
@@ -36,7 +36,7 @@ namespace Xenoide {
         bool get_dirty_flag() const;
 
         void on_text_buffer_changed();
-        
+
     private:
         std::string m_key;
         mutable bool m_dirty_flag = false;
@@ -48,6 +48,6 @@ namespace Xenoide {
     public:
         signal_editor_dirty_changed_t signal_editor_dirty_changed();
     };
-}
+} // namespace Xenoide
 
 #endif

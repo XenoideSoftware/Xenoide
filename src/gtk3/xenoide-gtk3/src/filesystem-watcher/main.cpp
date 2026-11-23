@@ -7,20 +7,13 @@
 #include <sys/inotify.h>
 #include <linux/limits.h>
 
-enum class FileEventType {
-    Created,
-    Deleted,
-    Renamed,
-    MovedIn,
-    MovedOut
-};
+enum class FileEventType { Created, Deleted, Renamed, MovedIn, MovedOut };
 
 struct FileEvent {
     FileEventType type = FileEventType::Created;
     std::string fileName;
     bool isFolder = false;
 };
-
 
 /*
 struct inotify_event {
@@ -32,44 +25,44 @@ struct inotify_event {
 };
 */
 
-
 std::string event_to_string(uint32_t mask) {
     switch (mask) {
-    case IN_ACCESS: return "IN_ACCESS";
-    case IN_ATTRIB: return "IN_ATTRIB";
-    case IN_CLOSE_WRITE: return "IN_CLOSE_WRITE";
-    case IN_CLOSE_NOWRITE: return "IN_CLOSE_NOWRITE";
-    case IN_CREATE: return "IN_CREATE";
-    case IN_DELETE: return "IN_DELETE";
-    case IN_DELETE_SELF: return "IN_DELETE_SELF";
-    case IN_MODIFY: return "IN_MODIFY";
-    case IN_MOVE_SELF: return "IN_MOVE_SELF";
-    case IN_MOVED_FROM: return "IN_MOVED_FROM";
-    case IN_MOVED_TO: return "IN_MOVED_TO";
-    case IN_OPEN: return "IN_OPEN";
-    case IN_ISDIR: return "IN_ISDIR";
-    default: return "UNKNOWN";
+    case IN_ACCESS:
+        return "IN_ACCESS";
+    case IN_ATTRIB:
+        return "IN_ATTRIB";
+    case IN_CLOSE_WRITE:
+        return "IN_CLOSE_WRITE";
+    case IN_CLOSE_NOWRITE:
+        return "IN_CLOSE_NOWRITE";
+    case IN_CREATE:
+        return "IN_CREATE";
+    case IN_DELETE:
+        return "IN_DELETE";
+    case IN_DELETE_SELF:
+        return "IN_DELETE_SELF";
+    case IN_MODIFY:
+        return "IN_MODIFY";
+    case IN_MOVE_SELF:
+        return "IN_MOVE_SELF";
+    case IN_MOVED_FROM:
+        return "IN_MOVED_FROM";
+    case IN_MOVED_TO:
+        return "IN_MOVED_TO";
+    case IN_OPEN:
+        return "IN_OPEN";
+    case IN_ISDIR:
+        return "IN_ISDIR";
+    default:
+        return "UNKNOWN";
     }
 }
 
 std::string mask_to_string(uint32_t mask) {
     std::string result;
 
-    const uint32_t elements[] = {
-        IN_ISDIR,
-        IN_ACCESS,
-        IN_ATTRIB,
-        IN_CLOSE_WRITE,
-        IN_CLOSE_NOWRITE,
-        IN_CREATE,
-        IN_DELETE,
-        IN_DELETE_SELF,
-        IN_MODIFY,
-        IN_MOVE_SELF,
-        IN_MOVED_FROM,
-        IN_MOVED_TO,
-        IN_OPEN
-    };
+    const uint32_t elements[] =
+        {IN_ISDIR, IN_ACCESS, IN_ATTRIB, IN_CLOSE_WRITE, IN_CLOSE_NOWRITE, IN_CREATE, IN_DELETE, IN_DELETE_SELF, IN_MODIFY, IN_MOVE_SELF, IN_MOVED_FROM, IN_MOVED_TO, IN_OPEN};
 
     for (uint32_t element : elements) {
         if (mask & element) {
@@ -93,7 +86,7 @@ void watch(const std::string &folder) {
 
     int current = 0;
 
-    while(true) {
+    while (true) {
         int n = read(inotfd, event_buffer, bufsize);
 
         std::cout << "Event(s) received:" << std::endl;
@@ -115,7 +108,7 @@ void watch(const std::string &folder) {
             std::cout << std::endl;
 
             offset += sizeof(inotify_event) + event->len;
-            event ++;
+            event++;
 
             current++;
         }
@@ -124,6 +117,6 @@ void watch(const std::string &folder) {
 
 int main() {
     watch("/home/fapablaza/Desktop");
-    
+
     return 0;
 }

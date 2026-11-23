@@ -9,7 +9,7 @@ namespace Xenoide {
         bool load(const std::string &path, std::string &content);
 
         bool save(const std::string &path, const std::string &content);
-    }
-}
+    } // namespace FileUtil
+} // namespace Xenoide
 
 #endif

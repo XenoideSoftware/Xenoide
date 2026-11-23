@@ -24,8 +24,8 @@ namespace {
 
 Message createMessage(MessageKind kind, MessageType type) {
     using std::chrono::duration_cast;
-    using std::chrono::system_clock;
     using std::chrono::milliseconds;
+    using std::chrono::system_clock;
 
     Message msg;
 
@@ -54,25 +54,18 @@ void logMessage(const Message &message) {
 
     std::stringstream ss;
 
-    ss  << "Message { "
-        << ".kind = " << message.kind << ", "
-        << ".uuid = " << message.uuid << ", "
-        << ".timestamp = " << message.timestamp << ", "
-        << ".type = " << message.type << ", "
-        << ".consumerId = " << message.consumerId 
-        << " }";
+    ss << "Message { " << ".kind = " << message.kind << ", " << ".uuid = " << message.uuid << ", " << ".timestamp = " << message.timestamp << ", " << ".type = " << message.type
+       << ", " << ".consumerId = " << message.consumerId << " }";
 
     logline(threadId, ss.str());
 }
 
-enum MessageType2 {
-    TICK = 1
-};
+enum MessageType2 { TICK = 1 };
 
 class LoggerComponent : public Component {
 public:
-    explicit LoggerComponent(MessageBus *messageBus) 
-        : Component(messageBus, ComponentRole::Consumer) {}
+    explicit LoggerComponent(MessageBus *messageBus) : Component(messageBus, ComponentRole::Consumer) {
+    }
 
     void consumerLoop() override {
         while (isRunning()) {
@@ -99,14 +92,13 @@ std::string to_string(const AppState &appState) {
     ss << ".running: " << appState.running << ", ";
     ss << ".maxTickCount: " << appState.maxTickCount << ", ";
     ss << ".currentTickCount: " << appState.currentTickCount << "}";
-    
+
     return ss.str();
 }
 
 class AppControlComponent : public Component {
 public:
-    explicit AppControlComponent(MessageBus *messageBus, AppState *appState) 
-        : Component(messageBus, ComponentRole::Consumer), appState(appState) {
+    explicit AppControlComponent(MessageBus *messageBus, AppState *appState) : Component(messageBus, ComponentRole::Consumer), appState(appState) {
 
         assert(appState);
     }
@@ -136,7 +128,8 @@ private:
 
 class TimerComponent : public Component {
 public:
-    TimerComponent(MessageBus *messageBus) : Component(messageBus, ComponentRole::Producer) {}
+    TimerComponent(MessageBus *messageBus) : Component(messageBus, ComponentRole::Producer) {
+    }
 
     void producerLoop() override {
         while (isRunning()) {

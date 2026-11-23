@@ -42,6 +42,6 @@ namespace Xenoide {
         // AKA Splitter
         Gtk::Paned paned;
     };
-}
+} // namespace Xenoide
 
 #endif

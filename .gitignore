@@ -11,10 +11,10 @@ tools/bootstrap-clang/prefix/
 gitrepos
 
 # Xenoide devkit
-.devkit/
-.deps/
-.conan2/
-.xenoide/
+/.devkit
+/.deps
+/.conan2
+/.xenoide
 
 # Build, analysis and generated artifacts
 build/

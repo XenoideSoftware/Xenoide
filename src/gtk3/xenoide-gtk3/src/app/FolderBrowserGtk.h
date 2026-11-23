@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 namespace Xenoide {
     /**
      * @brief FolderBrowserGtk that opens a "vanilla" project style (it just open a folder and shows it contents)
-     */ 
+     */
     class ProjectItemModel : public Gtk::TreeModel::ColumnRecord {
     public:
         ProjectItemModel() {
@@ -43,7 +43,7 @@ namespace Xenoide {
         signal_item_activated_t signal_item_activated();
 
     private:
-        void OnItemActivated(const Gtk::TreeModel::Path& treePath, Gtk::TreeViewColumn* column);
+        void OnItemActivated(const Gtk::TreeModel::Path &treePath, Gtk::TreeViewColumn *column);
 
         void OnItemSelected();
 
@@ -61,6 +61,6 @@ namespace Xenoide {
         Gtk::TreeView m_treeView;
         Glib::RefPtr<Gtk::TreeStore> m_refTreeStore;
     };
-}
+} // namespace Xenoide
 
 #endif

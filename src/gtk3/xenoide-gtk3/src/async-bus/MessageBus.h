@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <iosfwd>
 #include <string>
@@ -7,13 +7,9 @@
 #include <tuple>
 #include <set>
 
-enum class MessageKind {
-    Event,
-    Command,
-    Query
-};
+enum class MessageKind { Event, Command, Query };
 
-std::ostream& operator<< (std::ostream &os, MessageKind kind);
+std::ostream &operator<<(std::ostream &os, MessageKind kind);
 
 using MessageType = uint32_t;
 
@@ -25,18 +21,17 @@ struct Message {
     MessageKind kind = MessageKind::Event;
 
     //! Generated unique identifier
-    uint32_t uuid = 0;          
+    uint32_t uuid = 0;
 
     //! When it was created
-    uint64_t timestamp = 0;     
+    uint64_t timestamp = 0;
 
     //! The specific type of Event. Created dynamically
-    MessageType type = 0;          
+    MessageType type = 0;
 
     //! Who should carry on this Command or Query
-    uint32_t consumerId = 0;    
+    uint32_t consumerId = 0;
 };
-
 
 class MessageBus;
 
@@ -52,5 +47,5 @@ public:
     void publishMessage(const Message &message);
 
 private:
-    std::vector<std::pair<Component*, MessageTypeSet>> components;
+    std::vector<std::pair<Component *, MessageTypeSet>> components;
 };

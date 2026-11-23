@@ -23,9 +23,8 @@ namespace Xenoide {
         m_treeView.signal_row_activated().connect(sigc::mem_fun(*this, &FolderBrowserGtk::OnItemActivated));
     }
 
-
-    FolderBrowserGtk::~FolderBrowserGtk() {}
-
+    FolderBrowserGtk::~FolderBrowserGtk() {
+    }
 
     void FolderBrowserGtk::displayFolder(const std::string &projectPath) {
         // internal variable cleanup
@@ -47,7 +46,6 @@ namespace Xenoide {
         m_treeView.expand_row(treePath, false);
     }
 
-
     std::optional<std::string> FolderBrowserGtk::getSelectedPath() const {
         if (m_projectPath != "") {
             return m_projectPath;
@@ -56,25 +54,23 @@ namespace Xenoide {
         return {};
     }
 
-
     signal_item_activated_t FolderBrowserGtk::signal_item_activated() {
         return m_signal_item_activated;
     }
 
-    void FolderBrowserGtk::OnItemActivated(const Gtk::TreeModel::Path& treePath, Gtk::TreeViewColumn* column) {
+    void FolderBrowserGtk::OnItemActivated(const Gtk::TreeModel::Path &treePath, Gtk::TreeViewColumn *column) {
         Gtk::TreeModel::iterator iterator = m_treeView.get_model()->get_iter(treePath);
 
         if (!iterator) {
             return;
         }
-        
+
         Gtk::TreeModel::Row row = *iterator;
         std::string name = row[m_treeModel.m_itemName];
         std::string path = row[m_treeModel.m_itemPath];
 
         m_signal_item_activated(path);
     }
-
 
     void FolderBrowserGtk::OnItemSelected() {
         /*
@@ -115,4 +111,4 @@ namespace Xenoide {
             }
         }
     }
-}
+} // namespace Xenoide

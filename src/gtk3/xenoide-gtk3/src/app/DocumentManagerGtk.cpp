@@ -14,7 +14,8 @@ namespace Xenoide {
         m_notebook.show();
     }
 
-    DocumentManagerGtk::~DocumentManagerGtk() {}
+    DocumentManagerGtk::~DocumentManagerGtk() {
+    }
 
     void DocumentManagerGtk::open_editor(const std::string &key, const std::string &title, const std::string &content) {
         auto it = m_editors.find(key);
@@ -36,8 +37,7 @@ namespace Xenoide {
             m_notebook.append_page(*editor, *header);
             m_editors.insert({key, editor});
 
-            header->get_close_button()->signal_clicked().connect(
-                [this, editor]() { close_editor(*editor); });
+            header->get_close_button()->signal_clicked().connect([this, editor]() { close_editor(*editor); });
         } else {
             editor = it->second;
         }
@@ -46,8 +46,7 @@ namespace Xenoide {
         m_notebook.set_current_page(pageIndex);
     }
 
-
-    DocumentGtk* DocumentManagerGtk::get_current_editor() {
+    DocumentGtk *DocumentManagerGtk::get_current_editor() {
         const int pageIndex = m_notebook.get_current_page();
 
         if (pageIndex == -1) {
@@ -58,9 +57,8 @@ namespace Xenoide {
 
         assert(page);
 
-        return static_cast<DocumentGtk*>(page);
+        return static_cast<DocumentGtk *>(page);
     }
-
 
     void DocumentManagerGtk::change_editor_key(DocumentGtk &editor, const std::string &newKey, const std::string &newTitle) {
         const std::string oldKey = editor.get_key();
@@ -76,13 +74,12 @@ namespace Xenoide {
             editor.set_key(newKey);
         }
 
-        auto header = dynamic_cast<DocumentHeader*>(m_notebook.get_tab_label(editor));
+        auto header = dynamic_cast<DocumentHeader *>(m_notebook.get_tab_label(editor));
 
         if (header) {
             header->set_title(newTitle);
         }
     }
-
 
     void DocumentManagerGtk::close_editor(DocumentGtk &editor) {
         // cache the key before the editor widget gets destroyed by remove_page
@@ -90,7 +87,7 @@ namespace Xenoide {
 
         // remove from UI
         int pageIndex = -1;
-        for (int i=0; i<m_notebook.get_n_pages(); i++) {
+        for (int i = 0; i < m_notebook.get_n_pages(); i++) {
             if (&editor == m_notebook.get_nth_page(i)) {
                 pageIndex = i;
                 break;
@@ -105,8 +102,7 @@ namespace Xenoide {
         m_editors.erase(key);
     }
 
-
     signal_editor_closed_t DocumentManagerGtk::signal_editor_closed() {
         return m_signal_editor_closed;
     }
-}
+} // namespace Xenoide

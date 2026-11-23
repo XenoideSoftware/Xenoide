@@ -30,7 +30,6 @@ namespace Xenoide {
             return true;
         }
 
-
         bool save(const std::string &path, const std::string &content) {
             std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::trunc);
 
@@ -43,5 +42,5 @@ namespace Xenoide {
 
             return file.good();
         }
-    }
-}
+    } // namespace FileUtil
+} // namespace Xenoide

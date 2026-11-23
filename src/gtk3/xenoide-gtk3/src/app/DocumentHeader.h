@@ -18,7 +18,7 @@ namespace Xenoide {
 
         void set_title(const std::string &title);
 
-        Gtk::Button* get_close_button();
+        Gtk::Button *get_close_button();
 
     private:
         DocumentGtk &m_editor;
@@ -27,6 +27,6 @@ namespace Xenoide {
         Gtk::Label m_titleLabel;
         Gtk::Button m_closeButton;
     };
-}
+} // namespace Xenoide
 
 #endif

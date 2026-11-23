@@ -8,10 +8,7 @@
 #include <vector>
 #include <tuple>
 
-enum ComponentRole {
-    Consumer = 0x01,
-    Producer = 0x02
-};
+enum ComponentRole { Consumer = 0x01, Producer = 0x02 };
 
 struct Message;
 
@@ -34,14 +31,16 @@ public:
 
     bool isRunning() const;
 
-    MessageBus* getMessageBus();
+    MessageBus *getMessageBus();
 
     void setRunnning(bool value);
 
 protected:
-    virtual void producerLoop() {}
+    virtual void producerLoop() {
+    }
 
-    virtual void consumerLoop() {}
+    virtual void consumerLoop() {
+    }
 
 private:
     MessageBus *messageBus = nullptr;
