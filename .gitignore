@@ -1,0 +1,32 @@
+.cmake/
+.idea/
+cmake-*/
+build/*
+CMakeUserPresets.json
+.DS_Store
+.claude
+build*
+tools/bootstrap-clang/src/
+tools/bootstrap-clang/prefix/
+gitrepos
+
+# Xenoide devkit
+.devkit/
+.deps/
+.conan2/
+.xenoide/
+
+# Build, analysis and generated artifacts
+build/
+build-*/
+coverage/
+mutation/
+CMakeUserPresets.json
+compile_commands.json
+Testing/
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+__pycache__/
+*.pyc

@@ -1,0 +1,5 @@
+id,name,description
+editor,Code Editing,Text editing experience with language-aware features such as syntax highlighting and inline code information.
+debug,Debugging,Integrated debugger controls and views for inspecting and controlling native process execution.
+refactor,Refactoring,Structural code transformations backed by the LLVM/Clang toolchain.
+profile,Profiling,Performance profiling session management and results visualization for native applications.

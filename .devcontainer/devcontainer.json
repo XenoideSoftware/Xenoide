@@ -1,0 +1,30 @@
+{
+  "name": "xenoide-dev",
+  "image": "xenoide-dev:v0.1.0",
+  "workspaceMount": "source=${localWorkspaceFolder}/..,target=/workspace,type=bind",
+  "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined"
+  ],
+  "mounts": [
+    "source=xenoide-conan,target=/conan,type=volume"
+  ],
+  "containerEnv": {
+    "XENOIDE_CONAN_HOME": "/conan",
+    "XENOIDE_BUILD_ROOT": "build/devcontainer",
+    "XENOIDE_CONFIG": "clang-debug"
+  },
+  "postCreateCommand": "mise install && mise run setup",
+  "updateRemoteUserUID": true,
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "llvm-vs-code-extensions.vscode-clangd",
+        "vadimcn.vscode-lldb"
+      ]
+    }
+  }
+}

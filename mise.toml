@@ -1,0 +1,30 @@
+# Single configuration surface for this repository. `mise run setup` installs
+# everything from these pins; nothing tracks `main`.
+
+[env]
+DEVKIT_URL = "https://github.com/XenoideSoftware/devkit.git"
+DEVKIT_REF = "v0.1.0"
+RECIPES_REF = "v0.1.0"
+XENOIDE_PACKAGES = "cmake-checker@v0.1.0"
+CONAN_HOME = "{{ env.XENOIDE_CONAN_HOME | default(value=config_root ~ '/.conan2') }}"
+XENOIDE_BUILD_ROOT = "{{ env.XENOIDE_BUILD_ROOT | default(value='build') }}"
+
+[tools]
+cmake = "3.31.6"
+ninja = "1.12.1"
+python = "3.12.8"
+"pipx:conan" = "2.27.0"
+
+[task_config]
+includes = [".devkit/mise/tasks"]
+
+# These two tasks are the only ones that must not live behind `includes`,
+# because they run before `.devkit/` exists on a clean checkout.
+[tasks."devkit:sync"]
+description = "Check out (or link) the pinned devkit"
+run = "python mise/bootstrap.py sync"
+
+[tasks.setup]
+description = "Bootstrap the devkit and this repository"
+depends = ["devkit:sync"]
+run = "python mise/bootstrap.py setup"

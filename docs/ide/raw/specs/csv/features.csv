@@ -1,0 +1,21 @@
+id,category,name,required_state,next_state
+syntax_hightlighting,editor,Syntax Highlighting,,
+method_information_show,editor,Method Information Tooltip,,
+callstack_show,debug,Callstack View,Paused,Paused
+breakpoint_add,debug,Add Breakpoint,Any,Same
+breakpoint_remove,debug,Remove Breakpoint,Any,Same
+breakpoint_disable,debug,Disable Breakpoint,Any,Same
+start,debug,Start Debugging,Not Running,Running
+start_nd,debug,Start Without Debugging,Not Running,Running
+stop,debug,Stop Debugging,Running / Paused,Not Running
+pause,debug,Pause Execution,Running,Paused
+step_in,debug,Step Into,Paused,Paused
+step_out,debug,Step Out,Paused,Paused
+next_ln,debug,Next Line,Paused,Paused
+vars,debug,Variables Inspection,Paused,Paused
+mem_view,debug,Memory Addresses Visualization,Paused,Paused
+dissasembly_view,debug,Disassembly View,Paused,Paused
+rename_symbol,refactor,Rename Symbol,,
+move_implementation,refactor,Move Implementation to Source File,,
+extract_function,refactor,Extract Function / Method from Selection,,
+implement_class,refactor,Implement Abstract Methods,,

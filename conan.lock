@@ -1,0 +1,14 @@
+{
+    "version": "0.5",
+    "requires": [
+        "gsl-lite/1.1.0#20ab56f9fef38a579cc68df8191b26ca%1775731476.171",
+        "catch2/3.14.0#d82340ec56a54afe1932f1aa9c9d490c%1775578807.348"
+    ],
+    "build_requires": [
+        "cmake/4.5.0#24bd34291eb0f81c64854389dd6a216f%1794652026.685"
+    ],
+    "python_requires": [
+        "xenoide-base/0.1.0#08029148511e8c1348d2e8daed202a60%1795465791.2941017"
+    ],
+    "config_requires": []
+}
