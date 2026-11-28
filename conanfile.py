@@ -3,9 +3,7 @@ from conan import ConanFile
 
 class xenoideRecipe(ConanFile):
     name = "xenoide"
-    version = "0.1.0"  # version file (source of truth); tags are v0.x.y markers
-    python_requires = "xenoide-base/0.1.1"
-    python_requires_extend = "xenoide-base.XenoideCMake"
+    version = "0.1.0"
     package_type = "application"
     build_info_prefix = "XE"
 
@@ -27,16 +25,12 @@ class xenoideRecipe(ConanFile):
 
     default_options = {
         "with_ide_winlamb": False,
-        "with_ide_winlamb_unicode": True,
-        "with_ide_qt6": True,
+        "with_ide_winlamb_unicode": False,
+        "with_ide_qt6": False,
         "with_ide_wx3": False,
         "with_ide_gtk4": False,
         "with_ide_gtk3": False,
-        # Qt/cpython options moved out of the retired unix/windows profiles.
-        "qt/*:shared": True,
-        "qt/*:qt5compat": True,
-        "qt/*:qtshadertools": True,
-        "qt/*:with_sqlite3": False,
+
         "cpython/*:with_gdbm": False,
         "cpython/*:with_tkinter": False,
     }
