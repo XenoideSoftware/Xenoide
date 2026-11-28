@@ -1,15 +1,19 @@
+
 cmake_minimum_required (VERSION 3.25)
+
 project (Xenoide LANGUAGES CXX)
 
-include(XenoideConfig)
+set(CMAKE_CXX_STANDARD 23)
 
-set(XE_ENABLE_TESTING "${XENOIDE_ENABLE_TESTING}" CACHE BOOL "Enable the unit test suite" FORCE)
+option(XENOIDE_ENABLE_TESTING "Enable the unit test suite" OFF)
+option(XE_ENABLE_UI_QT6 "Enable Qt6 UI" OFF)
 
-option(XE_ENABLE_IDE_WINLAMB_UNICODE "Builds an UNICODE version. ANSI if OFF" ON)
-option(XE_ENABLE_IDE_WINLAMB "Enable WinLamb UI" OFF)
-option(XE_ENABLE_IDE_QT6 "Enable Qt6 UI" OFF)
-option(XE_ENABLE_IDE_WX3 "Enable wxWidgets3 UI" OFF)
-option(XE_ENABLE_IDE_GTK4 "Enable GTK4 UI" OFF)
-option(XE_ENABLE_IDE_GTK3 "Enable GTK3 UI" OFF)
+if (XENOIDE_ENABLE_TESTING)
+    find_package(Catch2 REQUIRED)
+endif()
+
+if (XE_ENABLE_UI_QT6)
+    find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+endif()
 
 add_subdirectory("src")

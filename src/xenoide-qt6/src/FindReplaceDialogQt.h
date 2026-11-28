@@ -1,0 +1,47 @@
+
+#pragma once
+
+#include <QWidget>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QPushButton>
+#include <QLabel>
+
+namespace xenoide {
+    class DocumentMdiSubWindowQt;
+    class FindReplaceDialogQt : public QWidget {
+        Q_OBJECT
+
+    public:
+        explicit FindReplaceDialogQt(QWidget *parent, DocumentMdiSubWindowQt *document);
+
+        virtual ~FindReplaceDialogQt();
+
+    private:
+        void setupSignals();
+
+        void setupLayout();
+
+    private:
+        QGroupBox *findReplaceGroupBox = nullptr;
+        QLabel *findWhatLabel = nullptr;
+        QLineEdit *findWhatEdit = nullptr;
+        QCheckBox *replaceWithCheckBox = nullptr;
+        QLineEdit *replaceWithEdit = nullptr;
+
+        QGroupBox *matchGroupBox = nullptr;
+        QCheckBox *matchCaseCheckBox = nullptr;
+        QCheckBox *matchWholeWordCheckBox = nullptr;
+
+        QGroupBox *scopeGroupBox = nullptr;
+        QRadioButton *scopeSelectionRadio = nullptr;
+        QRadioButton *scopeCurrentDocumentRadio = nullptr;
+
+        QPushButton *findNextButton = nullptr;
+        QPushButton *replaceNextButton = nullptr;
+        QPushButton *replaceAllButton = nullptr;
+        QPushButton *closeButton = nullptr;
+    };
+} // namespace xenoide
